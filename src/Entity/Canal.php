@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Enum\TipoContenido;
 use App\Repository\CanalRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CanalRepository::class)]
+#[ORM\Table(name: "canal", schema: "safatuber24")]
 class Canal
 {
     #[ORM\Id]
@@ -35,9 +35,6 @@ class Canal
 
     #[ORM\Column(length: 5000)]
     private ?string $foto = null;
-
-    #[ORM\Column()]
-    private ?TipoContenido $tipoContenido = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
@@ -128,17 +125,6 @@ class Canal
     public function setFoto(string $foto): static
     {
         $this->foto = $foto;
-
-        return $this;
-    }
-    public function getTipoContenido(): ?TipoContenido
-    {
-        return $this->tipoContenido;
-    }
-
-    public function setTipoContenido(TipoContenido $tipoContenido): static
-    {
-        $this->tipoContenido = $tipoContenido;
 
         return $this;
     }
