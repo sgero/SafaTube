@@ -4,10 +4,13 @@ namespace App\Entity;
 
 use App\Enum\TipoNotificacion;
 use App\Repository\NotificacionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NotificacionRepository::class)]
+#[ORM\Table(name: "notificacion", schema: "safatuber24")]
 class Notificacion
 {
     #[ORM\Id]
@@ -15,8 +18,7 @@ class Notificacion
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column()]
-    private ?TipoNotificacion $tipoNotificacion = null;
+
     #[ORM\Column(length: 200)]
     private ?string $mensaje = null;
 
@@ -27,22 +29,20 @@ class Notificacion
     #[ORM\JoinColumn(nullable: false)]
     private ?Canal $id_canal = null;
 
+
+
+
+
+
+
+
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTipoNotificacion(): ?TipoNotificacion
-    {
-        return $this->tipoNotificacion;
-    }
 
-    public function setTipoNotificacion(TipoNotificacion $tipoNotificacion): static
-    {
-        $this->tipoNotificacion = $tipoNotificacion;
-
-        return $this;
-    }
 
     public function getMensaje(): ?string
     {
@@ -79,4 +79,8 @@ class Notificacion
 
         return $this;
     }
+
+
+
+
 }
