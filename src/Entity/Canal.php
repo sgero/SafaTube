@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CanalRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -39,6 +41,15 @@ class Canal
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Usuario $id_usuario = null;
+
+    #[ORM\OneToMany(mappedBy: 'id_canal', targetEntity: Notificacion::class, orphanRemoval: true)]
+    private Collection $notificacions;
+
+    public function __construct()
+    {
+        $this->notificacions = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -129,6 +140,7 @@ class Canal
         return $this;
     }
 
+
     public function getIdUsuario(): ?usuario
     {
         return $this->id_usuario;
@@ -140,4 +152,36 @@ class Canal
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Notificacion>
+     */
+    public function getNotificacions(): Collection
+    {
+        return $this->notificacions;
+    }
+
+    public function addNotificacion(Notificacion $notificacion): static
+    {
+        if (!$this->notificacions->contains($notificacion)) {
+            $this->notificacions->add($notificacion);
+            $notificacion->setIdCanal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotificacion(Notificacion $notificacion): static
+    {
+        if ($this->notificacions->removeElement($notificacion)) {
+            // set the owning side to null (unless already changed)
+            if ($notificacion->getIdCanal() === $this) {
+                $notificacion->setIdCanal(null);
+            }
+        }
+
+        return $this;
+    }
+
+
 }
