@@ -30,3 +30,5 @@
 /.idea/SafaTube.iml
 /.idea/symfony2.xml
 /.idea/vcs.xml
+/.idea/dataSources.xml
+/.idea/php-test-framework.xml
