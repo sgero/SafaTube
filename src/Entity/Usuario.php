@@ -13,11 +13,14 @@ class Usuario
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 444444440)]
+    #[ORM\Column(length: 200)]
     private ?string $username = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 30)]
     private ?string $password = null;
+
+    #[ORM\Column]
+    private ?bool $es_admin = false;
 
     public function getId(): ?int
     {
@@ -44,6 +47,18 @@ class Usuario
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getEs_admin(): ?bool
+    {
+        return $this->es_admin;
+    }
+
+    public function setEs_admin(bool $es_admin): static
+    {
+        $this->$es_admin = $es_admin;
 
         return $this;
     }
