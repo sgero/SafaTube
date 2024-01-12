@@ -39,6 +39,7 @@ class Canal
     #[ORM\JoinColumn(nullable: false)]
     private ?Usuario $id_usuario = null;
 
+
     public function getId(): ?int
     {
         return $this->id;
@@ -139,4 +140,6 @@ class Canal
 
         return $this;
     }
+
+
 }
