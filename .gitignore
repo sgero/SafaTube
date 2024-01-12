@@ -23,3 +23,10 @@
 /public/assets/
 /assets/vendor
 ###< symfony/asset-mapper ###
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/php.xml
+/.idea/phpunit.xml
+/.idea/SafaTube.iml
+/.idea/symfony2.xml
+/.idea/vcs.xml
