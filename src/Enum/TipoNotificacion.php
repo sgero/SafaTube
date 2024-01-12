@@ -4,7 +4,7 @@ namespace App\Enum;
 
 enum TipoNotificacion: string{
 
-    case subscripcion = 'SUBSCRIPCION';
+    case suscripcion = 'SUSCRIPCION';
 
     case like = 'LIKE';
 
