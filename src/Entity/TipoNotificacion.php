@@ -43,12 +43,12 @@ class TipoNotificacion
 
     public function getIdNotificacion(): ?Notificacion
     {
-        return $this->id_notificacion;
+        return $this->notificacion;
     }
 
-    public function setIdNotificacion(?Notificacion $id_notificacion): static
+    public function setIdNotificacion(?Notificacion $notificacion): static
     {
-        $this->id_notificacion = $id_notificacion;
+        $this->notificacion = $notificacion;
 
         return $this;
     }

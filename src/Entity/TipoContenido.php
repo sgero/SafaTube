@@ -42,12 +42,12 @@ class TipoContenido
 
     public function getIdCanal(): ?Canal
     {
-        return $this->id_canal;
+        return $this->canal;
     }
 
-    public function setIdCanal(?Canal $id_canal): static
+    public function setIdCanal(?Canal $canal): static
     {
-        $this->id_canal = $id_canal;
+        $this->canal = $canal;
 
         return $this;
     }
