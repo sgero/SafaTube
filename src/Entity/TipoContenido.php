@@ -18,8 +18,8 @@ class TipoContenido
     private ?string $nombre = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Canal $id_canal = null;
+    #[ORM\JoinColumn(nullable: false, name: "id_canal")]
+    private ?Canal $canal = null;
 
 
 

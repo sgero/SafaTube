@@ -18,8 +18,8 @@ class TipoCategoria
     private ?string $nombre = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Video $id_video = null;
+    #[ORM\JoinColumn(nullable: false, name: "id_video")]
+    private ?Video $video = null;
 
     public function getId(): ?int
     {

@@ -18,8 +18,8 @@ class TipoNotificacion
     private ?string $nombre = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Notificacion $id_notificacion = null;
+    #[ORM\JoinColumn(nullable: false, name: "id_notificacion")]
+    private ?Notificacion $notificacion = null;
 
 
 
