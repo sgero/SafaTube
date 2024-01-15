@@ -34,6 +34,9 @@ class Video
     #[ORM\JoinColumn(nullable: false, name: "id_canal")]
     private ?Canal $canal = null;
 
+    #[ORM\Column(length: 10000)]
+    private ?string $enlace = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -107,6 +110,18 @@ class Video
     public function setCanal(?Canal $canal): static
     {
         $this->canal = $canal;
+
+        return $this;
+    }
+
+    public function getEnlace(): ?string
+    {
+        return $this->enlace;
+    }
+
+    public function setEnlace(string $enlace): static
+    {
+        $this->enlace = $enlace;
 
         return $this;
     }
