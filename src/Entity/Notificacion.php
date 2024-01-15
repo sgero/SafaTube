@@ -29,14 +29,6 @@ class Notificacion
     #[ORM\JoinColumn(nullable: false,name: 'id_canal')]
     private ?Canal $canal = null;
 
-
-
-
-
-
-
-
-
     public function getId(): ?int
     {
         return $this->id;
@@ -68,14 +60,14 @@ class Notificacion
         return $this;
     }
 
-    public function getIdCanal(): ?Canal
+    public function getCanal(): ?Canal
     {
-        return $this->id_canal;
+        return $this->canal;
     }
 
-    public function setIdCanal(?Canal $id_canal): static
+    public function setCanal(?Canal $canal): static
     {
-        $this->id_canal = $id_canal;
+        $this->canal = $canal;
 
         return $this;
     }

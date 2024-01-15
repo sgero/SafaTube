@@ -141,14 +141,14 @@ class Canal
     }
 
 
-    public function getIdUsuario(): ?usuario
+    public function getUsuario(): ?usuario
     {
-        return $this->id_usuario;
+        return $this->usuario;
     }
 
-    public function setIdUsuario(usuario $id_usuario): static
+    public function setUsuario(usuario $usuario): static
     {
-        $this->id_usuario = $id_usuario;
+        $this->usuario = $usuario;
 
         return $this;
     }

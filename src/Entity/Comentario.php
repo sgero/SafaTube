@@ -26,7 +26,7 @@ class Comentario
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_video")]
-    private ?Video $id_video = null;
+    private ?Video $video = null;
 
     public function getId(): ?int
     {
@@ -71,7 +71,7 @@ class Comentario
 
     public function getIdVideo(): ?Video
     {
-        return $this->id_video;
+        return $this->video;
     }
 
     public function setIdVideo(?Video $id_video): static
