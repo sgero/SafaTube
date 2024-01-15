@@ -32,7 +32,7 @@ class Video
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_canal")]
-    private ?Canal $id_canal = null;
+    private ?Canal $canal = null;
 
     public function getId(): ?int
     {
@@ -101,12 +101,12 @@ class Video
 
     public function getCanal(): ?Canal
     {
-        return $this->id_canal;
+        return $this->canal;
     }
 
-    public function setCanal(?Canal $id_canal): static
+    public function setCanal(?Canal $canal): static
     {
-        $this->id_canal = $id_canal;
+        $this->canal = $canal;
 
         return $this;
     }
