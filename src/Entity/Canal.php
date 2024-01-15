@@ -39,8 +39,8 @@ class Canal
     private ?string $foto = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Usuario $id_usuario = null;
+    #[ORM\JoinColumn(nullable: false, name: 'id_usuario')]
+    private ?Usuario $usuario = null;
 
     #[ORM\OneToMany(mappedBy: 'id_canal', targetEntity: Notificacion::class, orphanRemoval: true)]
     private Collection $notificacions;

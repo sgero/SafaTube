@@ -22,8 +22,8 @@ class Token
     private ?\DateTimeInterface $fecha_expiracion = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Usuario $id_usuario = null;
+    #[ORM\JoinColumn(nullable: false, name: 'id_usuario')]
+    private ?Usuario $usuario = null;
 
     public function getId(): ?int
     {

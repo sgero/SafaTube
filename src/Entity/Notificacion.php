@@ -26,8 +26,8 @@ class Notificacion
     private ?\DateTimeInterface $fecha = null;
 
     #[ORM\ManyToOne(inversedBy: 'notificacions')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Canal $id_canal = null;
+    #[ORM\JoinColumn(nullable: false,name: 'id_canal')]
+    private ?Canal $canal = null;
 
 
 
