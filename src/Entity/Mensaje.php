@@ -18,16 +18,16 @@ class Mensaje
     #[ORM\Column(length: 500)]
     private ?string $texto = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_usuario_emisor")]
-    private ?Usuario $id_usuario_emisor = null;
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_canal_receptor")]
-    private ?Canal $id_canal_receptor = null;
-
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_usuario_emisor")]
+    private ?Usuario $usuario_emisor = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_usuario_receptor")]
+    private ?Usuario $usuario_receptor = null;
 
     public function getId(): ?int
     {
@@ -46,30 +46,6 @@ class Mensaje
         return $this;
     }
 
-    public function getIdUsuarioEmisor(): ?Usuario
-    {
-        return $this->id_usuario_emisor;
-    }
-
-    public function setIdUsuarioEmisor(?Usuario $id_usuario_emisor): static
-    {
-        $this->id_usuario_emisor = $id_usuario_emisor;
-
-        return $this;
-    }
-
-    public function getIdCanalReceptor(): ?Canal
-    {
-        return $this->id_canal_receptor;
-    }
-
-    public function setIdCanalReceptor(?Canal $id_canal_receptor): static
-    {
-        $this->id_canal_receptor = $id_canal_receptor;
-
-        return $this;
-    }
-
     public function getFecha(): ?\DateTimeInterface
     {
         return $this->fecha;
@@ -78,6 +54,30 @@ class Mensaje
     public function setFecha(\DateTimeInterface $fecha): static
     {
         $this->fecha = $fecha;
+
+        return $this;
+    }
+
+    public function getUsuarioEmisor(): ?Usuario
+    {
+        return $this->usuario_emisor;
+    }
+
+    public function setUsuarioEmisor(?Usuario $usuario_emisor): static
+    {
+        $this->usuario_emisor = $usuario_emisor;
+
+        return $this;
+    }
+
+    public function getUsuarioReceptor(): ?Usuario
+    {
+        return $this->usuario_receptor;
+    }
+
+    public function setUsuarioReceptor(?Usuario $usuario_receptor): static
+    {
+        $this->usuario_receptor = $usuario_receptor;
 
         return $this;
     }
