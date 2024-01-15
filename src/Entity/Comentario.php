@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ComentarioRepository::class)]
+#[ORM\Table(name: "comentario", schema: "safatuber24")]
 class Comentario
 {
     #[ORM\Id]
@@ -24,8 +25,8 @@ class Comentario
     private ?bool $activo = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?video $id_video = null;
+    #[ORM\JoinColumn(nullable: false, name: "id_video")]
+    private ?Video $id_video = null;
 
     public function getId(): ?int
     {
@@ -68,12 +69,12 @@ class Comentario
         return $this;
     }
 
-    public function getIdVideo(): ?video
+    public function getIdVideo(): ?Video
     {
         return $this->id_video;
     }
 
-    public function setIdVideo(?video $id_video): static
+    public function setIdVideo(?Video $id_video): static
     {
         $this->id_video = $id_video;
 
