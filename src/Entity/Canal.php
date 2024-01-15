@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Enum\TipoContenido;
 use App\Repository\CanalRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -38,8 +37,6 @@ class Canal
 
     #[ORM\Column(length: 5000)]
     private ?string $foto = null;
-
-
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
