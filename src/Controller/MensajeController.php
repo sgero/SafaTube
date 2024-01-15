@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Mensaje;
+use App\Repository\MensajeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -9,11 +11,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class MensajeController extends AbstractController
 {
     #[Route('', name: 'api_mensaje_list', methods: ['GET'])]
-    public function list(Mensa $mensajeRepository): JsonResponse
+    public function list(MensajeRepository $mensajeRepository): JsonResponse
     {
         $mensajes = $mensajeRepository->findAll();
     
-        return $this->json($monitores);
+        return $this->json($mensajes);
     }
 
 }
