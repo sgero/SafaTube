@@ -20,7 +20,7 @@ class Usuario
     #[ORM\Column(length: 30)]
     private ?string $password = null;
 
-    #[ORM\Column]
+    #[ORM\Column(name: 'es_admin')]
     private ?bool $es_admin = false;
 
     public function getId(): ?int
