@@ -74,9 +74,9 @@ class Comentario
         return $this->video;
     }
 
-    public function setIdVideo(?Video $id_video): static
+    public function setIdVideo(?Video $video): static
     {
-        $this->id_video = $id_video;
+        $this->video = $video;
 
         return $this;
     }

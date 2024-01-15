@@ -16,11 +16,11 @@ class Suscripcion
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_usuario_suscriptor")]
-    private ?Usuario $id_usuario_suscriptor = null;
+    private ?Usuario $usuario_suscriptor = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_canal_suscrito")]
-    private ?Canal $id_canal_suscrito = null;
+    private ?Canal $canal_suscrito = null;
 
     public function getId(): ?int
     {
@@ -29,24 +29,24 @@ class Suscripcion
 
     public function getIdUsuarioSuscriptor(): ?Usuario
     {
-        return $this->id_usuario_suscriptor;
+        return $this->usuario_suscriptor;
     }
 
-    public function setIdUsuarioSuscriptor(?Usuario $id_usuario_suscriptor): static
+    public function setIdUsuarioSuscriptor(?Usuario $usuario_suscriptor): static
     {
-        $this->id_usuario_suscriptor = $id_usuario_suscriptor;
+        $this->usuario_suscriptor = $usuario_suscriptor;
 
         return $this;
     }
 
     public function getIdCanalSuscrito(): ?Canal
     {
-        return $this->id_canal_suscrito;
+        return $this->canal_suscrito;
     }
 
-    public function setIdCanalSuscrito(?Canal $id_canal_suscrito): static
+    public function setIdCanalSuscrito(?Canal $canal_suscrito): static
     {
-        $this->id_canal_suscrito = $id_canal_suscrito;
+        $this->canal_suscrito = $canal_suscrito;
 
         return $this;
     }
