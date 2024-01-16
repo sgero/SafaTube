@@ -19,11 +19,9 @@ class Like
     private ?Usuario $usuario = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
     private ?Video $video = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
     private ?Comentario $comentario = null;
 
     public function getId(): ?int
