@@ -23,6 +23,9 @@
 /public/assets/
 /assets/vendor
 ###< symfony/asset-mapper ###
+
+.idea
+
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/php.xml
