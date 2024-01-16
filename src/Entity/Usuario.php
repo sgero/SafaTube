@@ -20,8 +20,8 @@ class Usuario
     #[ORM\Column(length: 30)]
     private ?string $password = null;
 
-    #[ORM\Column]
-    private ?bool $es_admin = false;
+    #[ORM\Column(name: 'es_admin')]
+    private ?bool $admin = false;
 
     public function getId(): ?int
     {
@@ -52,14 +52,14 @@ class Usuario
         return $this;
     }
 
-    public function getEs_admin(): ?bool
+    public function getAdmin(): ?bool
     {
-        return $this->es_admin;
+        return $this->admin;
     }
 
-    public function setEs_admin(bool $es_admin): static
+    public function setAdmin(bool $admin): static
     {
-        $this->$es_admin = $es_admin;
+        $this->$admin = $admin;
 
         return $this;
     }
