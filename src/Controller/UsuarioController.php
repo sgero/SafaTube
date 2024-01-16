@@ -23,11 +23,10 @@ class UsuarioController extends AbstractController
         return $this->json($list);
     }
 
-    #[Route('/{id}', name: "clase_by_id", methods: ["GET"])]
+    #[Route('/{id}', name: "usuario_by_id", methods: ["GET"])]
     public function getById(Usuario $usuario):JsonResponse
     {
         return $this->json($usuario);
-
     }
 
     #[Route('', name: "crear_usuario", methods: ["POST"])]
