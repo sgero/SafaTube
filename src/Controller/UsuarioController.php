@@ -37,7 +37,6 @@ class UsuarioController extends AbstractController
         $nuevoUsuario->setUsername($json["username"]);
         $nuevoUsuario->setPassword($json["password"]);
 
-
         $entityManager->persist($nuevoUsuario);
         $entityManager->flush();
 

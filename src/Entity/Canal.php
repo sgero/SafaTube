@@ -42,7 +42,7 @@ class Canal
     #[ORM\JoinColumn(nullable: false, name: 'id_usuario')]
     private ?Usuario $usuario = null;
 
-    #[ORM\OneToMany(mappedBy: 'id_canal', targetEntity: Notificacion::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'canal', targetEntity: Notificacion::class, orphanRemoval: true)]
     private Collection $notificacions;
 
     public function __construct()

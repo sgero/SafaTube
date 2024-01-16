@@ -59,7 +59,7 @@ class Usuario
 
     public function setAdmin(bool $admin): static
     {
-        $this->$admin = $admin;
+        $this->admin = $admin;
 
         return $this;
     }
