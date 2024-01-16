@@ -15,7 +15,7 @@ class Like
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_usuario")]
     private ?Usuario $usuario = null;
 
     #[ORM\ManyToOne]
