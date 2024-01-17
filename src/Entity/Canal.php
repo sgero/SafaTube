@@ -45,6 +45,10 @@ class Canal
     #[ORM\OneToMany(mappedBy: 'canal', targetEntity: Notificacion::class, orphanRemoval: true)]
     private Collection $notificacions;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?TipoContenido $tipoContenido = null;
+
     public function __construct()
     {
         $this->notificacions = new ArrayCollection();
@@ -183,5 +187,16 @@ class Canal
         return $this;
     }
 
+    public function getTipoContenido(): ?TipoContenido
+    {
+        return $this->tipoContenido;
+    }
+
+    public function setTipoContenido(?TipoContenido $tipoContenido): static
+    {
+        $this->tipoContenido = $tipoContenido;
+
+        return $this;
+    }
 
 }
