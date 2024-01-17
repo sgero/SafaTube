@@ -29,6 +29,10 @@ class Notificacion
     #[ORM\JoinColumn(nullable: false,name: 'id_canal')]
     private ?Canal $canal = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_notificacion")]
+    private ?self $tipoNotificacion = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -68,6 +72,18 @@ class Notificacion
     public function setCanal(?Canal $canal): static
     {
         $this->canal = $canal;
+
+        return $this;
+    }
+
+    public function getTipoNotificacion(): ?self
+    {
+        return $this->tipoNotificacion;
+    }
+
+    public function setTipoNotificacion(?self $tipoNotificacion): static
+    {
+        $this->tipoNotificacion = $tipoNotificacion;
 
         return $this;
     }

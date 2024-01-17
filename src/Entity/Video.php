@@ -41,6 +41,10 @@ class Video
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_categoria")]
     private ?TipoCategoria $tipoCategoria = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_privacidad")]
+    private ?TipoPrivacidad $tipoPrivacidad = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -139,6 +143,18 @@ class Video
     public function setTipoCategoria(?TipoCategoria $tipoCategoria): static
     {
         $this->tipoCategoria = $tipoCategoria;
+
+        return $this;
+    }
+
+    public function getTipoPrivacidad(): ?TipoPrivacidad
+    {
+        return $this->tipoPrivacidad;
+    }
+
+    public function setTipoPrivacidad(?TipoPrivacidad $tipoPrivacidad): static
+    {
+        $this->tipoPrivacidad = $tipoPrivacidad;
 
         return $this;
     }
