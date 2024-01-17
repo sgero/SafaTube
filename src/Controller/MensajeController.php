@@ -38,9 +38,9 @@ class MensajeController extends AbstractController
         $mensaje->setTexto($data['texto']);
         $mensaje->setFecha($data['fecha']);
 
-        $usuarioemisor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario_emisor"]]);
+        $usuarioemisor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_emisor"]]);
         $mensaje->setUsuarioEmisor($usuarioemisor[0]);
-        $usuarioreceptor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario_receptor"]]);
+        $usuarioreceptor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_receptor"]]);
         $mensaje->setUsuarioReceptor($usuarioreceptor[0]);
 
 
