@@ -17,12 +17,6 @@ class TipoContenido
     #[ORM\Column(length: 100)]
     private ?string $nombre = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_canal")]
-    private ?Canal $canal = null;
-
-
-
     public function getId(): ?int
     {
         return $this->id;
@@ -39,18 +33,4 @@ class TipoContenido
 
         return $this;
     }
-
-    public function getIdCanal(): ?Canal
-    {
-        return $this->canal;
-    }
-
-    public function setIdCanal(?Canal $canal): static
-    {
-        $this->canal = $canal;
-
-        return $this;
-    }
-
-
 }
