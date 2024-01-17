@@ -34,17 +34,18 @@ class VideoController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $video = new Video();
-        $video->setTitulo($data['titulo']);
-        $video->setDescripcion($data['descripcion']);
-        $video->setDuracion($data['duracion']);
-        $video->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
-        $video->setEnlace($data['enlace']);
+        $videoNuevo = new Video();
+        $videoNuevo->setTitulo($data['titulo']);
+        $videoNuevo->setDescripcion($data['descripcion']);
+        $videoNuevo->setDuracion($data['duracion']);
+        $videoNuevo->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
+        $videoNuevo->setEnlace($data['enlace']);
+        $videoNuevo->setActivo(true);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["id_canal"]]);
-        $video->setCanal($canal[0]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
+        $videoNuevo->setCanal($canal[0]);
 
-        $entityManager->persist($video);
+        $entityManager->persist($videoNuevo);
         $entityManager->flush();
 
         return $this->json(['message' => 'Video creado correctamente'], Response::HTTP_CREATED);
@@ -61,7 +62,7 @@ class VideoController extends AbstractController
         $video->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $video->setEnlace($data['enlace']);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["id_canal"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
         $video->setCanal($canal[0]);
 
         $entityManager->flush();

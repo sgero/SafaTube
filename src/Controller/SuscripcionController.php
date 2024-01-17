@@ -37,15 +37,15 @@ class SuscripcionController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $suscripcion = new Suscripcion();
+        $nuevaSuscripcion= new Suscripcion();
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario_suscriptor"]]);
-        $suscripcion->setIdUsuarioSuscriptor($usuario[0]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_suscriptor"]]);
+        $nuevaSuscripcion->setIdUsuarioSuscriptor($usuario[0]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["id_canal_suscrito"]]);
-        $suscripcion->setIdCanalSuscrito($canal[0]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal_suscrito"]]);
+        $nuevaSuscripcion->setIdCanalSuscrito($canal[0]);
 
-        $entityManager->persist($suscripcion);
+        $entityManager->persist($nuevaSuscripcion);
         $entityManager->flush();
 
         return $this->json(['message' => 'Suscripción creada correctamente'], Response::HTTP_CREATED);
@@ -56,10 +56,10 @@ class SuscripcionController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario_suscriptor"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_suscriptor"]]);
         $suscripcion->setIdUsuarioSuscriptor($usuario[0]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["id_canal_suscrito"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal_suscrito"]]);
         $suscripcion->setIdCanalSuscrito($canal[0]);
 
         $entityManager->flush();
