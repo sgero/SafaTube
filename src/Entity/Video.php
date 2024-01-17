@@ -38,12 +38,13 @@ class Video
     private ?string $enlace = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_tipo_categoria")]
+    #[ORM\JoinColumn(nullable: false)]
     private ?TipoCategoria $tipoCategoria = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_tipo_privacidad")]
+    #[ORM\JoinColumn(nullable: false)]
     private ?TipoPrivacidad $tipoPrivacidad = null;
+
 
     public function getId(): ?int
     {
@@ -158,4 +159,6 @@ class Video
 
         return $this;
     }
+
+
 }

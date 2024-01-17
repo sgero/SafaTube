@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Enum\TipoNotificacion;
 use App\Repository\NotificacionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -30,8 +29,8 @@ class Notificacion
     private ?Canal $canal = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_tipo_notificacion")]
-    private ?self $tipoNotificacion = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private ?TipoNotificacion $tipoNotificacion = null;
 
     public function getId(): ?int
     {
@@ -76,17 +75,19 @@ class Notificacion
         return $this;
     }
 
-    public function getTipoNotificacion(): ?self
+    public function getTipoNotificacion(): ?TipoNotificacion
     {
         return $this->tipoNotificacion;
     }
 
-    public function setTipoNotificacion(?self $tipoNotificacion): static
+    public function setTipoNotificacion(?TipoNotificacion $tipoNotificacion): static
     {
         $this->tipoNotificacion = $tipoNotificacion;
 
         return $this;
     }
+
+
 
 
 
