@@ -37,6 +37,10 @@ class Video
     #[ORM\Column(length: 10000)]
     private ?string $enlace = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_privacidad")]
+    private ?TipoPrivacidad $tipoPrivacidad = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -123,6 +127,18 @@ class Video
     public function setEnlace(string $enlace): static
     {
         $this->enlace = $enlace;
+
+        return $this;
+    }
+
+    public function getTipoPrivacidad(): ?TipoPrivacidad
+    {
+        return $this->tipoPrivacidad;
+    }
+
+    public function setTipoPrivacidad(?TipoPrivacidad $tipoPrivacidad): static
+    {
+        $this->tipoPrivacidad = $tipoPrivacidad;
 
         return $this;
     }

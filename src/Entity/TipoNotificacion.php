@@ -17,13 +17,6 @@ class TipoNotificacion
     #[ORM\Column(length: 100)]
     private ?string $nombre = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_notificacion")]
-    private ?Notificacion $notificacion = null;
-
-
-
-
     public function getId(): ?int
     {
         return $this->id;
@@ -40,19 +33,4 @@ class TipoNotificacion
 
         return $this;
     }
-
-    public function getIdNotificacion(): ?Notificacion
-    {
-        return $this->notificacion;
-    }
-
-    public function setIdNotificacion(?Notificacion $notificacion): static
-    {
-        $this->notificacion = $notificacion;
-
-        return $this;
-    }
-
-
-
 }

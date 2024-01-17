@@ -17,10 +17,6 @@ class TipoPrivacidad
     #[ORM\Column(length: 50)]
     private ?string $nombre = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, name: "id_video")]
-    private ?Video $video = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -34,18 +30,6 @@ class TipoPrivacidad
     public function setNombre(string $nombre): static
     {
         $this->nombre = $nombre;
-
-        return $this;
-    }
-
-    public function getIdVideo(): ?Video
-    {
-        return $this->video;
-    }
-
-    public function setIdVideo(?Video $video): static
-    {
-        $this->video = $video;
 
         return $this;
     }
