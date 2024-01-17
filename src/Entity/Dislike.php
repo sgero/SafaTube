@@ -15,13 +15,15 @@ class Dislike
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_usuario")]
     private ?Usuario $usuario = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_video")]
     private ?Video $video = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_comentario")]
     private ?Comentario $comentario = null;
 
     public function getId(): ?int

@@ -18,7 +18,7 @@ class Mensaje
     #[ORM\Column(length: 500)]
     private ?string $texto = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
 
     #[ORM\ManyToOne]
@@ -46,14 +46,14 @@ class Mensaje
         return $this;
     }
 
-    public function getFecha(): ?\DateTimeInterface
+    public function getFecha(): ?string
     {
-        return $this->fecha;
+        return $this->fecha->format('d/m/Y H:i:s');
     }
 
-    public function setFecha(\DateTimeInterface $fecha): static
+    public function setFecha(string $fecha): static
     {
-        $this->fecha = $fecha;
+        $this->fecha = \DateTime::createFromFormat('d/m/Y H:i:s',$fecha);
 
         return $this;
     }
