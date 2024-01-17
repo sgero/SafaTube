@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class UsuarioController extends AbstractController
 {
 
-    #[Route('', name: "usuario_list", methods: ["GET"])]
+    #[Route('/listar', name: "usuario_list", methods: ["GET"])]
     public function list(UsuarioRepository $usuarioRepository):JsonResponse
     {
         $list = $usuarioRepository->findAll();
@@ -23,13 +23,13 @@ class UsuarioController extends AbstractController
         return $this->json($list);
     }
 
-    #[Route('/{id}', name: "usuario_by_id", methods: ["GET"])]
+    #[Route('/get/{id}', name: "usuario_by_id", methods: ["GET"])]
     public function getById(Usuario $usuario):JsonResponse
     {
         return $this->json($usuario);
     }
 
-    #[Route('', name: "crear_usuario", methods: ["POST"])]
+    #[Route('/crear', name: "crear_usuario", methods: ["POST"])]
     public function crear(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $json = json_decode($request-> getContent(), true);
@@ -43,8 +43,7 @@ class UsuarioController extends AbstractController
         return $this->json(['message' => 'Usuario creado'], Response::HTTP_CREATED);
     }
 
-
-    #[Route('/{id}', name: "editar_usuario", methods: ["PUT"])]
+    #[Route('/editar/{id}', name: "editar_usuario", methods: ["PUT"])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Usuario $usuario):JsonResponse
     {
         $json = json_decode($request-> getContent(), true);
@@ -57,7 +56,7 @@ class UsuarioController extends AbstractController
         return $this->json(['message' => 'Usuario modificado'], Response::HTTP_OK);
     }
 
-    #[Route('/{id}', name: "delete_by_id", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "delete_by_id", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Usuario $usuario):JsonResponse
     {
         $entityManager->remove($usuario);
