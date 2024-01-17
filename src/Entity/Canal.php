@@ -46,7 +46,7 @@ class Canal
     private Collection $notificacions;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_contenido")]
     private ?TipoContenido $tipoContenido = null;
 
     public function __construct()
