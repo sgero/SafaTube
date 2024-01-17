@@ -47,12 +47,12 @@ class Comentario
 
     public function getFecha(): ?\DateTimeInterface
     {
-        return $this->fecha;
+        return $this->fecha->format('d/m/Y H:i:s');;
     }
 
     public function setFecha(\DateTimeInterface $fecha): static
     {
-        $this->fecha = $fecha;
+        $this->fecha =\DateTime::createFromFormat('d/m/Y H:i:s',$fecha);
 
         return $this;
     }

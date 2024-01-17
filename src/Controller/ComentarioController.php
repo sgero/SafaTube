@@ -38,15 +38,15 @@ class ComentarioController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $comentario = new Comentario();
+        $nuevoComentario = new Comentario();
 
-        $comentario->setTexto($data['texto']);
-        $comentario->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
+        $nuevoComentario->setTexto($data['texto']);
+        $nuevoComentario->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
 
         $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id_video"]]);
-        $comentario->setIdVideo($video[0]);
+        $nuevoComentario->setIdVideo($video[0]);
 
-        $entityManager->persist($comentario);
+        $entityManager->persist($nuevoComentario);
         $entityManager->flush();
 
         return $this->json(['message' => 'Comentario creado correctamente'], Response::HTTP_CREATED);
