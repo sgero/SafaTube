@@ -39,7 +39,7 @@ class NotificacionController extends AbstractController
         $nuevaNotificacion->setMensaje($json["mensaje"]);
         $nuevaNotificacion->setFecha($json["fecha"]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["id_canal"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["canal"]]);
         $nuevaNotificacion->setCanal($canal[0]);
 
         $entityManager->persist($nuevaNotificacion);
@@ -58,7 +58,7 @@ class NotificacionController extends AbstractController
         $nuevaNotificacion->setMensaje($json["mensaje"]);
         $nuevaNotificacion->setFecha($json["fecha"]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["id_canal"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["canal"]]);
         $nuevaNotificacion->setCanal($canal[0]);
 
         $entityManager->flush();

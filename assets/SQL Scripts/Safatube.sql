@@ -20,6 +20,7 @@ CREATE TABLE usuario(
                         username varchar(50) UNIQUE not null,
                         password varchar(50) not null,
                         es_admin boolean not null,
+                        activo bool not null default true,
                         primary key (id)
 );
 
@@ -44,6 +45,7 @@ create table canal(
                       fecha_nacimiento date not null,
                       telefono varchar(12) not null,
                       foto varchar(2000) not null,
+                      activo bool not null default true,
                       id_usuario int not null,
                       id_tipo_contenido int not null,
                       primary key (id),
@@ -104,7 +106,7 @@ create table video(
 create table comentario(
                            id serial,
                            texto varchar(400) not null,
-                           fecha date not null,
+                           fecha timestamp(6) not null,
                            activo bool not null default true,
                            id_video int not null,
                            primary key (id),
@@ -114,12 +116,15 @@ create table comentario(
 create table mensaje(
                         id serial,
                         texto varchar(500) not null,
+                        fecha timestamp(6) not null,
                         id_usuario_emisor int not null,
-                        id_canal_receptor int not null,
+                        id_usuario_receptor int not null,
                         primary key (id),
                         constraint fk_mensaje_usuario_emisor foreign key (id_usuario_emisor) references usuario(id),
-                        constraint fk_mensaje_canal_receptor foreign key (id_canal_receptor) references canal(id)
+                        constraint fk_mensaje_usuario_receptor foreign key (id_usuario_receptor) references usuario(id)
 );
+
+
 
 create table lista_reproduccion(
                                    id serial,
