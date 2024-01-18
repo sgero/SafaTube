@@ -21,7 +21,7 @@ class Notificacion
     #[ORM\Column(length: 200)]
     private ?string $mensaje = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
 
     #[ORM\ManyToOne(inversedBy: 'notificacions')]
@@ -29,7 +29,7 @@ class Notificacion
     private ?Canal $canal = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_notificacion")]
     private ?TipoNotificacion $tipoNotificacion = null;
 
     public function getId(): ?int
@@ -51,14 +51,14 @@ class Notificacion
         return $this;
     }
 
-    public function getFecha(): ?\DateTimeInterface
+    public function getFecha(): ?string
     {
-        return $this->fecha;
+        return $this->fecha->format('d/m/Y H:i:s');
     }
 
-    public function setFecha(\DateTimeInterface $fecha): static
+    public function setFecha(string $fecha): static
     {
-        $this->fecha = $fecha;
+        $this->fecha = \DateTime::createFromFormat('d/m/Y H:i:s',$fecha);
 
         return $this;
     }

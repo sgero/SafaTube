@@ -6,6 +6,7 @@ use App\Repository\TipoNotificacionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TipoNotificacionRepository::class)]
+#[ORM\Table(name: "Tipo_notificacion", schema: "safatuber24")]
 class TipoNotificacion
 {
     #[ORM\Id]

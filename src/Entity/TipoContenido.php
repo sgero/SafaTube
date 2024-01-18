@@ -6,6 +6,7 @@ use App\Repository\TipoContenidoRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TipoContenidoRepository::class)]
+#[ORM\Table(name: "tipo_contenido", schema: "safatuber24")]
 class TipoContenido
 {
     #[ORM\Id]

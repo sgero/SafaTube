@@ -42,11 +42,10 @@ class Canal
     #[ORM\JoinColumn(nullable: false, name: 'id_usuario')]
     private ?Usuario $usuario = null;
 
-    #[ORM\OneToMany(mappedBy: 'canal', targetEntity: Notificacion::class, orphanRemoval: true)]
-    private Collection $notificacions;
+
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_contenido")]
     private ?TipoContenido $tipoContenido = null;
 
 
@@ -109,14 +108,14 @@ class Canal
         return $this;
     }
 
-    public function getFechaNacimiento(): ?\DateTimeInterface
+    public function getFechaNacimiento(): ?string
     {
-        return $this->fecha_nacimiento;
+        return $this->fecha_nacimiento->format('d/m/Y');
     }
 
-    public function setFechaNacimiento(\DateTimeInterface $fecha_nacimiento): static
+    public function setFechaNacimiento(string $fecha_nacimiento): static
     {
-        $this->fecha_nacimiento = $fecha_nacimiento;
+        $this->fecha_nacimiento = \DateTime::createFromFormat('d/m/Y',$fecha_nacimiento);
 
         return $this;
     }
@@ -158,35 +157,7 @@ class Canal
         return $this;
     }
 
-    /**
-     * @return Collection<int, Notificacion>
-     */
-    public function getNotificacions(): Collection
-    {
-        return $this->notificacions;
-    }
 
-    public function addNotificacion(Notificacion $notificacion): static
-    {
-        if (!$this->notificacions->contains($notificacion)) {
-            $this->notificacions->add($notificacion);
-            $notificacion->setIdCanal($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNotificacion(Notificacion $notificacion): static
-    {
-        if ($this->notificacions->removeElement($notificacion)) {
-            // set the owning side to null (unless already changed)
-            if ($notificacion->getIdCanal() === $this) {
-                $notificacion->setIdCanal(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getTipoContenido(): ?TipoContenido
     {

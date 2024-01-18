@@ -6,6 +6,7 @@ use App\Repository\ListaReproduccionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ListaReproduccionRepository::class)]
+#[ORM\Table(name: "lista_reproduccion", schema: "safatuber24")]
 class ListaReproduccion
 {
     #[ORM\Id]
@@ -17,7 +18,7 @@ class ListaReproduccion
     private ?string $nombre = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_canal")]
     private ?Canal $canal = null;
 
     public function getId(): ?int

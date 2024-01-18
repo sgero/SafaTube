@@ -18,11 +18,11 @@ class Comentario
     #[ORM\Column(length: 400)]
     private ?string $texto = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
 
     #[ORM\Column]
-    private ?bool $activo = null;
+    private ?bool $activo = true;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_video")]
@@ -45,12 +45,12 @@ class Comentario
         return $this;
     }
 
-    public function getFecha(): ?\DateTimeInterface
+    public function getFecha(): ?string
     {
-        return $this->fecha->format('d/m/Y H:i:s');;
+        return $this->fecha->format('d/m/Y H:i:s');
     }
 
-    public function setFecha(\DateTimeInterface $fecha): static
+    public function setFecha(string $fecha): static
     {
         $this->fecha =\DateTime::createFromFormat('d/m/Y H:i:s',$fecha);
 

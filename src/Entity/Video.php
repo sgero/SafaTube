@@ -28,7 +28,7 @@ class Video
     private ?int $duracion = null;
 
     #[ORM\Column]
-    private ?bool $activo = null;
+    private ?bool $activo = true;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_canal")]
@@ -38,11 +38,11 @@ class Video
     private ?string $enlace = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_categoria")]
     private ?TipoCategoria $tipoCategoria = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: "id_tipo_privacidad")]
     private ?TipoPrivacidad $tipoPrivacidad = null;
 
 

@@ -18,7 +18,7 @@ class Token
     #[ORM\Column(length: 1000)]
     private ?string $token = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fecha_expiracion = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
@@ -42,14 +42,14 @@ class Token
         return $this;
     }
 
-    public function getFechaExpiracion(): ?\DateTimeInterface
+    public function getFechaExpiracion(): ?string
     {
-        return $this->fecha_expiracion;
+        return $this->fecha_expiracion->format('d/m/Y H:i:s');
     }
 
-    public function setFechaExpiracion(\DateTimeInterface $fecha_expiracion): static
+    public function setFechaExpiracion(string $fecha_expiracion): static
     {
-        $this->fecha_expiracion = $fecha_expiracion;
+        $this->fecha_expiracion = \DateTime::createFromFormat('d/m/Y H:i:s',$fecha_expiracion);
 
         return $this;
     }
