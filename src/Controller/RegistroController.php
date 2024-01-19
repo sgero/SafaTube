@@ -20,16 +20,12 @@ class RegistroController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-
         $user = new Usuario();
         $user->setUsername($data['username']);
         $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
-        #$user->setRol($data['rol']);
-
 
         $entityManager->persist($user);
         $entityManager->flush();
-
 
         return new JsonResponse(['message' => 'Usuario registrado con éxito'], 201);
     }

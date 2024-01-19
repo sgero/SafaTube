@@ -9,6 +9,7 @@ use App\Entity\Usuario;
 use App\Entity\Video;
 use App\Repository\ComentarioRepository;
 use App\Repository\SuscripcionRepository;
+use \DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,7 +42,7 @@ class ComentarioController extends AbstractController
         $nuevoComentario = new Comentario();
 
         $nuevoComentario->setTexto($data['texto']);
-        $nuevoComentario->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
+        $nuevoComentario->setFecha(new DateTime()); //la fecha viene en formato 'd/m/Y'
 
         $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $nuevoComentario->setIdVideo($video[0]);

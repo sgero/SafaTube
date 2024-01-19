@@ -35,3 +35,6 @@
 /.idea/vcs.xml
 /.idea/dataSources.xml
 /.idea/php-test-framework.xml
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
