@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Canal;
 use App\Entity\Notificacion;
+use App\Entity\TipoNotificacion;
 use App\Repository\NotificacionRepository;
+use \DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,8 +39,9 @@ class NotificacionController extends AbstractController
 
         $nuevaNotificacion = new Notificacion();
         $nuevaNotificacion->setMensaje($json["mensaje"]);
-        $nuevaNotificacion->setFecha($json["fecha"]);
-
+        $nuevaNotificacion->setFecha(new DateTime());
+        $tipo = $entityManager->getRepository(TipoNotificacion::class)->findBy(["id"=> $json["tipoNotificacion"]]);
+        $nuevaNotificacion->setTipoNotificacion($tipo[0]);
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["canal"]]);
         $nuevaNotificacion->setCanal($canal[0]);
 
