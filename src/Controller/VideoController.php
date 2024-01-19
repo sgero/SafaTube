@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/video')]
 class VideoController extends AbstractController
 {
-    #[Route('', name: 'listar_video', methods: ['GET'])]
+    #[Route('/listar', name: 'listar_video', methods: ['GET'])]
     public function list(VideoRepository $videoRepository): JsonResponse
     {
         $videos = $videoRepository->findAll();
@@ -25,13 +25,13 @@ class VideoController extends AbstractController
         return $this->json($videos);
     }
 
-    #[Route('/{id}', name: 'video_by_id', methods: ['GET'])]
+    #[Route('/get/{id}', name: 'video_by_id', methods: ['GET'])]
     public function getById(Video $video): JsonResponse
     {
         return $this->json($video);
     }
 
-    #[Route('', name: 'crear_video', methods: ['POST'])]
+    #[Route('/crear', name: 'crear_video', methods: ['POST'])]
     public function crear(EntityManagerInterface $entityManager, Request $request,VideoRepository $videoRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -46,7 +46,7 @@ class VideoController extends AbstractController
         $videoNuevo->setTipoCategoria($data['tipo_categoria']);
         $videoNuevo->setTipoPrivacidad($data['tipo_privacidad']);
 
-        $tipoNotificacion = $entityManager->getRepository(TipoNotificacion::class)->findBy(["id"=> $data["tipo"]]);
+        $canal = $entityManager->getRepository(TipoNotificacion::class)->findBy(["id"=> $data["tipo"]]);
         $videoNuevo->setCanal($canal[0]);
 
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
@@ -58,7 +58,7 @@ class VideoController extends AbstractController
         return $this->json(['message' => 'Video creado correctamente'], Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', name: "editar_video", methods: ["PUT"])]
+    #[Route('/editar/{id}', name: "editar_video", methods: ["PUT"])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Video $video):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -79,7 +79,7 @@ class VideoController extends AbstractController
         return $this->json(['message' => 'Video modificado'], Response::HTTP_OK);
     }
 
-    #[Route('/{id}', name: "borrar_video", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "borrar_video", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Video $video):JsonResponse
     {
 

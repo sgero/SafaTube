@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/dislikes')]
 class DislikeController extends AbstractController
 {
-    #[Route('', name: 'api_dislike_list', methods: ['GET'])]
+    #[Route('/listar', name: 'api_dislike_list', methods: ['GET'])]
     public function list(DislikeRepository $dislikeRepository): JsonResponse
     {
         $dislike = $dislikeRepository->findAll();
@@ -25,24 +25,24 @@ class DislikeController extends AbstractController
         return $this->json($dislike);
     }
 
-    #[Route('/{id}', name: 'api_dislike_show', methods: ['GET'])]
+    #[Route('/get/{id}', name: 'api_dislike_show', methods: ['GET'])]
     public function show(Dislike $dislike): JsonResponse
     {
         return $this->json($dislike);
     }
 
-    #[Route('', name: 'api_dislike_create', methods: ['POST'])]
+    #[Route('/crear', name: 'api_dislike_create', methods: ['POST'])]
     public function create(EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
         $dislike = new Dislike();
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $dislike->setUsuario($usuario[0]);
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id_video"]]);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $dislike->setVideo($video[0]);
-        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["id_comentario"]]);
+        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
         $dislike->setComentario($comentario[0]);
 
 
@@ -52,16 +52,16 @@ class DislikeController extends AbstractController
         return $this->json(['message' => 'Dislike creado'], Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', name: 'api_like_update', methods: ['PUT'])]
+    #[Route('/editar/{id}', name: 'api_like_update', methods: ['PUT'])]
     public function update(EntityManagerInterface $entityManager, Request $request, Dislike $dislike): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $dislike->setUsuario($usuario[0]);
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id_video"]]);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $dislike->setVideo($video[0]);
-        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["id_comentario"]]);
+        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
         $dislike->setComentario($comentario[0]);
 
         $entityManager->flush();
@@ -69,7 +69,7 @@ class DislikeController extends AbstractController
         return $this->json(['message' => 'Dislike actualizado']);
     }
 
-    #[Route('/{id}', name: "delete_by_id", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "delete_by_id", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Dislike $dislike):JsonResponse
     {
 

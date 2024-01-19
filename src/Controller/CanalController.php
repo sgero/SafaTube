@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CanalController extends AbstractController
 {
 
-    #[Route('', name: "canal_list", methods: ["GET"])]
+    #[Route('/listar', name: "canal_list", methods: ["GET"])]
     public function list(CanalRepository $canalRepository):JsonResponse
     {
         $list = $canalRepository->findAll();
@@ -25,13 +25,13 @@ class CanalController extends AbstractController
         return $this->json($list);
     }
 
-    #[Route('/{id}', name: "canal_by_id", methods: ["GET"])]
+    #[Route('/get/{id}', name: "canal_by_id", methods: ["GET"])]
     public function getById(Canal $canal):JsonResponse
     {
         return $this->json($canal);
     }
 
-    #[Route('', name: "crear_canal", methods: ["POST"])]
+    #[Route('/crear', name: "crear_canal", methods: ["POST"])]
     public function crear(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $json = json_decode($request-> getContent(), true);
@@ -45,7 +45,7 @@ class CanalController extends AbstractController
         $nuevoCanal->setTelefono($json["telefono"]);
         $nuevoCanal->setFoto($json["foto"]);
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $json["id_usuario"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $json["usuario"]]);
         $nuevoCanal->setUsuario($usuario[0]);
 
         $entityManager->persist($nuevoCanal);
@@ -55,7 +55,7 @@ class CanalController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: "editar_canal", methods: ["PUT"])]
+    #[Route('/editar/{id}', name: "editar_canal", methods: ["PUT"])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Canal $canal):JsonResponse
     {
         $json = json_decode($request-> getContent(), true);
@@ -69,7 +69,7 @@ class CanalController extends AbstractController
         $canal->setTelefono($json["telefono"]);
         $canal->setFoto($json["foto"]);
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $json["id_usuario"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $json["usuario"]]);
         $canal->setUsuario($usuario[0]);
 
         $entityManager->flush();
@@ -77,7 +77,7 @@ class CanalController extends AbstractController
         return $this->json(['message' => 'Canal modificado'], Response::HTTP_OK);
     }
 
-    #[Route('/{id}', name: "delete_by_id", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "delete_by_id", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Canal $canal):JsonResponse
     {
         $entityManager->remove($canal);

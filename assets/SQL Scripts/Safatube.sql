@@ -91,6 +91,7 @@ create table video(
                       id serial,
                       titulo varchar(100) not null,
                       descripcion varchar(1000) not null,
+                      enlace varchar(10000) not null,
                       duracion date not null,
                       fecha date not null,
                       activo bool not null default true,
