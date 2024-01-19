@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/suscripcion')]
 class SuscripcionController extends AbstractController
 {
-    #[Route('', name: 'listar_suscripcion', methods: ['GET'])]
+    #[Route('/listar', name: 'listar_suscripcion', methods: ['GET'])]
     public function list(SuscripcionRepository $suscripcionRepository): JsonResponse
     {
         $suscripciones = $suscripcionRepository->findAll();
@@ -26,13 +26,13 @@ class SuscripcionController extends AbstractController
         return $this->json($suscripciones);
     }
 
-    #[Route('/{id}', name: 'suscripcion_by_id', methods: ['GET'])]
+    #[Route('/get/{id}', name: 'suscripcion_by_id', methods: ['GET'])]
     public function getById(Suscripcion $suscripcion): JsonResponse
     {
         return $this->json($suscripcion);
     }
 
-    #[Route('', name: 'crear_suscripcion', methods: ['POST'])]
+    #[Route('/crear', name: 'crear_suscripcion', methods: ['POST'])]
     public function crear(EntityManagerInterface $entityManager, Request $request,SuscripcionRepository $suscripcionRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -51,7 +51,7 @@ class SuscripcionController extends AbstractController
         return $this->json(['message' => 'Suscripción creada correctamente'], Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', name: "editar_suscripcion", methods: ["PUT"])]
+    #[Route('/editar/{id}', name: "editar_suscripcion", methods: ["PUT"])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Suscripcion $suscripcion):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -67,7 +67,7 @@ class SuscripcionController extends AbstractController
         return $this->json(['message' => 'Suscripción modificada'], Response::HTTP_OK);
     }
 
-    #[Route('/{id}', name: "borrar_suscripcion", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "borrar_suscripcion", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Suscripcion $suscripcion):JsonResponse
     {
 

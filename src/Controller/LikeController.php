@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/likes')]
 class LikeController extends AbstractController
 {
-    #[Route('', name: 'api_like_list', methods: ['GET'])]
+    #[Route('/listar', name: 'api_like_list', methods: ['GET'])]
     public function list(LikeRepository $likeRepository): JsonResponse
     {
         $like = $likeRepository->findAll();
@@ -25,24 +25,24 @@ class LikeController extends AbstractController
         return $this->json($like);
     }
 
-    #[Route('/{id}', name: 'api_like_show', methods: ['GET'])]
+    #[Route('/get/{id}', name: 'api_like_show', methods: ['GET'])]
     public function show(Like $like): JsonResponse
     {
         return $this->json($like);
     }
 
-    #[Route('', name: 'api_like_create', methods: ['POST'])]
+    #[Route('/crear', name: 'api_like_create', methods: ['POST'])]
     public function create(EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
         $like = new Like();
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $like->setUsuario($usuario[0]);
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id_video"]]);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $like->setVideo($video[0]);
-        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["id_comentario"]]);
+        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
         $like->setComentario($comentario[0]);
 
 
@@ -52,16 +52,16 @@ class LikeController extends AbstractController
         return $this->json(['message' => 'Like creado'], Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', name: 'api_like_update', methods: ['PUT'])]
+    #[Route('/editar/{id}', name: 'api_like_update', methods: ['PUT'])]
     public function update(EntityManagerInterface $entityManager, Request $request, Like $like): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $like->setUsuario($usuario[0]);
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id_video"]]);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $like->setVideo($video[0]);
-        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["id_comentario"]]);
+        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
         $like->setComentario($comentario[0]);
 
         $entityManager->flush();
@@ -69,7 +69,7 @@ class LikeController extends AbstractController
         return $this->json(['message' => 'Like actualizado']);
     }
 
-    #[Route('/{id}', name: "delete_by_id", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "delete_by_id", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Like $like):JsonResponse
     {
 

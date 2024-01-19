@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class NotificacionController extends AbstractController
 {
 
-    #[Route('', name: "notificacion_list", methods: ["GET"])]
+    #[Route('/listar', name: "notificacion_list", methods: ["GET"])]
     public function list(NotificacionRepository $notificacionRepository):JsonResponse
     {
         $list = $notificacionRepository->findAll();
@@ -24,13 +24,13 @@ class NotificacionController extends AbstractController
         return $this->json($list);
     }
 
-    #[Route('/{id}', name: "notificacion_by_id", methods: ["GET"])]
+    #[Route('/get/{id}', name: "notificacion_by_id", methods: ["GET"])]
     public function getById(Notificacion $notificacion):JsonResponse
     {
         return $this->json($notificacion);
     }
 
-    #[Route('', name: "crear_notificacion", methods: ["POST"])]
+    #[Route('/crear', name: "crear_notificacion", methods: ["POST"])]
     public function crear(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $json = json_decode($request-> getContent(), true);
@@ -54,19 +54,19 @@ class NotificacionController extends AbstractController
     {
         $json = json_decode($request-> getContent(), true);
 
-        $nuevaNotificacion = new Notificacion();
-        $nuevaNotificacion->setMensaje($json["mensaje"]);
-        $nuevaNotificacion->setFecha($json["fecha"]);
+        $notificacion = new Notificacion();
+        $notificacion->setMensaje($json["mensaje"]);
+        $notificacion->setFecha($json["fecha"]);
 
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["canal"]]);
-        $nuevaNotificacion->setCanal($canal[0]);
+        $notificacion->setCanal($canal[0]);
 
         $entityManager->flush();
 
         return $this->json(['message' => 'Notificacion modificada'], Response::HTTP_OK);
     }
 
-    #[Route('/{id}', name: "delete_by_id", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "delete_by_id", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Notificacion $notificacion):JsonResponse
     {
         $entityManager->remove($notificacion);

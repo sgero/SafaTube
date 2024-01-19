@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/comentario')]
 class ComentarioController extends AbstractController
 {
-    #[Route('', name: 'listar_comentario', methods: ['GET'])]
+    #[Route('/listar', name: 'listar_comentario', methods: ['GET'])]
     public function list(ComentarioRepository $comentarioRepository): JsonResponse
     {
         $comentarios = $comentarioRepository->findAll();
@@ -27,13 +27,13 @@ class ComentarioController extends AbstractController
         return $this->json($comentarios);
     }
 
-    #[Route('/{id}', name: 'comentario_by_id', methods: ['GET'])]
+    #[Route('/get/{id}', name: 'comentario_by_id', methods: ['GET'])]
     public function getById(Comentario $comentario): JsonResponse
     {
         return $this->json($comentario);
     }
 
-    #[Route('', name: 'crear_comentario', methods: ['POST'])]
+    #[Route('/crear', name: 'crear_comentario', methods: ['POST'])]
     public function crear(EntityManagerInterface $entityManager, Request $request,ComentarioRepository $comentarioRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -43,7 +43,7 @@ class ComentarioController extends AbstractController
         $nuevoComentario->setTexto($data['texto']);
         $nuevoComentario->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
 
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id_video"]]);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $nuevoComentario->setIdVideo($video[0]);
 
         $entityManager->persist($nuevoComentario);
@@ -52,7 +52,7 @@ class ComentarioController extends AbstractController
         return $this->json(['message' => 'Comentario creado correctamente'], Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', name: "editar_comentario", methods: ["PUT"])]
+    #[Route('/editar/{id}', name: "editar_comentario", methods: ["PUT"])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Comentario $comentario):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -60,7 +60,7 @@ class ComentarioController extends AbstractController
         $comentario->setTexto($data['texto']);
         $comentario->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
 
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id_video"]]);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $comentario->setIdVideo($video[0]);
 
         $entityManager->flush();
@@ -68,7 +68,7 @@ class ComentarioController extends AbstractController
         return $this->json(['message' => 'Comentario modificado'], Response::HTTP_OK);
     }
 
-    #[Route('/{id}', name: "borrar_comentario", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "borrar_comentario", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Comentario $comentario):JsonResponse
     {
 
