@@ -59,17 +59,16 @@ class NotificacionController extends AbstractController
 
         $notificacion = new Notificacion();
         $notificacion->setMensaje($json["mensaje"]);
-        $notificacion->setFecha($json["fecha"]);
+        $notificacion->setFecha(new DateTime());
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["canal"]]);
-        $notificacion->setCanal($canal[0]);
+
 
         $entityManager->flush();
 
         return $this->json(['message' => 'Notificacion modificada'], Response::HTTP_OK);
     }
 
-    #[Route('/eliminar/{id}', name: "delete_by_id", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "api_delete_by_id", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Notificacion $notificacion):JsonResponse
     {
         $entityManager->remove($notificacion);
