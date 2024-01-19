@@ -51,9 +51,9 @@ class Mensaje
         return $this->fecha->format('d/m/Y H:i:s');
     }
 
-    public function setFecha(string $fecha): static
+    public function setFecha(\DateTimeInterface $fecha): static
     {
-        $this->fecha = \DateTime::createFromFormat('d/m/Y H:i:s',$fecha);
+        $this->fecha = $fecha;
 
         return $this;
     }

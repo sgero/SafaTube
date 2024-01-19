@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use \DateTime;
 
 #[Route('/api/mensaje')]
 class MensajeController extends AbstractController
@@ -36,7 +37,7 @@ class MensajeController extends AbstractController
 
         $mensaje = new Mensaje();
         $mensaje->setTexto($data['texto']);
-        $mensaje->setFecha($data['fecha']);
+        $mensaje->setFecha(new DateTime());
 
         $usuarioemisor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_emisor"]]);
         $mensaje->setUsuarioEmisor($usuarioemisor[0]);
@@ -56,18 +57,15 @@ class MensajeController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $mensaje->setTexto($data['texto']);
-        $mensaje->setFecha($data['fecha']);
-        $usuarioemisor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario_emisor"]]);
-        $mensaje->setUsuarioEmisor($usuarioemisor[0]);
-        $usuarioreceptor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["id_usuario_receptor"]]);
-        $mensaje->setUsuarioReceptor($usuarioreceptor[0]);
+        $mensaje->setFecha(new DateTime());
+
 
         $entityManager->flush();
 
         return $this->json(['message' => 'Mensaje actualizado']);
     }
 
-    #[Route('/{id}', name: "delete_by_id", methods: ["DELETE"])]
+    #[Route('/{id}', name: "api_delete_by_id", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Mensaje $mensaje):JsonResponse
     {
 
