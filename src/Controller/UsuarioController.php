@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api/usuario')]
@@ -30,12 +31,12 @@ class UsuarioController extends AbstractController
     }
 
     #[Route('/crear', name: "crear_usuario", methods: ["POST"])]
-    public function crear(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    public function crear(EntityManagerInterface $entityManager, Request $request, UserPasswordHasherInterface $passwordHasher):JsonResponse
     {
         $json = json_decode($request-> getContent(), true);
         $nuevoUsuario = new Usuario();
         $nuevoUsuario->setUsername($json["username"]);
-        $nuevoUsuario->setPassword($json["password"]);
+        $nuevoUsuario->setPassword($passwordHasher->hashPassword($nuevoUsuario,$json["password"]));
 
         $entityManager->persist($nuevoUsuario);
         $entityManager->flush();
