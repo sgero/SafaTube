@@ -32,6 +32,9 @@ class Notificacion
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_notificacion")]
     private ?TipoNotificacion $tipoNotificacion = null;
 
+    #[ORM\Column]
+    private ?bool $atendida = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -83,6 +86,18 @@ class Notificacion
     public function setTipoNotificacion(?TipoNotificacion $tipoNotificacion): static
     {
         $this->tipoNotificacion = $tipoNotificacion;
+
+        return $this;
+    }
+
+    public function isAtendida(): ?bool
+    {
+        return $this->atendida;
+    }
+
+    public function setAtendida(bool $atendida): static
+    {
+        $this->atendida = $atendida;
 
         return $this;
     }
