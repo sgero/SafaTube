@@ -42,7 +42,8 @@ class ComentarioController extends AbstractController
         $nuevoComentario = new Comentario();
 
         $nuevoComentario->setTexto($data['texto']);
-        $nuevoComentario->setFecha(new DateTime()); //la fecha viene en formato 'd/m/Y'
+        $nuevoComentario->setFecha(new DateTime());
+
 
         $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $nuevoComentario->setIdVideo($video[0]);
