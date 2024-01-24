@@ -45,6 +45,9 @@ class Video
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_privacidad")]
     private ?TipoPrivacidad $tipoPrivacidad = null;
 
+    #[ORM\Column (name: "total_visitas")]
+    private ?int $totalVisitas = null;
+
 
     public function getId(): ?int
     {
@@ -156,6 +159,18 @@ class Video
     public function setTipoPrivacidad(?TipoPrivacidad $tipoPrivacidad): static
     {
         $this->tipoPrivacidad = $tipoPrivacidad;
+
+        return $this;
+    }
+
+    public function getTotalVisitas(): ?int
+    {
+        return $this->totalVisitas;
+    }
+
+    public function setTotalVisitas(int $totalVisitas): static
+    {
+        $this->totalVisitas = $totalVisitas;
 
         return $this;
     }
