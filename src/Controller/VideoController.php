@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Canal;
 use App\Entity\TipoCategoria;
 use App\Entity\TipoNotificacion;
+use App\Entity\TipoPrivacidad;
 use App\Entity\Video;
 use App\Repository\VideoRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,12 +43,12 @@ class VideoController extends AbstractController
         $videoNuevo->setDuracion($data['duracion']);
         $videoNuevo->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $videoNuevo->setEnlace($data['enlace']);
-        $videoNuevo->setActivo(true);
-        $videoNuevo->setTipoCategoria($data['tipo_categoria']);
-        $videoNuevo->setTipoPrivacidad($data['tipo_privacidad']);
 
-        $canal = $entityManager->getRepository(TipoNotificacion::class)->findBy(["id"=> $data["tipo"]]);
-        $videoNuevo->setCanal($canal[0]);
+        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["id"=> $data["tipo_categoria"]]);
+        $videoNuevo->setTipoCategoria($tipoCategoria[0]);
+
+        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> $data["tipo_privacidad"]]);
+        $videoNuevo->setTipoPrivacidad($tipoPrivacidad[0]);
 
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
         $videoNuevo->setCanal($canal[0]);
@@ -68,8 +69,12 @@ class VideoController extends AbstractController
         $video->setDuracion($data['duracion']);
         $video->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $video->setEnlace($data['enlace']);
-        $video->setTipoCategoria($data['tipo_categoria']);
-        $video->setTipoPrivacidad($data['tipo_privacidad']);
+
+        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["id"=> $data["tipo_categoria"]]);
+        $video->setTipoCategoria($tipoCategoria[0]);
+
+        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> $data["tipo_privacidad"]]);
+        $video->setTipoPrivacidad($tipoPrivacidad[0]);
 
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
         $video->setCanal($canal[0]);

@@ -48,7 +48,7 @@ class Video
     private ?TipoPrivacidad $tipoPrivacidad = null;
 
     #[ORM\Column (name: "total_visitas")]
-    private ?int $totalVisitas = null;
+    private ?int $totalVisitas = 0;
 
     #[ORM\ManyToMany(targetEntity: Usuario::class)]
     #[ORM\JoinTable(name: "visualizacion_video_usuario", schema: "safatuber24")]
