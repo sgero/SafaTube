@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\VideoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -44,6 +46,36 @@ class Video
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_privacidad")]
     private ?TipoPrivacidad $tipoPrivacidad = null;
+
+    #[ORM\ManyToMany(targetEntity: Usuario::class)]
+    #[ORM\JoinTable(name: "visualizacion_video_usuario", schema: "safatuber24")]
+    #[ORM\JoinColumn(name: "id_video", referencedColumnName: "id")]
+    #[ORM\InverseJoinColumn(name: "id_usuario", referencedColumnName: "id")]
+    private Collection $visualizaciones;
+    public function getVisualizaciones(): Collection
+    {
+        return $this->visualizaciones;
+    }
+
+    public function addVisualizaciones(Usuario $usuario): static
+    {
+        if (!$this->visualizaciones->contains($usuario)) {
+            $this->visualizaciones->add($usuario);
+        }
+
+        return $this;
+    }
+
+    public function removeVisualizaciones(Usuario $usuario): static
+    {
+        $this->visualizaciones->removeElement($usuario);
+
+        return $this;
+    }
+    public function __construct()
+    {
+        $this->visualizaciones = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
