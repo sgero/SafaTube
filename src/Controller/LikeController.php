@@ -35,19 +35,22 @@ class LikeController extends AbstractController
     public function create(EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
         $like = new Like();
 
         $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $like->setUsuario($usuario[0]);
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
-        $like->setVideo($video[0]);
-        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
-        $like->setComentario($comentario[0]);
 
-
-        $entityManager->persist($like);
-        $entityManager->flush();
+        if ($data["video"] == null) {
+            $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
+            $like->setComentario($comentario[0]);
+            $entityManager->persist($like);
+            $entityManager->flush();
+        }elseif ($data["comentario"] == null){
+            $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
+            $like->setVideo($video[0]);
+            $entityManager->persist($like);
+            $entityManager->flush();
+        }
 
         return $this->json(['message' => 'Like creado'], Response::HTTP_CREATED);
     }
