@@ -42,14 +42,27 @@ class ComentarioController extends AbstractController
         $nuevoComentario = new Comentario();
 
         $nuevoComentario->setTexto($data['texto']);
-        $nuevoComentario->setFecha(new DateTime());
-
+        $nuevoComentario->setFecha(date('Y-m-d H:i:s'));
+        $nuevoComentario->setContadorLikes(0);
+        $nuevoComentario->setContadorDislikes(0);
 
         $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
         $nuevoComentario->setIdVideo($video[0]);
 
-        $entityManager->persist($nuevoComentario);
-        $entityManager->flush();
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
+        $nuevoComentario->setUsuario($usuario[0]);
+
+        if ($data["comentario_padre"] == null){
+            $entityManager->persist($nuevoComentario);
+            $entityManager->flush();
+
+        }else {
+            $comentarioPadre = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario_padre"]]);
+            $nuevoComentario->setComentarioPadre($comentarioPadre[0]);
+
+            $entityManager->persist($nuevoComentario);
+            $entityManager->flush();
+        }
 
         return $this->json(['message' => 'Comentario creado correctamente'], Response::HTTP_CREATED);
     }
@@ -60,10 +73,7 @@ class ComentarioController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $comentario->setTexto($data['texto']);
-        $comentario->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
-
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
-        $comentario->setIdVideo($video[0]);
+        $comentario->setFecha(date('Y-m-d H:i:s'));
 
         $entityManager->flush();
 

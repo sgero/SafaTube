@@ -37,12 +37,12 @@ class Comentario
     private ?int $contadorDislikes = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'comentarioPadre')]
-    private ?self $comentarioPadre;
+    #[ORM\JoinColumn(name:"id_comentario_padre", referencedColumnName:"id", nullable:true)]
+    private $comentarioPadre;
 
-    public function __construct()
-    {
-        $this->comentarioPadre = new ArrayCollection();
-    }
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_usuario")]
+    private ?Usuario $usuario = null;
 
     public function getId(): ?int
     {
@@ -66,9 +66,9 @@ class Comentario
         return $this->fecha->format('d/m/Y H:i:s');
     }
 
-    public function setFecha(\DateTimeInterface $fecha): static
+    public function setFecha(string $fecha): static
     {
-        $this->fecha = $fecha;
+        $this->fecha = \DateTime::createFromFormat($fecha, $fecha);
 
         return $this;
     }
@@ -151,6 +151,18 @@ class Comentario
                 $comentarioPadre->setComentarioPadre(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUsuario(): ?Usuario
+    {
+        return $this->usuario;
+    }
+
+    public function setUsuario(?Usuario $usuario): static
+    {
+        $this->usuario = $usuario;
 
         return $this;
     }
