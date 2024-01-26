@@ -50,6 +50,9 @@ class Canal
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_contenido")]
     private ?TipoContenido $tipoContenido = null;
 
+    #[ORM\Column(length: 5000)]
+    private ?string $banner = null;
+
 
     public function __construct()
     {
@@ -169,6 +172,18 @@ class Canal
     public function setTipoContenido(?TipoContenido $tipoContenido): static
     {
         $this->tipoContenido = $tipoContenido;
+
+        return $this;
+    }
+
+    public function getBanner(): ?string
+    {
+        return $this->banner;
+    }
+
+    public function setBanner(string $banner): static
+    {
+        $this->banner = $banner;
 
         return $this;
     }

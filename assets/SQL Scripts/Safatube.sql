@@ -67,6 +67,7 @@ create table canal
 ALTER TABLE canal
     ADD CONSTRAINT email_unico UNIQUE (email);
 alter table canal drop column email;
+alter table canal add column banner varchar(5000);
 
 
 create table tipo_notificacion

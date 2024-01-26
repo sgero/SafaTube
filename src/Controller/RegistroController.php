@@ -46,6 +46,16 @@ class RegistroController extends AbstractController
         $canal = new Canal();
 //        $canal->setEmail($data['email']); // Asegúrate de que el campo de correo electrónico esté presente en los datos
         $canal->setUsuario($user); // Asociar el canal al usuario
+        $canal->setNombre($data['nombre']);
+        $canal->setApellidos($data['apellidos']);
+        $canal->setDescripcion($data['descripcion']);
+//        $canal->setFechaNacimiento(new \DateTime($data['fecha_nacimiento']));
+        $canal->setFechaNacimiento($data['fecha_nacimiento']);
+        $canal->setTelefono($data['telefono']);
+        $canal->setFoto($data['foto']);
+        $canal->setTipoContenido($data['tipo_contenido']);
+        $canal->setBanner($data['banner']);
+
 
         // Guardar el canal en la base de datos
         $entityManager->persist($canal);
