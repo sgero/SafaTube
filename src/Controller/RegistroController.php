@@ -38,9 +38,9 @@ class RegistroController extends AbstractController
         $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
         $user->setEmail($data['email']);
 
-        // Guardar el usuario en la base de datos
-        $entityManager->persist($user);
-        $entityManager->flush();
+//        // Guardar el usuario en la base de datos
+//        $entityManager->persist($user);
+//        $entityManager->flush();
 
         // Crear un nuevo canal asociado al usuario
         $canal = new Canal();
@@ -56,16 +56,18 @@ class RegistroController extends AbstractController
         $canal->setTipoContenido($data['tipo_contenido']);
         $canal->setBanner($data['banner']);
 
+        $canal->setUsuario($user);
 
-        // Guardar el canal en la base de datos
-        $entityManager->persist($canal);
-        $entityManager->flush();
+
+//        // Guardar el canal en la base de datos
+//        $entityManager->persist($canal);
+//        $entityManager->flush();
 
         // Generar el token de verificación y asociarlo al usuario
-        $user->generateVerificationToken();
+         $user->generateVerificationToken();
 
-        // Guardar el usuario con el token de verificación actualizado
-        $entityManager->persist($user);
+//        // Guardar el usuario con el token de verificación actualizado
+        $entityManager->persist($canal);
         $entityManager->flush();
 
         // Enviar correo de verificación
