@@ -21,6 +21,49 @@ class VideoRepository extends ServiceEntityRepository
         parent::__construct($registry, Video::class);
     }
 
+
+    public function findVideosPorCanal(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = '
+            SELECT v.* FROM safatuber24.video v join safatuber24.canal c on v.id_canal = c.id 
+            WHERE c.id = :id            ';
+
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal]);
+
+        // returns an array of arrays (i.e. a raw data set)
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function findVideosPorCategoria(array $nombre): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $tipoCategoria = $nombre["nombre"];
+        $sql = '
+            SELECT v.* FROM safatuber24.video v join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
+            WHERE tc.nombre ILIKE :nombre            ';
+
+        $resultSet = $conn->executeQuery($sql, ['nombre' => $tipoCategoria]);
+
+        // returns an array of arrays (i.e. a raw data set)
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function findVideos(array $titulo): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $video = '%' . $titulo["titulo"] . '%';
+        $sql = '
+            SELECT v.* FROM safatuber24.video v 
+            WHERE v.titulo ILIKE :titulo         ';
+
+        $resultSet = $conn->executeQuery($sql, ['titulo' => $video]);
+
+        // returns an array of arrays (i.e. a raw data set)
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return Video[] Returns an array of Video objects
 //     */
