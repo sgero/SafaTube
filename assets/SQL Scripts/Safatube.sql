@@ -27,6 +27,7 @@ CREATE TABLE usuario
 );
 
 alter table usuario add column verification_token varchar(255);
+alter table usuario add column email varchar(255);
 
 
 CREATE TABLE token
@@ -64,6 +65,8 @@ create table canal
 
 ALTER TABLE canal
     ADD CONSTRAINT email_unico UNIQUE (email);
+alter table canal drop column email;
+
 
 create table tipo_notificacion
 (
