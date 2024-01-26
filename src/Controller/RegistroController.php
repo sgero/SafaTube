@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Canal;
+use App\Entity\TipoContenido;
 use App\Entity\Usuario;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,15 +47,18 @@ class RegistroController extends AbstractController
         $canal = new Canal();
 //        $canal->setEmail($data['email']); // Asegúrate de que el campo de correo electrónico esté presente en los datos
         $canal->setUsuario($user); // Asociar el canal al usuario
-        $canal->setNombre($data['nombre']);
-        $canal->setApellidos($data['apellidos']);
-        $canal->setDescripcion($data['descripcion']);
+        $canal->setNombre($data['canal']["nombre"]);
+        $canal->setApellidos($data['canal']["apellidos"]);
+        $canal->setDescripcion($data['canal']["descripcion"]);
 //        $canal->setFechaNacimiento(new \DateTime($data['fecha_nacimiento']));
-        $canal->setFechaNacimiento($data['fecha_nacimiento']);
-        $canal->setTelefono($data['telefono']);
-        $canal->setFoto($data['foto']);
-        $canal->setTipoContenido($data['tipo_contenido']);
-        $canal->setBanner($data['banner']);
+        $canal->setFechaNacimiento($data['canal']["fecha_nacimiento"]);
+        $canal->setTelefono($data['canal']["telefono"]);
+        $canal->setFoto($data['canal']["foto"]);
+        //buscar el tipo de contenido con el findby y setearlo
+        $tipoContenido = $entityManager->getRepository(TipoContenido::class)->findOneBy(['id' => $data['canal']["tipo_contenido"]]);
+        $canal->setTipoContenido($tipoContenido);
+//        $canal->setTipoContenido($data['tipo_contenido']);
+        $canal->setBanner($data['canal']["banner"]);
 
         $canal->setUsuario($user);
 
