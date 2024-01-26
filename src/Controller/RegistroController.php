@@ -65,10 +65,10 @@ class RegistroController extends AbstractController
         return new JsonResponse(['message' => 'Usuario registrado con éxito'], 201);
     }
 
-    private function setVerificationToken(string $token): void
-    {
-        $this->verificationToken = $token;
-    }
+//    private function setVerificationToken(string $token): void
+//    {
+//        $this->verificationToken = $token;
+//    }
 
     private function sendVerificationEmail(Usuario $user): void
     {

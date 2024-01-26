@@ -125,12 +125,12 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
         return $this->verification_token;
     }
 
-    public function setVerificationToken(?string $verification_token): static
-    {
-        $this->verification_token = $verification_token;
-
-        return $this;
-    }
+//    public function setVerificationToken(?string $verification_token): static
+//    {
+//        $this->verification_token = $verification_token;
+//
+//        return $this;
+//    }
 
     public function getEmail(): ?string
     {
