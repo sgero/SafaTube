@@ -1,9 +1,9 @@
-swiftmailer:
-  url: '%env(MAILER_DSN)%'
-  transport: smtp
-  host: 'smtp.example.com'
-  port: 587
-  encryption: tls
-  username: 'tu_nombre_de_usuario_smtp'
-  password: 'tu_contraseña_smtp'
-  spool: { type: 'file', path: '%kernel.project_dir%/var/spool' }
+#swiftmailer:
+#  url: '%env(MAILER_DSN)%'
+#  transport: smtp
+#  host: 'smtp.example.com'
+#  port: 587
+#  encryption: tls
+#  username: 'tu_nombre_de_usuario_smtp'
+#  password: 'tu_contraseña_smtp'
+#  spool: { type: 'file', path: '%kernel.project_dir%/var/spool' }

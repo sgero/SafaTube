@@ -148,6 +148,15 @@
             "config/packages/mailer.yaml"
         ]
     },
+    "symfony/mailer-send-mailer": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.3",
+            "ref": "a8120b79052d6ced86bae5025fd7b9e203fdccf8"
+        }
+    },
     "symfony/maker-bundle": {
         "version": "1.52",
         "recipe": {
