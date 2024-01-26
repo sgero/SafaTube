@@ -95,4 +95,31 @@ class VideoController extends AbstractController
 
     }
 
+    #[Route('/por_canal', name: "buscar_videos_canal", methods: ["POST"])]
+    public function getVideosPorCanal(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listaVideos = $entityManager->getRepository(Video::class)->findVideosPorCanal(["id"=> $data["id"]]);
+
+        return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+    }
+
+    #[Route('/por_categoria', name: "buscar_videos_categoria", methods: ["POST"])]
+    public function getVideosPorCategoria(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listaVideos = $entityManager->getRepository(Video::class)->findVideosPorCategoria(["nombre"=> $data["nombre"]]);
+
+        return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+    }
+
+    #[Route('/buscar', name: "buscar_video_1", methods: ["POST"])]
+    public function findVideos(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data["titulo"]]);
+
+        return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+    }
+
 }
