@@ -34,6 +34,11 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     #[ORM\Column(length:255, nullable:true)]
     private ?string $verification_token = null;
 
+    #[ORM\Column]
+    private ?bool $cuenta_validada = null;
+
+
+
 //    #[ORM\Column(length: 255, nullable: true)]
 //    private ?string $resetPasswordToken = null;
 //
@@ -140,6 +145,18 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function isCuentaValidada(): ?bool
+    {
+        return $this->cuenta_validada;
+    }
+
+    public function setCuentaValidada(bool $cuenta_validada): static
+    {
+        $this->cuenta_validada = $cuenta_validada;
 
         return $this;
     }

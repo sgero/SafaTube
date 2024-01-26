@@ -28,6 +28,7 @@ CREATE TABLE usuario
 
 alter table usuario add column verification_token varchar(255);
 alter table usuario add column email varchar(255);
+alter table usuario add column cuenta_validada boolean not null default false;
 
 
 CREATE TABLE token

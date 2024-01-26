@@ -44,7 +44,7 @@ class RegistroController extends AbstractController
 
         // Crear un nuevo canal asociado al usuario
         $canal = new Canal();
-        $canal->setEmail($data['email']); // Asegúrate de que el campo de correo electrónico esté presente en los datos
+//        $canal->setEmail($data['email']); // Asegúrate de que el campo de correo electrónico esté presente en los datos
         $canal->setUsuario($user); // Asociar el canal al usuario
 
         // Guardar el canal en la base de datos
