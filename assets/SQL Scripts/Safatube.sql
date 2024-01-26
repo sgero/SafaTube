@@ -26,6 +26,8 @@ CREATE TABLE usuario
     primary key (id)
 );
 
+alter table usuario add column verification_token varchar(255);
+
 
 CREATE TABLE token
 (

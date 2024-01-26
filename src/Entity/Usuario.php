@@ -24,6 +24,21 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'es_admin')]
     private ?bool $admin = false;
 
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $email = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetPasswordToken = null;
+
+    #[ORM\OneToOne(targetEntity: Canal::class, mappedBy: 'usuario', cascade: ['persist', 'remove'])]
+    private ?Canal $canal = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $resetPasswordTokenExpiresAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $verificationToken = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,4 +89,34 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
         return $this-> getUsername();
     }
     public function eraseCredentials(): void{}
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+
+    public function getCanal(): ?Canal
+    {
+        return $this->canal;
+    }
+
+    public function generateVerificationToken(): void
+    {
+        $this->verificationToken = bin2hex(random_bytes(32));
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+
 }
