@@ -25,6 +25,7 @@ CREATE TABLE usuario(
                         primary key (id)
 );
 
+
 CREATE TABLE token(
                       id serial,
                       token varchar(1000) NOT NULL,
@@ -54,6 +55,8 @@ create table canal(
                       constraint fk_canal_usuario foreign key (id_usuario) references usuario(id),
                       constraint fk_canal_tipo_contenido foreign key (id_tipo_contenido) references tipo_contenido(id)
 );
+
+ALTER TABLE canal ADD CONSTRAINT email_unico UNIQUE (email);
 
 create table tipo_notificacion(
                                   id serial primary key,
