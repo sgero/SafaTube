@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 #[Route('/api/registro')]
 class RegistroController extends AbstractController
@@ -35,6 +36,7 @@ class RegistroController extends AbstractController
         $user = new Usuario();
         $user->setUsername($data['username']);
         $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+        $user->setEmail($data['email']);
 
         // Guardar el usuario en la base de datos
         $entityManager->persist($user);
@@ -67,7 +69,7 @@ class RegistroController extends AbstractController
     {
         $email = (new Email())
             ->from('noreply@example.com')
-            ->to($user->getCanal()->getEmail())
+            ->to($user->getEmail())
             ->subject('Verificación de Correo Electrónico')
             ->html(
                 $this->renderView(
