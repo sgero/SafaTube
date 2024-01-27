@@ -6,6 +6,7 @@ use App\Entity\Canal;
 use App\Entity\TipoContenido;
 use App\Entity\Usuario;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 class RegistroController extends AbstractController
 {
     private MailerInterface $mailer;
+    private LoggerInterface $logger;
 
     public function __construct(MailerInterface $mailer)
     {
@@ -149,7 +151,7 @@ class RegistroController extends AbstractController
     private function sendVerificationEmail(Usuario $user): JsonResponse
     {
         $email = (new Email())
-            ->from('sgarciaguerrero@safareyes.es')
+            ->from('safatuberisk24@gmail.com')
             ->to($user->getEmail())
             ->subject('Verificación de Correo Electrónico')
             ->html(
