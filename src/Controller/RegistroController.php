@@ -39,6 +39,12 @@ class RegistroController extends AbstractController
         $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
         $user->setEmail($data['email']);
 
+        // Generar el token de verificación y asociarlo al usuario
+        $user->generateVerificationToken();
+
+        //Setear el token de verificacion al usuario
+    //    $user->setVerificationToken($user->getVerificationToken());
+
 //        // Guardar el usuario en la base de datos
 //        $entityManager->persist($user);
 //        $entityManager->flush();
@@ -54,23 +60,77 @@ class RegistroController extends AbstractController
         $canal->setFechaNacimiento($data['canal']["fecha_nacimiento"]);
         $canal->setTelefono($data['canal']["telefono"]);
         $canal->setFoto($data['canal']["foto"]);
+
         //buscar el tipo de contenido con el findby y setearlo
         $tipoContenido = $entityManager->getRepository(TipoContenido::class)->findOneBy(['id' => $data['canal']["tipo_contenido"]]);
         $canal->setTipoContenido($tipoContenido);
 //        $canal->setTipoContenido($data['tipo_contenido']);
+
         $canal->setBanner($data['canal']["banner"]);
 
-        $canal->setUsuario($user);
-
+       // $canal->setUsuario($user);
 
 //        // Guardar el canal en la base de datos
 //        $entityManager->persist($canal);
 //        $entityManager->flush();
 
-        // Generar el token de verificación y asociarlo al usuario
-         $user->generateVerificationToken();
+            // Guardar el usuario con el token de verificación actualizado
+            $entityManager->persist($user);
+            $entityManager->flush();
 
-//        // Guardar el usuario con el token de verificación actualizado
+            // Guardar el canal con el token de verificación actualizado
+            $entityManager->persist($canal);
+            $entityManager->flush();
+
+            // Enviar correo de verificación
+            $this->sendVerificationEmail($user);
+
+            // Devolver una respuesta JSON exitosa
+            return new JsonResponse(['message' => 'Usuario registrado con éxito'], 201);
+        }
+
+        #[Route('/verificar/{token}', name: 'verificar_usuario', methods: ['GET'])]
+        public function verifyUser(string $token, EntityManagerInterface $entityManager): JsonResponse
+        {
+            // Buscar el usuario con el token de verificación dado
+            $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $token]);
+
+            // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
+            if (!$user) {
+                return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
+            }
+
+            // Actualizar el token de verificación del usuario
+            $user->setVerificationToken(null);
+            $user->setCuentaValidada(true);
+
+            // Guardar el usuario con el token de verificación actualizado
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            // Devolver una respuesta JSON exitosa
+            return new JsonResponse(['message' => 'Usuario verificado con éxito'], 200);
+        }
+
+        #[Route('/reenviar', name: 'reenviar_verificacion', methods: ['POST'])]
+        public function resendVerificationEmail(Request $request, EntityManagerInterface $entityManager): JsonResponse
+        {
+            $canal = new Canal();
+            $data = json_decode($request->getContent(), true);
+
+            // Buscar el usuario con el correo electrónico dado
+            $user = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $data['email']]);
+
+            // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
+            if (!$user) {
+                return new JsonResponse(['error' => 'No se ha encontrado ningún usuario con ese correo electrónico'], 400);
+            }
+
+            // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
+            if ($user->getCuentaValidada()) {
+                return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
+            }
+//        // Guardar el canal con el token de verificación actualizado
         $entityManager->persist($canal);
         $entityManager->flush();
 
@@ -86,7 +146,7 @@ class RegistroController extends AbstractController
 //        $this->verificationToken = $token;
 //    }
 
-    private function sendVerificationEmail(Usuario $user): void
+    private function sendVerificationEmail(Usuario $user): JsonResponse
     {
         $email = (new Email())
             ->from('sgarciaguerrero@safareyes.es')
@@ -99,6 +159,20 @@ class RegistroController extends AbstractController
                 )
             );
 
-        $this->mailer->send($email);
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+            // Manejar la excepción (por ejemplo, log o devolver una respuesta de error)
+
+            // Opción 1: Registrar el error
+            $this->logger->error('Error al enviar el correo de verificación: ' . $e->getMessage());
+
+            // Opción 2: Devolver una respuesta de error
+            return new JsonResponse(['error' => 'Error al enviar el correo de verificación'], 500);
+        }
+
+        // Devolver una respuesta exitosa si todo va bien
+        return new JsonResponse(['message' => 'Correo de verificación enviado con éxito'], 200);
     }
+
 }
