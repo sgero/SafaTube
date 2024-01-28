@@ -15,6 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 #[Route('/api/registro')]
 class RegistroController extends AbstractController
@@ -34,6 +35,8 @@ class RegistroController extends AbstractController
         EntityManagerInterface $entityManager
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
+
+        try {
 
         // Crear un nuevo usuario
         $user = new Usuario();
@@ -89,7 +92,14 @@ class RegistroController extends AbstractController
 
             // Devolver una respuesta JSON exitosa
             return new JsonResponse(['message' => 'Usuario registrado con éxito'], 201);
+        } catch (UniqueConstraintViolationException $e) {
+            // Capturar la excepción de violación de unicidad y devolver un mensaje de error
+            return new JsonResponse(['error' => 'Este correo electrónico ya está en uso.'], 400);
+        } catch (\Exception $e) {
+            // Capturar otras excepciones y devolver un mensaje de error
+            return new JsonResponse(['error' => 'Error al registrar el usuario'], 500);
         }
+    }
 
         #[Route('/verificar/{token}', name: 'verificar_usuario', methods: ['GET'])]
         public function verifyUser(string $token, EntityManagerInterface $entityManager): JsonResponse

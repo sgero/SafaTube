@@ -12,6 +12,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
 #[ORM\Table(name: "usuario", schema: "safatuber24")]
+#[UniqueEntity(fields: ["email"], message: "Este correo electrónico ya está en uso.")]
 class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -100,6 +101,8 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     {
         return $this-> getUsername();
     }
+
+
     public function eraseCredentials(): void{}
 
 //    public function getEmail(): ?string

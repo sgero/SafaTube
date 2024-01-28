@@ -28,8 +28,8 @@ class Canal
 
 //    #[ORM\Column(length: 200)]
 //    private ?string $email = null;
-    #[ORM\Column(length: 255, unique: true)]
-    private ?string $email = null;
+//    #[ORM\Column(length: 255, unique: true)]
+//    private ?string $email = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $fecha_nacimiento = null;
