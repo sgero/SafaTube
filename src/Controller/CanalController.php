@@ -40,10 +40,12 @@ class CanalController extends AbstractController
         $nuevoCanal->setDescripcion($json["descripcion"]);
         $nuevoCanal->setNombre($json["nombre"]);
         $nuevoCanal->setApellidos($json["apellidos"]);
-        $nuevoCanal->setEmail($json["email"]);
+//        $nuevoCanal->setEmail($json["email"]);
         $nuevoCanal->setFechaNacimiento($json["fecha_nacimiento"]);
         $nuevoCanal->setTelefono($json["telefono"]);
         $nuevoCanal->setFoto($json["foto"]);
+        $nuevoCanal->setTipoContenido($json["tipo_contenido"]);
+        $nuevoCanal->setBanner($json["banner"]);
 
         $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $json["usuario"]]);
         $nuevoCanal->setUsuario($usuario[0]);
@@ -64,10 +66,12 @@ class CanalController extends AbstractController
         $canal->setDescripcion($json["descripcion"]);
         $canal->setNombre($json["nombre"]);
         $canal->setApellidos($json["apellidos"]);
-        $canal->setEmail($json["email"]);
+//        $canal->setEmail($json["email"]);
         $canal->setFechaNacimiento($json["fecha_nacimiento"]);
         $canal->setTelefono($json["telefono"]);
         $canal->setFoto($json["foto"]);
+        $canal->setTipoContenido($json["tipo_contenido"]);
+        $canal->setBanner($json["banner"]);
 
         $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $json["usuario"]]);
         $canal->setUsuario($usuario[0]);

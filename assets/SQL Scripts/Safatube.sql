@@ -16,6 +16,8 @@ drop table if exists tipo_contenido;
 drop table if exists token;
 drop table if exists usuario;
 
+
+
 CREATE TABLE usuario
 (
     id       serial,
