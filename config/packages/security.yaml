@@ -13,6 +13,12 @@ security:
                 class: App\Entity\Usuario
                 property: username
     firewalls:
+        main:
+            form_login:
+                provider: app_user_provider
+                login_path: login
+                check_path: login
+#                csrf_token_generator: security.csrf.token_manager
         login:
             pattern: ^/api/login
             stateless: true

@@ -26,7 +26,7 @@ class AuthController extends AbstractController
 {
     #[Route("/login", name: "login")]
 
-    public function login(AuthenticationUtils $authenticationUtils)
+    public function login(AuthenticationUtils $authenticationUtils): \Symfony\Component\HttpFoundation\Response
     {
         // Obtiene el error de inicio de sesión (si hay alguno)
         $error = $authenticationUtils->getLastAuthenticationError();
