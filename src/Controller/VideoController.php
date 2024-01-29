@@ -119,8 +119,8 @@ class VideoController extends AbstractController
     #[Route('/buscar', name: "buscar_video_1", methods: ["POST"])]
     public function findVideos(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data["titulo"]]);
+        $data = $request->getContent();
+        $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data]);
 
         return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
     }
