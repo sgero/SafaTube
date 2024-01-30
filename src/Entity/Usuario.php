@@ -167,4 +167,5 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
 
 
 
+
 }
