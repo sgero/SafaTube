@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Canal;
+use App\Entity\Comentario;
+use App\Entity\Like;
 use App\Entity\TipoCategoria;
 use App\Entity\TipoNotificacion;
 use App\Entity\TipoPrivacidad;
+use App\Entity\Usuario;
 use App\Entity\Video;
 use App\Repository\VideoRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,7 +26,7 @@ class VideoController extends AbstractController
     {
         $videos = $videoRepository->findAll();
 
-        return $this->json($videos);
+        return $this->json(['message' => $videos], Response::HTTP_CREATED);
     }
 
     #[Route('/get/{id}', name: 'video_by_id', methods: ['GET'])]
@@ -44,10 +47,10 @@ class VideoController extends AbstractController
         $videoNuevo->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $videoNuevo->setEnlace($data['enlace']);
 
-        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["id"=> $data["tipo_categoria"]]);
+        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["nombre"=> $data["tipoCategoria"]]);
         $videoNuevo->setTipoCategoria($tipoCategoria[0]);
 
-        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> $data["tipo_privacidad"]]);
+        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["nombre"=> $data["tipoPrivacidad"]]);
         $videoNuevo->setTipoPrivacidad($tipoPrivacidad[0]);
 
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
@@ -110,16 +113,63 @@ class VideoController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $listaVideos = $entityManager->getRepository(Video::class)->findVideosPorCategoria(["nombre"=> $data["nombre"]]);
 
+        return $this->json($listaVideos, Response::HTTP_OK);
+    }
+
+    #[Route('/buscar', name: "buscar_video", methods: ["POST"])]
+    public function findVideos(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = $request->getContent();
+        $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data]);
+        $listaCanales = $entityManager->getRepository(Canal::class)->findCanales(["nombre"=> $data]);
+
+        return $this->json(['videos' => $listaVideos, $listaCanales], Response::HTTP_OK);
+    }
+
+    #[Route('/getVideosRecomendadosAPartirDeVideo', name: "get_videos_recomendado_video", methods: ["POST"])]
+    public function getVideosRecomendadosAPartirDeVideo(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listaVideos = $entityManager->getRepository(Video::class)->getVideosRecomendadosAPartirDeVideo(["id"=> $data["id"]]);
+
         return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
     }
 
-    #[Route('/buscar', name: "buscar_video_1", methods: ["POST"])]
-    public function findVideos(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    #[Route('/getVideosRecomendados', name: "get_videos_recomendados", methods: ["POST"])]
+    public function getVideosRecomendados(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data["titulo"]]);
+        $listaVideos = $entityManager->getRepository(Video::class)->getVideosRecomendados(["id"=> $data]);
 
         return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+    }
+
+    #[Route('/getVideosCanalesSuscritos', name: "get_videos_suscritos", methods: ["POST"])]
+    public function getVideosCanalesSuscritos(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listaVideos = $entityManager->getRepository(Video::class)->getVideosCanalesSuscritos(["id"=> $data]);
+
+        return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+    }
+
+    #[Route('/valorar', name: 'valorar_video', methods: ['POST'])]
+    public function valorarVideo(EntityManagerInterface $entityManager, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $like = new Like();
+
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
+        $like->setUsuario($usuario[0]);
+
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
+        $like->setVideo($video[0]);
+
+        $entityManager->persist($like);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Like creado'], Response::HTTP_CREATED);
     }
 
 }

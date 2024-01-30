@@ -55,11 +55,9 @@ class ComentarioController extends AbstractController
         if ($data["comentario_padre"] == null){
             $entityManager->persist($nuevoComentario);
             $entityManager->flush();
-
         }else {
             $comentarioPadre = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario_padre"]]);
             $nuevoComentario->setComentarioPadre($comentarioPadre[0]);
-
             $entityManager->persist($nuevoComentario);
             $entityManager->flush();
         }
@@ -83,7 +81,6 @@ class ComentarioController extends AbstractController
     #[Route('/eliminar/{id}', name: "borrar_comentario", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, Comentario $comentario):JsonResponse
     {
-
         $entityManager->remove($comentario);
         $entityManager->flush();
 

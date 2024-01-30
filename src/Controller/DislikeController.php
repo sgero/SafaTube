@@ -40,14 +40,18 @@ class DislikeController extends AbstractController
 
         $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $dislike->setUsuario($usuario[0]);
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
-        $dislike->setVideo($video[0]);
-        $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
-        $dislike->setComentario($comentario[0]);
 
-
-        $entityManager->persist($dislike);
-        $entityManager->flush();
+        if ($data["video"] == null) {
+            $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]]);
+            $dislike->setComentario($comentario[0]);
+            $entityManager->persist($dislike);
+            $entityManager->flush();
+        }elseif ($data["comentario"] == null){
+            $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
+            $dislike->setVideo($video[0]);
+            $entityManager->persist($dislike);
+            $entityManager->flush();
+        }
 
         return $this->json(['message' => 'Dislike creado'], Response::HTTP_CREATED);
     }
