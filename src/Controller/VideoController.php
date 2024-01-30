@@ -26,7 +26,7 @@ class VideoController extends AbstractController
     {
         $videos = $videoRepository->findAll();
 
-        return $this->json($videos);
+        return $this->json(['message' => $videos], Response::HTTP_CREATED);
     }
 
     #[Route('/get/{id}', name: 'video_by_id', methods: ['GET'])]
@@ -125,11 +125,20 @@ class VideoController extends AbstractController
         return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
     }
 
-    #[Route('/getVideosRecomendados', name: "get_videos_recomendado", methods: ["POST"])]
+    #[Route('/getVideosRecomendadosAPartirDeVideo', name: "get_videos_recomendado_video", methods: ["POST"])]
+    public function getVideosRecomendadosAPartirDeVideo(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listaVideos = $entityManager->getRepository(Video::class)->getVideosRecomendadosAPartirDeVideo(["id"=> $data["id"]]);
+
+        return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+    }
+
+    #[Route('/getVideosRecomendados', name: "get_videos_recomendados", methods: ["POST"])]
     public function getVideosRecomendados(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $listaVideos = $entityManager->getRepository(Video::class)->getVideosRecomendados(["id"=> $data["id"]]);
+        $listaVideos = $entityManager->getRepository(Video::class)->getVideosRecomendados(["id"=> $data]);
 
         return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
     }

@@ -32,7 +32,7 @@ class Video
     #[ORM\Column]
     private ?bool $activo = true;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['remove', 'persist'])]
     #[ORM\JoinColumn(nullable: false, name: "id_canal")]
     private ?Canal $canal = null;
 
