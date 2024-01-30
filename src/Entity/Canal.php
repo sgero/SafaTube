@@ -26,8 +26,6 @@ class Canal
     #[ORM\Column(length: 30)]
     private ?string $apellidos = null;
 
-    #[ORM\Column(length: 200)]
-    private ?string $email = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $fecha_nacimiento = null;
@@ -96,17 +94,6 @@ class Canal
         return $this;
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
 
     public function getFechaNacimiento(): ?string
     {
