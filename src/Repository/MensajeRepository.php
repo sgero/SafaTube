@@ -39,13 +39,15 @@ class MensajeRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $idUsuario = $id["id"];
-        $sql = 'select distinct u.* from safatuber24.usuario u join safatuber24.mensaje m on u.id = m.id_usuario_emisor or u.id = m.id_usuario_receptor where (m.id_usuario_emisor = :id
+        $sql = 'select distinct u.id from safatuber24.usuario u join safatuber24.mensaje m on u.id = m.id_usuario_emisor or u.id = m.id_usuario_receptor where (m.id_usuario_emisor = :id
                                        and m.id_usuario_receptor = u.id)
                                        or (m.id_usuario_emisor = u.id
                                        and m.id_usuario_receptor = :id)';
         $resultSet = $conn->executeQuery($sql, ['id' => $idUsuario]);
+
         return $resultSet->fetchAllAssociative();
     }
+
 //    /**
 //     * @return Mensaje[] Returns an array of Mensaje objects
 //     */

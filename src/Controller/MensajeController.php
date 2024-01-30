@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Mensaje;
 use App\Entity\Usuario;
+use App\Repository\CanalRepository;
 use App\Repository\MensajeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,13 +38,13 @@ class MensajeController extends AbstractController
     {
         return $this->json($mensaje);
     }
-    #[Route('/buscar', name: 'api_mensaje_busca', methods: ['GET'])]
-    public function search(MensajeRepository $mensajeRepository,Request $request): JsonResponse
+    #[Route('/buscar', name: 'api_mensaje_busca', methods: ['POST'])]
+    public function search(MensajeRepository $mensajeRepository,CanalRepository $canalRepository,Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $mensajes = $mensajeRepository->getBusqueda(["id" => $data['usuario_emisor']]);
-
-        return $this->json($mensajes);
+        $canales = $canalRepository->canalMensaje($mensajes);
+        return $this->json($canales);
     }
 
     #[Route('/crear', name: 'api_mensaje_create', methods: ['POST'])]
