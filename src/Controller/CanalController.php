@@ -86,6 +86,15 @@ class CanalController extends AbstractController
         return $this->json(['message' => 'Canal eliminado'], Response::HTTP_OK);
     }
 
+    #[Route('/buscar', name: "buscar_canal", methods: ["POST"])]
+    public function findCanal(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = $request->getContent();
+        $listaCanales = $entityManager->getRepository(Canal::class)->findCanales(["nombre"=> $data]);
+
+        return $this->json(['canales' => $listaCanales], Response::HTTP_OK);
+    }
+
 
 
 

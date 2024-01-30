@@ -21,6 +21,20 @@ class CanalRepository extends ServiceEntityRepository
         parent::__construct($registry, Canal::class);
     }
 
+    public function findCanales(array $nombre): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $canal = '%' . $nombre["nombre"] . '%';
+        $sql = '
+            SELECT c.* FROM safatuber24.canal c 
+            WHERE c.nombre ILIKE :nombre         ';
+
+        $resultSet = $conn->executeQuery($sql, ['nombre' => $canal]);
+
+        // returns an array of arrays (i.e. a raw data set)
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return Canal[] Returns an array of Canal objects
 //     */

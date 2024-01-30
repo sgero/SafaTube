@@ -68,7 +68,7 @@ class VideoRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $idTipoCategoria = $id["id"];
-        $sql = 'select * from video v join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
+        $sql = 'select * from safatuber24.video v join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
          where v.id_tipo_categoria = :id order by v.fecha desc limit 5';
         $resultSet = $conn->executeQuery($sql, ['id' => $idTipoCategoria]);
         return $resultSet->fetchAllAssociative();

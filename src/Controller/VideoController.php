@@ -47,10 +47,10 @@ class VideoController extends AbstractController
         $videoNuevo->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $videoNuevo->setEnlace($data['enlace']);
 
-        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["id"=> $data["tipo_categoria"]]);
+        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["nombre"=> $data["tipoCategoria"]]);
         $videoNuevo->setTipoCategoria($tipoCategoria[0]);
 
-        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> $data["tipo_privacidad"]]);
+        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["nombre"=> $data["tipoPrivacidad"]]);
         $videoNuevo->setTipoPrivacidad($tipoPrivacidad[0]);
 
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
@@ -113,16 +113,17 @@ class VideoController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $listaVideos = $entityManager->getRepository(Video::class)->findVideosPorCategoria(["nombre"=> $data["nombre"]]);
 
-        return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+        return $this->json($listaVideos, Response::HTTP_OK);
     }
 
-    #[Route('/buscar', name: "buscar_video_1", methods: ["POST"])]
+    #[Route('/buscar', name: "buscar_video", methods: ["POST"])]
     public function findVideos(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = $request->getContent();
         $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data]);
+        $listaCanales = $entityManager->getRepository(Canal::class)->findCanales(["nombre"=> $data]);
 
-        return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
+        return $this->json(['videos' => $listaVideos, $listaCanales], Response::HTTP_OK);
     }
 
     #[Route('/getVideosRecomendados', name: "get_videos_recomendado", methods: ["POST"])]
