@@ -110,6 +110,30 @@ class VideoRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function getComentariosLista(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idVideo = $id["id"];
+        $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal from safatuber24.comentario c
+    join safatuber24.usuario u on c.id_usuario = u.id
+    left join safatuber24.canal c2 on u.id = c2.id_usuario
+    where c.id_video = 3 and c.id_comentario_padre IS NULL;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
+        return $resultSet->fetchAllAssociative();
+    }
+    public function getRespuestaComentariosLista(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idVideo = $id["id"];
+        $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal from safatuber24.comentario c
+    join safatuber24.usuario u on c.id_usuario = u.id
+    left join safatuber24.canal c2 on u.id = c2.id_usuario
+    where c.id_video = 3 and c.id_comentario_padre IS NULL;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+
 
 //    /**
 //     * @return Video[] Returns an array of Video objects

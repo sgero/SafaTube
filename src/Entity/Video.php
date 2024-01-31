@@ -55,6 +55,15 @@ class Video
     #[ORM\JoinColumn(name: "id_video", referencedColumnName: "id")]
     #[ORM\InverseJoinColumn(name: "id_usuario", referencedColumnName: "id")]
     private Collection $visualizaciones;
+
+    #[ORM\Column(name: "contador_likes")]
+    private ?int $contadorLikes = null;
+
+    #[ORM\Column(name: "contador_dislikes")]
+    private ?int $contadorDislikes = null;
+
+    #[ORM\Column(length: 5000)]
+    private ?string $miniatura = null;
     public function getVisualizaciones(): Collection
     {
         return $this->visualizaciones;
@@ -203,6 +212,42 @@ class Video
     public function setTotalVisitas(int $totalVisitas): static
     {
         $this->totalVisitas = $totalVisitas;
+
+        return $this;
+    }
+
+    public function getContadorLikes(): ?int
+    {
+        return $this->contadorLikes;
+    }
+
+    public function setContadorLikes(int $contadorLikes): static
+    {
+        $this->contadorLikes = $contadorLikes;
+
+        return $this;
+    }
+
+    public function getContadorDislikes(): ?int
+    {
+        return $this->contadorDislikes;
+    }
+
+    public function setContadorDislikes(int $contadorDislikes): static
+    {
+        $this->contadorDislikes = $contadorDislikes;
+
+        return $this;
+    }
+
+    public function getMiniatura(): ?string
+    {
+        return $this->miniatura;
+    }
+
+    public function setMiniatura(string $miniatura): static
+    {
+        $this->miniatura = $miniatura;
 
         return $this;
     }
