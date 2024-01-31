@@ -101,6 +101,7 @@ create table video(
                       total_visitas int not null default 0,
                       contador_likes INT not null DEFAULT 0,
                       contador_dislikes INT not null DEFAULT 0,
+                      miniatura varchar(5000) not null,
                       activo bool not null default true,
                       id_tipo_categoria int not null,
                       id_tipo_privacidad int not null,

@@ -57,10 +57,10 @@ class Video
     private Collection $visualizaciones;
 
     #[ORM\Column(name: "contador_likes")]
-    private ?int $contadorLikes = null;
+    private ?int $contadorLikes = 0;
 
     #[ORM\Column(name: "contador_dislikes")]
-    private ?int $contadorDislikes = null;
+    private ?int $contadorDislikes = 0;
 
     #[ORM\Column(length: 5000)]
     private ?string $miniatura = null;

@@ -46,6 +46,7 @@ class VideoController extends AbstractController
         $videoNuevo->setDuracion($data['duracion']);
         $videoNuevo->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $videoNuevo->setEnlace($data['enlace']);
+        $videoNuevo->setMiniatura($data['miniatura']);
 
         $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["nombre"=> $data["tipoCategoria"]]);
         $videoNuevo->setTipoCategoria($tipoCategoria[0]);
@@ -72,6 +73,7 @@ class VideoController extends AbstractController
         $video->setDuracion($data['duracion']);
         $video->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $video->setEnlace($data['enlace']);
+        $video->setMiniatura($data['miniatura']);
 
         $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["id"=> $data["tipo_categoria"]]);
         $video->setTipoCategoria($tipoCategoria[0]);
