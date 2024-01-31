@@ -68,11 +68,14 @@ class VideoRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $idTipoCategoria = $id["id"];
-        $sql = 'select * from safatuber24.video v join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
-         where v.id_tipo_categoria = :id order by v.fecha desc limit 5';
+        $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.video v
+        join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id
+         join safatuber24.canal c on c.id = v.id_canal
+        where tc.id = 1 order by v.fecha desc limit 5;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idTipoCategoria]);
         return $resultSet->fetchAllAssociative();
     }
+
     public function getVideosRecomendados(array $id): array
     {
         $conn = $this->getEntityManager()->getConnection();
@@ -115,9 +118,9 @@ class VideoRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $idVideo = $id["id"];
         $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal from safatuber24.comentario c
-    join safatuber24.usuario u on c.id_usuario = u.id
-    left join safatuber24.canal c2 on u.id = c2.id_usuario
-    where c.id_video = 3 and c.id_comentario_padre IS NULL;';
+                join safatuber24.usuario u on c.id_usuario = u.id
+                left join safatuber24.canal c2 on u.id = c2.id_usuario
+                where c.id_video = :id and c.id_comentario_padre IS NULL;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
         return $resultSet->fetchAllAssociative();
     }
@@ -125,10 +128,14 @@ class VideoRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $idVideo = $id["id"];
-        $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal from safatuber24.comentario c
-    join safatuber24.usuario u on c.id_usuario = u.id
-    left join safatuber24.canal c2 on u.id = c2.id_usuario
-    where c.id_video = 3 and c.id_comentario_padre IS NULL;';
+        $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal, c4.nombre as nombre_canal_comentario_padre 
+                from safatuber24.comentario c
+                join safatuber24.usuario u on c.id_usuario = u.id
+                left join safatuber24.canal c2 on u.id = c2.id_usuario
+                join safatuber24.comentario c3 on c.id_comentario_padre = c3.id
+                join safatuber24.usuario u2 on c3.id_usuario = u2.id
+                left join safatuber24.canal c4 on u2.id = c4.id_usuario
+                where c.id_comentario_padre = :id;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
         return $resultSet->fetchAllAssociative();
     }

@@ -130,7 +130,7 @@ class VideoController extends AbstractController
     public function getVideosRecomendadosAPartirDeVideo(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $listaVideos = $entityManager->getRepository(Video::class)->getVideosRecomendadosAPartirDeVideo(["id"=> $data["id"]]);
+        $listaVideos = $entityManager->getRepository(Video::class)->getVideosRecomendadosAPartirDeVideo(["id"=> $data]);
 
         return $this->json(['videos' => $listaVideos], Response::HTTP_OK);
     }
@@ -164,7 +164,8 @@ class VideoController extends AbstractController
     public function getRespuestaComentariosLista(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $listaRespuestas = $entityManager->getRepository(Video::class)->getRespuestaComentariosLista(["id"=> $data]);
+
+        $listaRespuestas = $entityManager->getRepository(Video::class)->getRespuestaComentariosLista(["id"=> $data["id"]]);
 
         return $this->json(['videos' => $listaRespuestas], Response::HTTP_OK);
     }
