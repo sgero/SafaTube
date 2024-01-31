@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Canal;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,6 +21,19 @@ class CanalRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Canal::class);
+    }
+
+    public function canalMensaje(array $id): array
+    {
+        $sql = 'select distinct c.* from safatuber24.canal c where c.id_usuario in (:id) ';
+
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(Canal::class, 'c');
+        $query = $this->getEntityManager()->createNativeQuery($sql,$rsm);
+        $query->setParameter("id", $id, ArrayParameterType::INTEGER);
+
+        $result = $query->getResult();
+        return $result;
     }
 
     public function findCanales(array $nombre): array
