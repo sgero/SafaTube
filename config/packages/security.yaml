@@ -13,12 +13,6 @@ security:
                 class: App\Entity\Usuario
                 property: username
     firewalls:
-#        main:
-#            form_login:
-#                provider: app_user_provider
-#                login_path: login
-#                check_path: login
-#                csrf_token_generator: security.csrf.token_manager
         login:
             pattern: ^/api/login
             stateless: true
@@ -50,7 +44,3 @@ when@test:
                 cost: 4 # Lowest possible value for bcrypt
                 time_cost: 3 # Lowest possible value for argon
                 memory_cost: 10 # Lowest possible value for argon
-
-
-
-
