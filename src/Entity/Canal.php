@@ -26,6 +26,10 @@ class Canal
     #[ORM\Column(length: 30)]
     private ?string $apellidos = null;
 
+//    #[ORM\Column(length: 200)]
+//    private ?string $email = null;
+//    #[ORM\Column(length: 255, unique: true)]
+//    private ?string $email = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $fecha_nacimiento = null;
@@ -45,6 +49,9 @@ class Canal
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_contenido")]
     private ?TipoContenido $tipoContenido = null;
+
+    #[ORM\Column(length: 5000)]
+    private ?string $banner = null;
 
 
     public function __construct()
@@ -158,5 +165,30 @@ class Canal
         return $this;
     }
 
+    public function getBanner(): ?string
+    {
+        return $this->banner;
+    }
 
+    public function setBanner(string $banner): static
+    {
+        $this->banner = $banner;
+
+        return $this;
+    }
+
+
+
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
 }
