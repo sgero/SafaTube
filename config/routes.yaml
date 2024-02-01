@@ -17,6 +17,13 @@ verificar_usuario:
     controller: App\Controller\RegistroController::verifyUser
     methods: ['GET']
 
+
+enviar_verificacion:
+    path: /api/registro/enviar
+    controller: App\Controller\RegistroController::sendVerificationEmail
+    methods: ['POST']
+
+
 reenviar_verificacion:
     path: /api/registro/reenviar
     controller: App\Controller\RegistroController::resendVerificationEmail

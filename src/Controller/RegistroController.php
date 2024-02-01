@@ -124,6 +124,31 @@ class RegistroController extends AbstractController
             return new JsonResponse(['message' => 'Usuario verificado con éxito'], 200);
         }
 
+    #[Route('/enviar', name: 'enviar_verificacion', methods: ['POST'])]
+    private function sendVerificationEmail(Usuario $user): JsonResponse
+    {
+        $email = (new Email())
+            ->from('safatuberisk24@gmail.com')
+            ->to($user->getEmail())
+            ->subject('Verificación de Correo Electrónico')
+            ->html(
+                $this->renderView(
+                    'emails/verification.html.twig',
+                    ['token' => $user->getVerificationToken()]
+                )
+            );
+
+        try {
+            $this->mailer->send($email);
+        } catch (\Exception $e) {
+            $this->logger->error('Error al enviar el correo de verificación: ' . $e->getMessage());
+            return new JsonResponse(['error' => 'Error al enviar el correo de verificación'], 500);
+        }
+
+        // Devolver una respuesta exitosa si todo va bien
+        return new JsonResponse(['message' => 'Correo de verificación enviado con éxito'], 200);
+    }
+
         #[Route('/reenviar', name: 'reenviar_verificacion', methods: ['POST'])]
         public function resendVerificationEmail(Request $request, EntityManagerInterface $entityManager): JsonResponse
         {
@@ -139,7 +164,7 @@ class RegistroController extends AbstractController
             }
 
             // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
-            if ($user->getCuentaValidada()) {
+            if ($user->getIsVerified()) {
                 return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
             }
 //        // Guardar el canal con el token de verificación actualizado
@@ -158,33 +183,6 @@ class RegistroController extends AbstractController
 //        $this->verificationToken = $token;
 //    }
 
-    private function sendVerificationEmail(Usuario $user): JsonResponse
-    {
-        $email = (new Email())
-            ->from('safatuberisk24@gmail.com')
-            ->to($user->getEmail())
-            ->subject('Verificación de Correo Electrónico')
-            ->html(
-                $this->renderView(
-                    'emails/verification.html.twig',
-                    ['token' => $user->getVerificationToken()]
-                )
-            );
 
-        try {
-            $this->mailer->send($email);
-        } catch (TransportExceptionInterface $e) {
-            // Manejar la excepción (por ejemplo, log o devolver una respuesta de error)
-
-            // Opción 1: Registrar el error
-            $this->logger->error('Error al enviar el correo de verificación: ' . $e->getMessage());
-
-            // Opción 2: Devolver una respuesta de error
-            return new JsonResponse(['error' => 'Error al enviar el correo de verificación'], 500);
-        }
-
-        // Devolver una respuesta exitosa si todo va bien
-        return new JsonResponse(['message' => 'Correo de verificación enviado con éxito'], 200);
-    }
 
 }
