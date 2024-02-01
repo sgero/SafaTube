@@ -169,6 +169,15 @@ class VideoController extends AbstractController
 
         return $this->json(['videos' => $listaRespuestas], Response::HTTP_OK);
     }
+    #[Route('/getRespuestaDeRespuestasLista', name: "get_respuestas_respuestas_lista", methods: ["POST"])]
+    public function getRespuestaDeRespuestasLista(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $listaRespuestas = $entityManager->getRepository(Video::class)->getRespuestaDeRespuestasLista(["id"=> $data["id"]]);
+
+        return $this->json(['videos' => $listaRespuestas], Response::HTTP_OK);
+    }
 
     #[Route('/valorar', name: 'valorar_video', methods: ['POST'])]
     public function valorarVideo(EntityManagerInterface $entityManager, Request $request): JsonResponse
