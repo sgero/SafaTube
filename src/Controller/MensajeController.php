@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Mensaje;
 use App\Entity\Usuario;
+use App\Repository\CanalRepository;
 use App\Repository\MensajeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,10 +17,18 @@ use \DateTime;
 #[Route('/api/mensaje')]
 class MensajeController extends AbstractController
 {
-    #[Route('/listar', name: 'api_mensaje_list', methods: ['GET'])]
-    public function list(MensajeRepository $mensajeRepository): JsonResponse
-    {
+    #[Route('/listartodo', name: 'api_mensaje_listtodo', methods: ['GET'])]
+    public function listtodo(MensajeRepository $mensajeRepository): JsonResponse
+    { //añadir esto a los variables que entra cuando tengamos login: JWTTokenManagerInterface $jwtManager, Request $request
         $mensajes = $mensajeRepository->findAll();
+
+        return $this->json($mensajes);
+    }
+    #[Route('/listar', name: 'api_mensaje_list', methods: ['POST'])]
+    public function list(MensajeRepository $mensajeRepository, Request $request): JsonResponse
+    { //añadir esto a los variables que entra cuando tengamos login: JWTTokenManagerInterface $jwtManager, Request $request
+        $data = json_decode($request->getContent(), true);
+        $mensajes = $mensajeRepository->getMensajes(["id" => $data['usuario_emisor'], "id2"=>$data['usuario_receptor']]);
     
         return $this->json($mensajes);
     }
@@ -28,6 +37,14 @@ class MensajeController extends AbstractController
     public function show(Mensaje $mensaje): JsonResponse
     {
         return $this->json($mensaje);
+    }
+    #[Route('/buscar', name: 'api_mensaje_busca', methods: ['POST'])]
+    public function search(MensajeRepository $mensajeRepository,CanalRepository $canalRepository,Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $mensajes = $mensajeRepository->getBusqueda(["id" => $data['usuario_emisor']]);
+        $canales = $canalRepository->canalMensaje($mensajes);
+        return $this->json($canales);
     }
 
     #[Route('/crear', name: 'api_mensaje_create', methods: ['POST'])]
