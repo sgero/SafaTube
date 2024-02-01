@@ -32,11 +32,12 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
+
     #[ORM\Column(length:255, nullable:true)]
     private ?string $verification_token = null;
 
-    #[ORM\Column(name: 'cuenta_validada', type: 'boolean', nullable: true, options: ['default' => false])]
-    private ?bool $cuenta_validada = false;
+    #[ORM\Column(name: 'is_verified', type: 'boolean', nullable: true, options: ['default' => false])]
+    private ?bool $isVerified = false;
 
 
 
@@ -153,14 +154,14 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isCuentaValidada(): ?bool
+    public function getIsVerified(): ?bool
     {
-        return $this->cuenta_validada;
+        return $this->isVerified;
     }
 
-    public function setCuentaValidada(bool $cuenta_validada): static
+    public function setIsVerified(bool $isVerified): static
     {
-        $this->cuenta_validada = $cuenta_validada;
+        $this->isVerified = $isVerified;
 
         return $this;
     }
