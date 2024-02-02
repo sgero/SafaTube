@@ -129,30 +129,14 @@ class VideoRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $idVideo = $id["id"];
-        $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal, c4.nombre as nombre_canal_comentario_padre 
+        $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal, c3.nombre as nombre_usuario_mencionado
                 from safatuber24.comentario c
                 join safatuber24.usuario u on c.id_usuario = u.id
                 left join safatuber24.canal c2 on u.id = c2.id_usuario
-                join safatuber24.comentario c3 on c.id_comentario_padre = c3.id
-                join safatuber24.usuario u2 on c3.id_usuario = u2.id
-                left join safatuber24.canal c4 on u2.id = c4.id_usuario
-                where c.id_comentario_padre = :id;';
-        $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
-        return $resultSet->fetchAllAssociative();
-    }
-
-    public function getRespuestaDeRespuestasLista(array $id): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $idVideo = $id["id"];
-        $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal, c4.nombre as nombre_canal_comentario_padre 
-                from safatuber24.comentario c
-                join safatuber24.usuario u on c.id_usuario = u.id
-                left join safatuber24.canal c2 on u.id = c2.id_usuario
-                join safatuber24.comentario c3 on c.id_comentario_padre = c3.id
-                join safatuber24.usuario u2 on c3.id_usuario = u2.id
-                left join safatuber24.canal c4 on u2.id = c4.id_usuario
-                where c.id_comentario_padre = :id;';
+                join safatuber24.usuario u2 on c.id_usuario_mencionado = u2.id
+                join safatuber24.canal c3 on u2.id = c3.id_usuario
+                where c.id_comentario_padre = :id
+                order by c.fecha;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
         return $resultSet->fetchAllAssociative();
     }
