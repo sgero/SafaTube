@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\FiltroDTO;
 use App\Entity\Canal;
 use App\Entity\Comentario;
 use App\Entity\Like;
@@ -11,6 +12,7 @@ use App\Entity\TipoPrivacidad;
 use App\Entity\Usuario;
 use App\Entity\Video;
 use App\Repository\VideoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -124,8 +126,11 @@ class VideoController extends AbstractController
         $data = $request->getContent();
         $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data]);
         $listaCanales = $entityManager->getRepository(Canal::class)->findCanales(["nombre"=> $data]);
+        $filtro = new FiltroDTO();
+        $filtro->setVideos(new ArrayCollection($listaVideos));
+        $filtro->setCanales(new ArrayCollection($listaCanales));
 
-        return $this->json(['videos' => $listaVideos, $listaCanales], Response::HTTP_OK);
+        return $this->json($filtro, Response::HTTP_OK);
     }
 
     #[Route('/getVideosRecomendadosAPartirDeVideo', name: "get_videos_recomendado_video", methods: ["POST"])]
