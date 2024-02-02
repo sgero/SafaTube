@@ -6,8 +6,13 @@ use App\Repository\UsuarioRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+
+
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
 #[ORM\Table(name: "usuario", schema: "safatuber24")]
+#[UniqueEntity(fields: ["email"], message: "Este correo electrónico ya está en uso.")]
 class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -23,6 +28,30 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
 
     #[ORM\Column(name: 'es_admin')]
     private ?bool $admin = false;
+
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $email = null;
+
+
+    #[ORM\Column(length:255, nullable:true)]
+    private ?string $verification_token = null;
+
+    #[ORM\Column(name: 'is_verified', type: 'boolean', nullable: true, options: ['default' => false])]
+    private ?bool $isVerified = false;
+
+
+
+//    #[ORM\Column(length: 255, nullable: true)]
+//    private ?string $resetPasswordToken = null;
+//
+//    #[ORM\OneToOne(targetEntity: Canal::class, mappedBy: 'usuario', cascade: ['persist', 'remove'])]
+//    private ?Canal $canal = null;
+//
+//    #[ORM\Column(type: 'datetime', nullable: true)]
+//    private ?\DateTimeInterface $resetPasswordTokenExpiresAt = null;
+//
+//    #[ORM\Column(length: 255, nullable: true)]
+//    private ?string $verificationToken = null;
 
     public function getId(): ?int
     {
@@ -73,5 +102,71 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     {
         return $this-> getUsername();
     }
+
+
     public function eraseCredentials(): void{}
+
+//    public function getEmail(): ?string
+//    {
+//        return $this->email;
+//    }
+//
+//    public function setEmail(string $email): static
+//    {
+//        $this->email = $email;
+//
+//        return $this;
+//    }
+
+//
+//    public function getCanal(): ?Canal
+//    {
+//        return $this->canal;
+//    }
+//
+    public function generateVerificationToken(): void
+    {
+        $this->verification_token = bin2hex(random_bytes(32));
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verification_token;
+    }
+
+   public function setVerificationToken(?string $verification_token): static
+   {
+       $this->verification_token = $verification_token;
+
+       return $this;
+   }
+
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getIsVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+
+
+
 }

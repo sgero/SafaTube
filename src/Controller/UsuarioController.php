@@ -67,6 +67,24 @@ class UsuarioController extends AbstractController
     }
 
 
+    //El método de LOGIN lo implementa el SECURITY BUNDLE
+//    #[Route('/login', name: "login", methods: ["POST"])]
+//    public function login(Request $request, UsuarioRepository $usuarioRepository, UserPasswordHasherInterface $passwordHasher):JsonResponse
+//    {
+//        $json = json_decode($request-> getContent(), true);
+//
+//        $usuario = $usuarioRepository->findOneBy(["username" => $json["username"]]);
+//
+//        if(!$usuario){
+//            return $this->json(['message' => 'Usuario no encontrado'], Response::HTTP_NOT_FOUND);
+//        }
+//
+//        if(!$passwordHasher->isPasswordValid($usuario, $json["password"])){
+//            return $this->json(['message' => 'Contraseña incorrecta'], Response::HTTP_BAD_REQUEST);
+//        }
+//
+//        return $this->json(['message' => 'Bienvenido'], Response::HTTP_OK);
+//    }
 
 
 }
