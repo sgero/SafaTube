@@ -32,8 +32,8 @@ class NotificacionController extends AbstractController
         return $this->json($notificacion);
     }
 
-    #[Route('/crear', name: "crear_notificacion", methods: ["POST"])]
-    public function crear(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    //#[Route('/crear', name: "crear_notificacion", methods: ["POST"])]
+    public function crear($entityManager, $request):JsonResponse
     {
         $json = json_decode($request-> getContent(), true);
 
