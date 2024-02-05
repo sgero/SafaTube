@@ -21,6 +21,17 @@ class SuscripcionRepository extends ServiceEntityRepository
         parent::__construct($registry, Suscripcion::class);
     }
 
+    public function verificarSuscripcion(array $datos): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idUsuario = $datos["id"]["usuario"];
+        $idCanal = $datos["id"]["canal"];
+        $sql = 'select * from safatuber24.suscripcion s
+                where s.id_usuario_suscriptor = :idUsuario and s.id_canal_suscrito = :idCanal;';
+        $resultSet = $conn->executeQuery($sql, ['idUsuario' => $idUsuario, 'idCanal' => $idCanal]);
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return Suscripcion[] Returns an array of Suscripcion objects
 //     */
