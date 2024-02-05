@@ -50,6 +50,18 @@ class SuscripcionController extends AbstractController
 
         return $this->json(['message' => 'Suscripción creada correctamente'], Response::HTTP_CREATED);
     }
+    #[Route('/verificar', name: 'verificar_suscripcion', methods: ['POST'])]
+    public function verificar(EntityManagerInterface $entityManager, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $suscripciones = $entityManager->getRepository(Suscripcion::class)->verificarSuscripcion(["id"=> $data]);
+
+        if ($suscripciones != null){
+            return $this->json([true], Response::HTTP_OK);
+        }else{
+            return $this->json([false], Response::HTTP_OK);
+        }
+    }
 
     #[Route('/editar/{id}', name: "editar_suscripcion", methods: ["PUT"])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Suscripcion $suscripcion):JsonResponse
