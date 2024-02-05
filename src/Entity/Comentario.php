@@ -44,6 +44,10 @@ class Comentario
     #[ORM\JoinColumn(nullable: false, name: "id_usuario")]
     private ?Usuario $usuario = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false, name: "id_usuario_mencionado")]
+    private ?Usuario $usuarioMencionado = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -163,6 +167,18 @@ class Comentario
     public function setUsuario(?Usuario $usuario): static
     {
         $this->usuario = $usuario;
+
+        return $this;
+    }
+
+    public function getUsuarioMencionado(): ?Usuario
+    {
+        return $this->usuarioMencionado;
+    }
+
+    public function setUsuarioMencionado(?Usuario $usuarioMencionado): static
+    {
+        $this->usuarioMencionado = $usuarioMencionado;
 
         return $this;
     }

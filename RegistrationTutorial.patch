@@ -1,0 +1,573 @@
+Subject: [PATCH] Changes
+---
+Index: src/Controller/SendEmailController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Controller/SendEmailController.php b/src/Controller/SendEmailController.php
+deleted file mode 100644
+--- a/src/Controller/SendEmailController.php	
++++ /dev/null	
+@@ -1,40 +0,0 @@
+-<?php
+-
+-namespace App\Controller;
+-
+-use App\Entity\Usuario;
+-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+-use Symfony\Component\HttpFoundation\JsonResponse;
+-use Symfony\Component\HttpFoundation\Response;
+-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+-use Symfony\Component\Mailer\MailerInterface;
+-use Symfony\Component\Mime\Email;
+-use Symfony\Component\Routing\Annotation\Route;
+-
+-class SendEmailController extends AbstractController
+-{
+-    private $mailer;
+-    private $logger;
+-
+-    #[Route('/send/email', name: 'app_send_email')]
+-    public function sendMail(MailerInterface $mailer): Response
+-    {
+-
+-        try {
+-            $email = (new Email())
+-                ->from('safatuberisk24@gmail.com')
+-            //    ->to('$user->getEmail()')
+-                ->to('sgarciaguerrero@safareyes.es')
+-                ->subject('Verifica tu cuenta')
+-                ->text('Hola, por favor verifica tu cuenta')
+-                ->html('<p>Hola, por favor verifica tu cuenta</p>');
+-
+-            $mailer->send($email);
+-        } catch (TransportExceptionInterface $e) {
+-            $this->logger->error('Error al enviar el correo electrónico: ' . $e->getMessage());
+-        }
+-
+-        return $this->json(['message' => 'Email enviado'], Response::HTTP_OK);
+-    }
+-
+-}
+Index: src/Entity/Usuario.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Entity/Usuario.php b/src/Entity/Usuario.php
+--- a/src/Entity/Usuario.php	
++++ b/src/Entity/Usuario.php	
+@@ -38,6 +38,9 @@
+     #[ORM\Column(name: 'cuenta_validada', type: 'boolean', nullable: true, options: ['default' => false])]
+     private ?bool $cuenta_validada = false;
+ 
++    #[ORM\Column(type: 'boolean')]
++    private $isVerified = false;
++
+ 
+ 
+ //    #[ORM\Column(length: 255, nullable: true)]
+@@ -162,6 +165,18 @@
+     {
+         $this->cuenta_validada = $cuenta_validada;
+ 
++        return $this;
++    }
++
++    public function isVerified(): bool
++    {
++        return $this->isVerified;
++    }
++
++    public function setIsVerified(bool $isVerified): static
++    {
++        $this->isVerified = $isVerified;
++
+         return $this;
+     }
+ 
+Index: composer.lock
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/composer.lock b/composer.lock
+--- a/composer.lock	
++++ b/composer.lock	
+@@ -4,7 +4,7 @@
+         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+         "This file is @generated automatically"
+     ],
+-    "content-hash": "2080966ded47ec636d20df83cd037240",
++    "content-hash": "f25ee1fe41064e1cc40a412a5a80708d",
+     "packages": [
+         {
+             "name": "api-platform/core",
+@@ -8177,6 +8177,52 @@
+             "time": "2023-11-06T11:00:25+00:00"
+         },
+         {
++            "name": "symfonycasts/verify-email-bundle",
++            "version": "v1.16.1",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/SymfonyCasts/verify-email-bundle.git",
++                "reference": "418f33c5112bb2ee2ae7132e52100b279264ff52"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/SymfonyCasts/verify-email-bundle/zipball/418f33c5112bb2ee2ae7132e52100b279264ff52",
++                "reference": "418f33c5112bb2ee2ae7132e52100b279264ff52",
++                "shasum": ""
++            },
++            "require": {
++                "ext-json": "*",
++                "php": ">=8.1",
++                "symfony/config": "^5.4 | ^6.0 | ^7.0",
++                "symfony/dependency-injection": "^5.4 | ^6.0 | ^7.0",
++                "symfony/deprecation-contracts": "^2.2 | ^3.0",
++                "symfony/http-kernel": "^5.4 | ^6.0 | ^7.0",
++                "symfony/routing": "^5.4 | ^6.0 | ^7.0"
++            },
++            "require-dev": {
++                "doctrine/orm": "^2.7",
++                "doctrine/persistence": "^2.0",
++                "symfony/framework-bundle": "^5.4 | ^6.0 | ^7.0",
++                "symfony/phpunit-bridge": "^5.4 | ^6.0 | ^7.0"
++            },
++            "type": "symfony-bundle",
++            "autoload": {
++                "psr-4": {
++                    "SymfonyCasts\\Bundle\\VerifyEmail\\": "src/"
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "description": "Simple, stylish Email Verification for Symfony",
++            "support": {
++                "issues": "https://github.com/SymfonyCasts/verify-email-bundle/issues",
++                "source": "https://github.com/SymfonyCasts/verify-email-bundle/tree/v1.16.1"
++            },
++            "time": "2024-01-05T15:51:10+00:00"
++        },
++        {
+             "name": "twig/extra-bundle",
+             "version": "v3.8.0",
+             "source": {
+Index: .env
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.env b/.env
+--- a/.env	
++++ b/.env	
+@@ -38,7 +38,7 @@
+ 
+ ###> symfony/mailer ###
+ # MAILER_DSN=null://null
+-MAILER_DSN=gmail://"safatuberisk24@gmail.com":$SafatubeRisk2024@default
++MAILER_DSN=gmail://safatuberisk24@gmail.com:SafatubeRisk2024
+ 
+ ###< symfony/mailer ###
+ 
+Index: composer.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/composer.json b/composer.json
+--- a/composer.json	
++++ b/composer.json	
+@@ -48,6 +48,7 @@
+         "symfony/validator": "6.4.*",
+         "symfony/web-link": "6.4.*",
+         "symfony/yaml": "6.4.*",
++        "symfonycasts/verify-email-bundle": "^1.16",
+         "twig/extra-bundle": "^2.12|^3.0",
+         "twig/twig": "^2.12|^3.0"
+     },
+Index: symfony.lock
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/symfony.lock b/symfony.lock
+--- a/symfony.lock	
++++ b/symfony.lock	
+@@ -332,6 +332,9 @@
+             "config/routes/web_profiler.yaml"
+         ]
+     },
++    "symfonycasts/verify-email-bundle": {
++        "version": "v1.16.1"
++    },
+     "twig/extra-bundle": {
+         "version": "v3.8.0"
+     }
+Index: src/Controller/RegistrationController.php
+===================================================================
+diff --git a/src/Controller/RegistrationController.php b/src/Controller/RegistrationController.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Controller/RegistrationController.php	
+@@ -0,0 +1,95 @@
++<?php
++
++namespace App\Controller;
++
++use App\Entity\Usuario;
++use App\Form\RegistrationFormType;
++use App\Repository\UsuarioRepository;
++use App\Security\EmailVerifier;
++use Doctrine\ORM\EntityManagerInterface;
++use Symfony\Bridge\Twig\Mime\TemplatedEmail;
++use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
++use Symfony\Component\HttpFoundation\Request;
++use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\Mime\Address;
++use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
++use Symfony\Component\Routing\Annotation\Route;
++use Symfony\Contracts\Translation\TranslatorInterface;
++use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
++
++class RegistrationController extends AbstractController
++{
++    private EmailVerifier $emailVerifier;
++
++    public function __construct(EmailVerifier $emailVerifier)
++    {
++        $this->emailVerifier = $emailVerifier;
++    }
++
++    #[Route('/register', name: 'app_register')]
++    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
++    {
++        $user = new Usuario();
++        $form = $this->createForm(RegistrationFormType::class, $user);
++        $form->handleRequest($request);
++
++        if ($form->isSubmitted() && $form->isValid()) {
++            // encode the plain password
++            $user->setPassword(
++                $userPasswordHasher->hashPassword(
++                    $user,
++                    $form->get('plainPassword')->getData()
++                )
++            );
++
++            $entityManager->persist($user);
++            $entityManager->flush();
++
++            // generate a signed url and email it to the user
++            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
++                (new TemplatedEmail())
++                    ->from(new Address('safatuberisk24@gmail.com', 'Registro de Usuario'))
++                    ->to($user->getEmail())
++                    ->subject('Please Confirm your Email')
++                    ->htmlTemplate('registration/confirmation_email.html.twig')
++            );
++            // do anything else you need here, like send an email
++
++            return $this->redirectToRoute('login');
++        }
++
++        return $this->render('registration/register.html.twig', [
++            'registrationForm' => $form->createView(),
++        ]);
++    }
++
++    #[Route('/verify/email', name: 'app_verify_email')]
++    public function verifyUserEmail(Request $request, TranslatorInterface $translator, UsuarioRepository $usuarioRepository): Response
++    {
++        $id = $request->query->get('id');
++
++        if (null === $id) {
++            return $this->redirectToRoute('app_register');
++        }
++
++        $user = $usuarioRepository->find($id);
++
++        if (null === $user) {
++            return $this->redirectToRoute('app_register');
++        }
++
++        // validate email confirmation link, sets User::isVerified=true and persists
++        try {
++            $this->emailVerifier->handleEmailConfirmation($request, $user);
++        } catch (VerifyEmailExceptionInterface $exception) {
++            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
++
++            return $this->redirectToRoute('app_register');
++        }
++
++        // @TODO Change the redirect on success and handle or remove the flash message in your templates
++        $this->addFlash('success', 'Your email address has been verified.');
++
++        return $this->redirectToRoute('app_register');
++    }
++}
+Index: src/Form/RegistrationFormType.php
+===================================================================
+diff --git a/src/Form/RegistrationFormType.php b/src/Form/RegistrationFormType.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Form/RegistrationFormType.php	
+@@ -0,0 +1,55 @@
++<?php
++
++namespace App\Form;
++
++use App\Entity\Usuario;
++use Symfony\Component\Form\AbstractType;
++use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
++use Symfony\Component\Form\Extension\Core\Type\PasswordType;
++use Symfony\Component\Form\FormBuilderInterface;
++use Symfony\Component\OptionsResolver\OptionsResolver;
++use Symfony\Component\Validator\Constraints\IsTrue;
++use Symfony\Component\Validator\Constraints\Length;
++use Symfony\Component\Validator\Constraints\NotBlank;
++
++class RegistrationFormType extends AbstractType
++{
++    public function buildForm(FormBuilderInterface $builder, array $options): void
++    {
++        $builder
++            ->add('username')
++            ->add('agreeTerms', CheckboxType::class, [
++                                'mapped' => false,
++                'constraints' => [
++                    new IsTrue([
++                        'message' => 'You should agree to our terms.',
++                    ]),
++                ],
++            ])
++            ->add('plainPassword', PasswordType::class, [
++                                // instead of being set onto the object directly,
++                // this is read and encoded in the controller
++                'mapped' => false,
++                'attr' => ['autocomplete' => 'new-password'],
++                'constraints' => [
++                    new NotBlank([
++                        'message' => 'Please enter a password',
++                    ]),
++                    new Length([
++                        'min' => 6,
++                        'minMessage' => 'Your password should be at least {{ limit }} characters',
++                        // max length allowed by Symfony for security reasons
++                        'max' => 4096,
++                    ]),
++                ],
++            ])
++        ;
++    }
++
++    public function configureOptions(OptionsResolver $resolver): void
++    {
++        $resolver->setDefaults([
++            'data_class' => Usuario::class,
++        ]);
++    }
++}
+Index: src/Security/EmailVerifier.php
+===================================================================
+diff --git a/src/Security/EmailVerifier.php b/src/Security/EmailVerifier.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Security/EmailVerifier.php	
+@@ -0,0 +1,53 @@
++<?php
++
++namespace App\Security;
++
++use Doctrine\ORM\EntityManagerInterface;
++use Symfony\Bridge\Twig\Mime\TemplatedEmail;
++use Symfony\Component\HttpFoundation\Request;
++use Symfony\Component\Mailer\MailerInterface;
++use Symfony\Component\Security\Core\User\UserInterface;
++use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
++use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
++
++class EmailVerifier
++{
++    public function __construct(
++        private VerifyEmailHelperInterface $verifyEmailHelper,
++        private MailerInterface $mailer,
++        private EntityManagerInterface $entityManager
++    ) {
++    }
++
++    public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
++    {
++        $signatureComponents = $this->verifyEmailHelper->generateSignature(
++            $verifyEmailRouteName,
++            $user->getId(),
++            $user->getEmail(),
++            ['id' => $user->getId()]
++        );
++
++        $context = $email->getContext();
++        $context['signedUrl'] = $signatureComponents->getSignedUrl();
++        $context['expiresAtMessageKey'] = $signatureComponents->getExpirationMessageKey();
++        $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
++
++        $email->context($context);
++
++        $this->mailer->send($email);
++    }
++
++    /**
++     * @throws VerifyEmailExceptionInterface
++     */
++    public function handleEmailConfirmation(Request $request, UserInterface $user): void
++    {
++        $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
++
++        $user->setIsVerified(true);
++
++        $this->entityManager->persist($user);
++        $this->entityManager->flush();
++    }
++}
+Index: templates/registration/confirmation_email.html.twig
+===================================================================
+diff --git a/templates/registration/confirmation_email.html.twig b/templates/registration/confirmation_email.html.twig
+new file mode 100644
+--- /dev/null	
++++ b/templates/registration/confirmation_email.html.twig	
+@@ -0,0 +1,11 @@
++<h1>Hi! Please confirm your email!</h1>
++
++<p>
++    Please confirm your email address by clicking the following link: <br><br>
++    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
++    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
++</p>
++
++<p>
++    Cheers!
++</p>
+Index: assets/SQL Scripts/Safatube.sql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/assets/SQL Scripts/Safatube.sql b/assets/SQL Scripts/Safatube.sql
+--- a/assets/SQL Scripts/Safatube.sql	
++++ b/assets/SQL Scripts/Safatube.sql	
+@@ -31,6 +31,7 @@
+ alter table usuario add column verification_token varchar(255);
+ alter table usuario add column email varchar(255);
+ alter table usuario add column cuenta_validada boolean not null default false;
++alter table usuario add column is_verified boolean not null default false;
+ 
+ 
+ CREATE TABLE token
+Index: templates/registration/register.html.twig
+===================================================================
+diff --git a/templates/registration/register.html.twig b/templates/registration/register.html.twig
+new file mode 100644
+--- /dev/null	
++++ b/templates/registration/register.html.twig	
+@@ -0,0 +1,24 @@
++{% extends 'base.html.twig' %}
++
++{% block title %}Register{% endblock %}
++
++{% block body %}
++    {% for flash_error in app.flashes('verify_email_error') %}
++        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
++    {% endfor %}
++
++    <h1>Register</h1>
++
++    {{ form_errors(registrationForm) }}
++
++    {{ form_start(registrationForm) }}
++        {{ form_row(registrationForm.email) }}
++        {{ form_row(registrationForm.username) }}
++        {{ form_row(registrationForm.plainPassword, {
++            label: 'Password'
++        }) }}
++        {{ form_row(registrationForm.agreeTerms) }}
++
++        <button type="submit" class="btn">Register</button>
++    {{ form_end(registrationForm) }}
++{% endblock %}
+Index: src/Controller/EmailVerifier.php
+===================================================================
+diff --git a/src/Controller/EmailVerifier.php b/src/Controller/EmailVerifier.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Controller/EmailVerifier.php	
+@@ -0,0 +1,53 @@
++<?php
++
++namespace App\Controller;
++
++use Doctrine\ORM\EntityManagerInterface;
++use Symfony\Bridge\Twig\Mime\TemplatedEmail;
++use Symfony\Component\HttpFoundation\Request;
++use Symfony\Component\Mailer\MailerInterface;
++use Symfony\Component\Security\Core\User\UserInterface;
++use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
++use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
++
++class EmailVerifier
++{
++    public function __construct(
++        private VerifyEmailHelperInterface $verifyEmailHelper,
++        private MailerInterface $mailer,
++        private EntityManagerInterface $entityManager
++    ) {
++    }
++
++    public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
++    {
++        $signatureComponents = $this->verifyEmailHelper->generateSignature(
++            $verifyEmailRouteName,
++            $user->getId(),
++            $user->getEmail(),
++            ['id' => $user->getId()]
++        );
++
++        $context = $email->getContext();
++        $context['signedUrl'] = $signatureComponents->getSignedUrl();
++        $context['expiresAtMessageKey'] = $signatureComponents->getExpirationMessageKey();
++        $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
++
++        $email->context($context);
++
++        $this->mailer->send($email);
++    }
++
++    /**
++     * @throws VerifyEmailExceptionInterface
++     */
++    public function handleEmailConfirmation(Request $request, UserInterface $user): void
++    {
++        $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
++
++        $user->setIsVerified(true);
++
++        $this->entityManager->persist($user);
++        $this->entityManager->flush();
++    }
++}
+Index: config/bundles.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/config/bundles.php b/config/bundles.php
+--- a/config/bundles.php	
++++ b/config/bundles.php	
+@@ -16,4 +16,5 @@
+     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class => ['all' => true],
+     ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
+     Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
++    SymfonyCasts\Bundle\VerifyEmail\SymfonyCastsVerifyEmailBundle::class => ['all' => true],
+ ];
