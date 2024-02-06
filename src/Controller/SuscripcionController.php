@@ -40,10 +40,10 @@ class SuscripcionController extends AbstractController
 
         $nuevaSuscripcion= new Suscripcion();
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_suscriptor"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $nuevaSuscripcion->setIdUsuarioSuscriptor($usuario[0]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal_suscrito"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
         $nuevaSuscripcion->setIdCanalSuscrito($canal[0]);
 
         $entityManager->persist($nuevaSuscripcion);
