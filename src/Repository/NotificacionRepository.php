@@ -20,6 +20,16 @@ class NotificacionRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Notificacion::class);
     }
+    public function getcountmensaje(int $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select count(n.id) from safatuber24.notificacion n 
+                   where n.id_canal = :id and n.id_tipo_notificacion = 5 
+                     and n.atendida = false';
+        $resultSet = $conn->executeQuery($sql, ['id' => $id]);
+
+        return $resultSet->fetchAllAssociative();
+    }
 
 //    /**
 //     * @return Notificacion[] Returns an array of Notificacion objects
