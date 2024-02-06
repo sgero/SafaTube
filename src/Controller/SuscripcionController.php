@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function PHPUnit\Framework\objectEquals;
 
 #[Route('/api/suscripcion')]
 class SuscripcionController extends AbstractController
@@ -77,6 +78,19 @@ class SuscripcionController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'Suscripción modificada'], Response::HTTP_OK);
+    }
+
+    #[Route('/eliminar', name: "eliminar_suscripcion", methods: ["POST"])]
+    public function eliminar(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $suscripciones = $entityManager->getRepository(Suscripcion::class)->verificarSuscripcion(["id"=> $data]);
+        $suscripcion = $entityManager->getRepository(Suscripcion::class)->find($suscripciones[0]["id"]);
+
+        $entityManager->remove($suscripcion);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Suscripción eliminada'], Response::HTTP_OK);
     }
 
     #[Route('/eliminar/{id}', name: "borrar_suscripcion", methods: ["DELETE"])]
