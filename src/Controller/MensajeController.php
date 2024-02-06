@@ -25,11 +25,15 @@ class MensajeController extends AbstractController
         return $this->json($mensajes);
     }
     #[Route('/listar', name: 'api_mensaje_list', methods: ['POST'])]
-    public function list(MensajeRepository $mensajeRepository, Request $request): JsonResponse
+    public function list(EntityManagerInterface $entityManager, MensajeRepository $mensajeRepository, Request $request): JsonResponse
     { //añadir esto a los variables que entra cuando tengamos login: JWTTokenManagerInterface $jwtManager, Request $request
         $data = json_decode($request->getContent(), true);
         $mensajes = $mensajeRepository->getMensajes(["id" => $data['usuario_emisor'], "id2"=>$data['usuario_receptor']]);
-    
+        foreach ($mensajes as $m){
+            $mesaje = $mensajeRepository->find($m['id']);
+            $mesaje->setLeido(true);
+            $entityManager->flush();
+        }
         return $this->json($mensajes);
     }
 
@@ -48,7 +52,7 @@ class MensajeController extends AbstractController
     }
 
     #[Route('/crear', name: 'api_mensaje_create', methods: ['POST'])]
-    public function create(EntityManagerInterface $entityManager, Request $request): JsonResponse
+    public function create(NotificacionController $notificacionController,EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -61,10 +65,10 @@ class MensajeController extends AbstractController
         $usuarioreceptor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_receptor"]]);
         $mensaje->setUsuarioReceptor($usuarioreceptor[0]);
 
-
         $entityManager->persist($mensaje);
         $entityManager->flush();
-
+        $lista = [$usuarioreceptor[0],5,"Nuevo mensaje"];
+        $notificacionController->crear($entityManager,$lista);
         return $this->json(['message' => 'Mensaje creado'], Response::HTTP_CREATED);
     }
 
@@ -88,6 +92,15 @@ class MensajeController extends AbstractController
 
         $entityManager->remove($mensaje);
         $entityManager->flush();
+
+        return $this->json(['message' => 'Mensaje eliminado'], Response::HTTP_OK);
+
+    }
+    #[Route('/leer', name: "api_leer_mensaje", methods: ["post"])]
+    public function lectura(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+
+
 
         return $this->json(['message' => 'Mensaje eliminado'], Response::HTTP_OK);
 

@@ -21,7 +21,7 @@ class Notificacion
     #[ORM\Column(length: 200)]
     private ?string $mensaje = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
 
     #[ORM\ManyToOne(inversedBy: 'notificacions')]
@@ -56,7 +56,7 @@ class Notificacion
 
     public function getFecha(): ?string
     {
-        return $this->fecha->format('d/m/Y H:i:s');
+        return $this->fecha->format('d/m/Y');
     }
 
     public function setFecha(\DateTimeInterface $fecha): static

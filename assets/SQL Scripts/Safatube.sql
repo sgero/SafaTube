@@ -126,14 +126,15 @@ create table video
     total_visitas      int            not null default 0,
     contador_likes     INT            not null DEFAULT 0,
     contador_dislikes  INT            not null DEFAULT 0,
-    activo             bool           not null default true,
-    id_tipo_categoria  int            not null,
-    id_tipo_privacidad int            not null,
-    id_canal           int            not null,
-    primary key (id),
-    constraint fk_video_canal foreign key (id_canal) references canal (id),
-    constraint fk_video_tipo_categoria foreign key (id_tipo_categoria) references tipo_categoria (id),
-    constraint fk_video_tipo_privacidad foreign key (id_tipo_privacidad) references tipo_privacidad (id)
+    miniatura varchar(5000) not null,
+                      activo bool not null default true,
+                      id_tipo_categoria int not null,
+                      id_tipo_privacidad int not null,
+                      id_canal int not null,
+                      primary key (id),
+                      constraint fk_video_canal foreign key (id_canal) references canal(id),
+                      constraint fk_video_tipo_categoria foreign key (id_tipo_categoria) references tipo_categoria(id),
+                      constraint fk_video_tipo_privacidad foreign key (id_tipo_privacidad) references tipo_privacidad(id)
 );
 
 
@@ -148,10 +149,12 @@ create table comentario
     id_video            int          not null,
     id_usuario          int          not null,
     id_comentario_padre int,
-    primary key (id),
-    constraint fk_comentario_video foreign key (id_video) references video (id),
-    constraint fk_comentario_usuario foreign key (id_usuario) references usuario (id),
-    constraint fk_comentario_padre foreign key (id_comentario_padre) references comentario (id)
+    id_usuario_mencionado int,
+                           primary key (id),
+                           constraint fk_comentario_video foreign key (id_video) references video(id),
+                           constraint fk_comentario_usuario foreign key (id_usuario) references usuario(id),
+                           constraint fk_comentario_padre foreign key (id_comentario_padre) references comentario(id),
+                           constraint fk_comentario_usuario_mencionado foreign key(id_usuario_mencionado) references usuario(id)
 );
 
 
