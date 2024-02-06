@@ -52,7 +52,7 @@ class MensajeController extends AbstractController
     }
 
     #[Route('/crear', name: 'api_mensaje_create', methods: ['POST'])]
-    public function create(EntityManagerInterface $entityManager, Request $request): JsonResponse
+    public function create(NotificacionController $notificacionController,EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -65,10 +65,10 @@ class MensajeController extends AbstractController
         $usuarioreceptor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_receptor"]]);
         $mensaje->setUsuarioReceptor($usuarioreceptor[0]);
 
-
         $entityManager->persist($mensaje);
         $entityManager->flush();
-
+        $lista = [$usuarioreceptor[0],5,"Nuevo mensaje"];
+        $notificacionController->crear($entityManager,$lista);
         return $this->json(['message' => 'Mensaje creado'], Response::HTTP_CREATED);
     }
 
