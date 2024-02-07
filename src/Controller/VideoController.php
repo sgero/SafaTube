@@ -12,6 +12,7 @@ use App\Entity\Usuario;
 use App\Entity\Video;
 use App\Repository\VideoRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use PgSql\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -187,6 +188,25 @@ class VideoController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'Like creado'], Response::HTTP_CREATED);
+    }
+
+
+    #[Route('/añadirVisita', name: 'añadir_visita', methods: ['POST'])]
+    public function anyadirVisita(EntityManagerInterface $entityManager, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
+        $totalVisitas = $entityManager->getRepository(Video::class)->getVisitas(["id"=> $data["video"]]);
+
+        $video[0]->addVisualizaciones($usuario[0]);
+        $video[0]->setTotalVisitas($totalVisitas[0]["count"]);
+
+        $entityManager->persist($video[0]);
+        $entityManager->flush();
+
+        return $this->json(['videos' => $video], Response::HTTP_OK);
     }
 
 }
