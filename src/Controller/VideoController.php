@@ -204,16 +204,15 @@ class VideoController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $totalVisitas = $entityManager->getRepository(Video::class)->getVisitas(["id"=> $data["video"]]);
+        $insertarVisitas = $entityManager->getRepository(Video::class)->anyadirVisita(["id"=> $data]);
 
-        $video[0]->addVisualizaciones($usuario[0]);
         $video[0]->setTotalVisitas($totalVisitas[0]["count"]);
 
         $entityManager->persist($video[0]);
         $entityManager->flush();
 
-        return $this->json(['videos' => $video], Response::HTTP_OK);
+        return $this->json(['videos' => $video, 'visitas' => $insertarVisitas], Response::HTTP_OK);
     }
 
 }
