@@ -46,18 +46,20 @@ class ComentarioController extends AbstractController
         $nuevoComentario->setContadorLikes(0);
         $nuevoComentario->setContadorDislikes(0);
 
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]["id"]]);
         $nuevoComentario->setIdVideo($video[0]);
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> 12]);
         $nuevoComentario->setUsuario($usuario[0]);
 
-        if ($data["comentario_padre"] == null){
+        if ($data["comentarioPadre"] == null){
             $entityManager->persist($nuevoComentario);
             $entityManager->flush();
         }else {
-            $comentarioPadre = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario_padre"]]);
+            $comentarioPadre = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentarioPadre"]["id"]]);
             $nuevoComentario->setComentarioPadre($comentarioPadre[0]);
+            $usuarioMencionado = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuarioMencionado"]]);
+            $nuevoComentario->setUsuarioMencionado($usuarioMencionado[0]);
             $entityManager->persist($nuevoComentario);
             $entityManager->flush();
         }

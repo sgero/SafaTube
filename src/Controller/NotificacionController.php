@@ -31,18 +31,30 @@ class NotificacionController extends AbstractController
     {
         return $this->json($notificacion);
     }
+    #[Route('/contar_mensaje', name: "contar_mensaje", methods: ["POST"])]
+    public function contarMensajes(NotificacionRepository $notificacionRepository,EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$data['id']]);
+        $canal = $canales[0];
+        $notificacion = $notificacionRepository->getcountmensaje((int)["id" => $canal->getId()]);
+        $notificacionAtender = $entityManager->getRepository(Notificacion::class)->findBy(["canal"=>$canal->getId()]);
+        $notificacionAtender[0]->setAtendida(true);
+        $entityManager->flush();
+        return $this->json($notificacion[0]);
+    }
 
     //#[Route('/crear', name: "crear_notificacion", methods: ["POST"])]
     public function crear($entityManager, $request):JsonResponse
     {
-        $json = json_decode($request-> getContent(), true);
+        //$json = json_decode($request-> getContent(), true);
 
         $nuevaNotificacion = new Notificacion();
-        $nuevaNotificacion->setMensaje($json["mensaje"]);
+        $nuevaNotificacion->setMensaje($request[2]);
         $nuevaNotificacion->setFecha(new DateTime());
-        $tipo = $entityManager->getRepository(TipoNotificacion::class)->findBy(["id"=> $json["tipoNotificacion"]]);
+        $tipo = $entityManager->getRepository(TipoNotificacion::class)->findBy(["id"=> $request[1]]);
         $nuevaNotificacion->setTipoNotificacion($tipo[0]);
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $json["canal"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["usuario"=> $request[0]]);
         $nuevaNotificacion->setCanal($canal[0]);
 
         $entityManager->persist($nuevaNotificacion);
