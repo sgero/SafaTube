@@ -7,6 +7,8 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use phpDocumentor\Reflection\PseudoTypes\Numeric_;
+use phpDocumentor\Reflection\Types\Integer;
 
 /**
  * @extends ServiceEntityRepository<Canal>
@@ -47,6 +49,16 @@ class CanalRepository extends ServiceEntityRepository
         $resultSet = $conn->executeQuery($sql, ['nombre' => $canal]);
 
         // returns an array of arrays (i.e. a raw data set)
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function getByUsuarioLogueado(int $id): Canal
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $canalId = $id["id"];
+        $sql = 'select c.* from safatuber24.canal c
+                join safatuber24.usuario u on u.id = c.id_usuario where u.username like :username';
+        $resultSet = $conn->executeQuery($sql, ['id' => $canalId]);
         return $resultSet->fetchAllAssociative();
     }
 
