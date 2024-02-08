@@ -30,7 +30,7 @@ class CanalController extends AbstractController
     {
         $data = json_decode($request-> getContent(), true);
         $canalData = $entityManager->getRepository(Canal::class)->getByUsuarioLogueado($data);
-        $canalUsuarioLogeado = $entityManager->getRepository(Usuario::class)->find($canalData[0]["id"]);
+        $canalUsuarioLogeado = $entityManager->getRepository(Canal::class)->find($canalData[0]["id"]);
 
         return $this->json($canalUsuarioLogeado);
     }
