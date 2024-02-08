@@ -207,7 +207,7 @@ class VideoController extends AbstractController
         $totalVisitas = $entityManager->getRepository(Video::class)->getVisitas(["id"=> $data["video"]]);
         $insertarVisitas = $entityManager->getRepository(Video::class)->anyadirVisita(["id"=> $data]);
 
-        $video[0]->setTotalVisitas($totalVisitas[0]["count"]);
+        $video[0]->setTotalVisitas($totalVisitas[0]["count"] +1);
 
         $entityManager->persist($video[0]);
         $entityManager->flush();

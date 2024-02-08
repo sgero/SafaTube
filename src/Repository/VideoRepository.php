@@ -145,8 +145,8 @@ class VideoRepository extends ServiceEntityRepository
     public function anyadirVisita(array $datos): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $idUsuario = $datos["usuario"];
-        $idVideo = $datos["video"];
+        $idUsuario = $datos["id"]["usuario"];
+        $idVideo = $datos["id"]["video"];
         $sql = 'insert into safatuber24.visualizacion_video_usuario  (id_usuario, id_video) values (:idUsuario,:idVideo);';
         $resultSet = $conn->executeQuery($sql, ['idUsuario' => $idUsuario, 'idVideo' => $idVideo]);
         return $resultSet->fetchAllAssociative();
