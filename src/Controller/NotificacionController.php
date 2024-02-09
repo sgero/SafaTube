@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Entity\Canal;
 use App\Entity\Notificacion;
 use App\Entity\TipoNotificacion;
+use App\Entity\Usuario;
 use App\Repository\NotificacionRepository;
 use \DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,9 +37,12 @@ class NotificacionController extends AbstractController
     public function contarMensajes(NotificacionRepository $notificacionRepository,EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$data['id']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$usuario->getId()]);
         $canal = $canales[0];
-        $notificacion = $notificacionRepository->getcountmensaje((int)["id" => $canal->getId()]);
+        $numero = $canal->getId();
+        $notificacion = $notificacionRepository->getcountmensaje($numero);
         return $this->json($notificacion[0]);
     }
 
@@ -45,9 +50,12 @@ class NotificacionController extends AbstractController
     public function contarlikes(NotificacionRepository $notificacionRepository,EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$data['id']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$usuario->getId()]);
         $canal = $canales[0];
-        $notificacion = $notificacionRepository->getcountlike((int)["id" => $canal->getId()]);
+        $numero = $canal->getId();
+        $notificacion = $notificacionRepository->getcountlike($numero);
         return $this->json($notificacion[0]);
     }
 
@@ -55,25 +63,33 @@ class NotificacionController extends AbstractController
     public function contarDislikes(NotificacionRepository $notificacionRepository,EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$data['id']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$usuario->getId()]);
         $canal = $canales[0];
-        $notificacion = $notificacionRepository->getcountDislike((int)["id" => $canal->getId()]);
+        $numero = $canal->getId();
+        $notificacion = $notificacionRepository->getcountDislike($numero);
         return $this->json($notificacion[0]);
     }
     #[Route('/contarsubs', name: "contar_subs", methods: ["POST"])]
     public function contarsubs(NotificacionRepository $notificacionRepository,EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$data['id']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$usuario->getId()]);
         $canal = $canales[0];
-        $notificacion = $notificacionRepository->getcountSubs((int)["id" => $canal->getId()]);
+        $numero = $canal->getId();
+        $notificacion = $notificacionRepository->getcountSubs($numero);
         return $this->json($notificacion[0]);
     }
     #[Route('/notificacion', name: "notificacion", methods: ["POST"])]
     public function notificar(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {   $campana = false;
         $data = json_decode($request->getContent(), true);
-        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$data['id']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$usuario->getId()]);
         $canal = $canales[0];
         $notificacionAtender = $entityManager->getRepository(Notificacion::class)->findBy(["canal"=>$canal->getId(),"atendida" => false]);
         if (!empty($notificacionAtender)){
@@ -86,7 +102,9 @@ class NotificacionController extends AbstractController
     public function atender(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$data['id']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$usuario->getId()]);
         $canal = $canales[0];
         $notificacionAtender = $entityManager->getRepository(Notificacion::class)->findBy(["canal"=>$canal->getId(),"atendida" => false]);
         foreach ($notificacionAtender as $n){
