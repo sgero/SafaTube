@@ -23,7 +23,7 @@ class Video
     #[ORM\Column(length: 1000)]
     private ?string $descripcion = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
 
     #[ORM\Column]
