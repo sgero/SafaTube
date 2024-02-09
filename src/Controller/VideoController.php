@@ -74,17 +74,17 @@ class VideoController extends AbstractController
         $video->setTitulo($data['titulo']);
         $video->setDescripcion($data['descripcion']);
         $video->setDuracion($data['duracion']);
-        $video->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
+        $video->setFecha(date('Y-m-d H:i:s'));
         $video->setEnlace($data['enlace']);
         $video->setMiniatura($data['miniatura']);
 
-        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["id"=> $data["tipo_categoria"]]);
+        $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["nombre"=> $data["tipoCategoria"]]);
         $video->setTipoCategoria($tipoCategoria[0]);
 
-        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> $data["tipo_privacidad"]]);
+        $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["nombre"=> $data["tipoPrivacidad"]]);
         $video->setTipoPrivacidad($tipoPrivacidad[0]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]["id"]]);
         $video->setCanal($canal[0]);
 
         $entityManager->flush();
@@ -214,5 +214,7 @@ class VideoController extends AbstractController
 
         return $this->json(['videos' => $video, 'visitas' => $insertarVisitas], Response::HTTP_OK);
     }
+
+
 
 }

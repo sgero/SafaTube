@@ -44,7 +44,7 @@ class VideoRepository extends ServiceEntityRepository
             SELECT v.* FROM safatuber24.video v join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
             WHERE tc.nombre ILIKE :nombre            ';
 
-        $resultSet = $conn->executeQuery($sql, ['nombre' => $tipoCategoria]);
+        $resultSet = $conn->executeQuery($sql, ["nombre" => $tipoCategoria]);
 
         // returns an array of arrays (i.e. a raw data set)
         return $resultSet->fetchAllAssociative();
