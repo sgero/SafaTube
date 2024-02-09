@@ -121,12 +121,12 @@ class Video
 
     public function getFecha(): ?string
     {
-        return $this->fecha->format('d/m/Y');
+        return $this->fecha->format('d/m/Y H:i:s');
     }
 
     public function setFecha(string $fecha): static
     {
-        $this->fecha = \DateTime::createFromFormat('d/m/Y',$fecha);
+        $this->fecha = \DateTime::createFromFormat($fecha,$fecha);
 
         return $this;
     }

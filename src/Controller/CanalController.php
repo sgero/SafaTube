@@ -25,6 +25,16 @@ class CanalController extends AbstractController
         return $this->json($list);
     }
 
+    #[Route('/get', name: "canal_usuario_log", methods: ["POST"])]
+    public function get(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $canalData = $entityManager->getRepository(Canal::class)->getByUsuarioLogueado($data);
+        $canalUsuarioLogeado = $entityManager->getRepository(Canal::class)->find($canalData[0]["id"]);
+
+        return $this->json($canalUsuarioLogeado);
+    }
+
     #[Route('/get/{id}', name: "canal_by_id", methods: ["GET"])]
     public function getById(Canal $canal):JsonResponse
     {

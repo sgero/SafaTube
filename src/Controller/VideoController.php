@@ -47,7 +47,7 @@ class VideoController extends AbstractController
         $videoNuevo->setTitulo($data['titulo']);
         $videoNuevo->setDescripcion($data['descripcion']);
         $videoNuevo->setDuracion($data['duracion']);
-        $videoNuevo->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
+        $videoNuevo->setFecha(date('Y-m-d H:i:s'));
         $videoNuevo->setEnlace($data['enlace']);
         $videoNuevo->setMiniatura($data['miniatura']);
 
@@ -57,7 +57,7 @@ class VideoController extends AbstractController
         $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["nombre"=> $data["tipoPrivacidad"]]);
         $videoNuevo->setTipoPrivacidad($tipoPrivacidad[0]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]["id"]]);
         $videoNuevo->setCanal($canal[0]);
 
         $entityManager->persist($videoNuevo);
