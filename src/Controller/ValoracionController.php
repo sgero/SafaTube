@@ -43,7 +43,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($comentario[0]);
                     $entityManager->remove($haDadoDisLikePreviamente[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],3,"Nuevo like"];
+                    $lista = [$comentario[0]->getUsuario(),3,"Nuevo like"];
                     $notificacionController->crear($entityManager,$lista);
                 }elseif ($haDadoLikePreviamente != null){
                     $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]["id"]]);
@@ -58,7 +58,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($like);
                     $entityManager->persist($comentario[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],3,"Nuevo like"];
+                    $lista = [$comentario[0]->getUsuario(),3,"Nuevo like"];
                     $notificacionController->crear($entityManager,$lista);
                 }
 
@@ -76,7 +76,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($video[0]);
                     $entityManager->remove($haDadoDisLikePreviamente[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],3,"Nuevo like"];
+                    $lista = [($video[0]->getCanal())->getUsuario(),3,"Nuevo like"];
                     $notificacionController->crear($entityManager,$lista);
                 }elseif ($haDadoLikePreviamente != null){
                     $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]["id"]]);
@@ -91,7 +91,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($like);
                     $entityManager->persist($video[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],3,"Nuevo like"];
+                    $lista = [($video[0]->getCanal())->getUsuario(),3,"Nuevo like"];
                     $notificacionController->crear($entityManager,$lista);
                 }
             }
@@ -122,7 +122,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($comentario[0]);
                     $entityManager->remove($haDadoLikePreviamente[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],4,"Nuevo dislike"];
+                    $lista = [$comentario[0]->getUsuario(),4,"Nuevo dislike"];
                     $notificacionController->crear($entityManager,$lista);
                 }else{
                     $comentario = $entityManager->getRepository(Comentario::class)->findBy(["id"=> $data["comentario"]["id"]]);
@@ -131,7 +131,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($disLike);
                     $entityManager->persist($comentario[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],4,"Nuevo dislike"];
+                    $lista = [$comentario[0]->getUsuario(),4,"Nuevo dislike"];
                     $notificacionController->crear($entityManager,$lista);
                 }
 
@@ -155,7 +155,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($video[0]);
                     $entityManager->remove($haDadoLikePreviamente[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],4,"Nuevo dislike"];
+                    $lista = [($video[0]->getCanal())->getUsuario(),4,"Nuevo dislike"];
                     $notificacionController->crear($entityManager,$lista);
                 }else{
                     $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]["id"]]);
@@ -164,7 +164,7 @@ class ValoracionController extends AbstractController
                     $entityManager->persist($disLike);
                     $entityManager->persist($video[0]);
                     $entityManager->flush();
-                    $lista = [$usuario[0],4,"Nuevo dislike"];
+                    $lista = [($video[0]->getCanal())->getUsuario(),4,"Nuevo dislike"];
                     $notificacionController->crear($entityManager,$lista);
                 }
             }
