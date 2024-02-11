@@ -1,0 +1,820 @@
+Subject: [PATCH] Changes
+---
+Index: templates/reset_password/check_email.html.twig
+===================================================================
+diff --git a/templates/reset_password/check_email.html.twig b/templates/reset_password/check_email.html.twig
+new file mode 100644
+--- /dev/null	
++++ b/templates/reset_password/check_email.html.twig	
+@@ -0,0 +1,11 @@
++{% extends 'base.html.twig' %}
++
++{% block title %}Password Reset Email Sent{% endblock %}
++
++{% block body %}
++    <p>
++        If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.
++        This link will expire in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
++    </p>
++    <p>If you don't receive an email please check your spam folder or <a href="{{ path('app_forgot_password_request') }}">try again</a>.</p>
++{% endblock %}
+Index: src/Controller/ResetPasswordController.php
+===================================================================
+diff --git a/src/Controller/ResetPasswordController.php b/src/Controller/ResetPasswordController.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Controller/ResetPasswordController.php	
+@@ -0,0 +1,177 @@
++<?php
++
++namespace App\Controller;
++
++use App\Entity\Usuario;
++use App\Form\ChangePasswordFormType;
++use App\Form\ResetPasswordRequestFormType;
++use Doctrine\ORM\EntityManagerInterface;
++use Symfony\Bridge\Twig\Mime\TemplatedEmail;
++use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
++use Symfony\Component\HttpFoundation\RedirectResponse;
++use Symfony\Component\HttpFoundation\Request;
++use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\Mailer\MailerInterface;
++use Symfony\Component\Mime\Address;
++use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
++use Symfony\Component\Routing\Annotation\Route;
++use Symfony\Contracts\Translation\TranslatorInterface;
++use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
++use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
++use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
++
++#[Route('/reset-password')]
++class ResetPasswordController extends AbstractController
++{
++    use ResetPasswordControllerTrait;
++
++    public function __construct(
++        private ResetPasswordHelperInterface $resetPasswordHelper,
++        private EntityManagerInterface $entityManager
++    ) {
++    }
++
++    /**
++     * Display & process form to request a password reset.
++     */
++    #[Route('', name: 'app_forgot_password_request')]
++    public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator): Response
++    {
++        $form = $this->createForm(ResetPasswordRequestFormType::class);
++        $form->handleRequest($request);
++
++        if ($form->isSubmitted() && $form->isValid()) {
++            return $this->processSendingPasswordResetEmail(
++                $form->get('email')->getData(),
++                $mailer,
++                $translator
++            );
++        }
++
++        return $this->render('reset_password/request.html.twig', [
++            'requestForm' => $form->createView(),
++        ]);
++    }
++
++    /**
++     * Confirmation page after a user has requested a password reset.
++     */
++    #[Route('/check-email', name: 'app_check_email')]
++    public function checkEmail(): Response
++    {
++        // Generate a fake token if the user does not exist or someone hit this page directly.
++        // This prevents exposing whether or not a user was found with the given email address or not
++        if (null === ($resetToken = $this->getTokenObjectFromSession())) {
++            $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
++        }
++
++        return $this->render('reset_password/check_email.html.twig', [
++            'resetToken' => $resetToken,
++        ]);
++    }
++
++    /**
++     * Validates and process the reset URL that the user clicked in their email.
++     */
++    #[Route('/reset/{token}', name: 'app_reset_password')]
++    public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, string $token = null): Response
++    {
++        if ($token) {
++            // We store the token in session and remove it from the URL, to avoid the URL being
++            // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
++            $this->storeTokenInSession($token);
++
++            return $this->redirectToRoute('app_reset_password');
++        }
++
++        $token = $this->getTokenFromSession();
++
++        if (null === $token) {
++            throw $this->createNotFoundException('No reset password token found in the URL or in the session.');
++        }
++
++        try {
++            $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
++        } catch (ResetPasswordExceptionInterface $e) {
++            $this->addFlash('reset_password_error', sprintf(
++                '%s - %s',
++                $translator->trans(ResetPasswordExceptionInterface::MESSAGE_PROBLEM_VALIDATE, [], 'ResetPasswordBundle'),
++                $translator->trans($e->getReason(), [], 'ResetPasswordBundle')
++            ));
++
++            return $this->redirectToRoute('app_forgot_password_request');
++        }
++
++        // The token is valid; allow the user to change their password.
++        $form = $this->createForm(ChangePasswordFormType::class);
++        $form->handleRequest($request);
++
++        if ($form->isSubmitted() && $form->isValid()) {
++            // A password reset token should be used only once, remove it.
++            $this->resetPasswordHelper->removeResetRequest($token);
++
++            // Encode(hash) the plain password, and set it.
++            $encodedPassword = $passwordHasher->hashPassword(
++                $user,
++                $form->get('plainPassword')->getData()
++            );
++
++            $user->setPassword($encodedPassword);
++            $this->entityManager->flush();
++
++            // The session is cleaned up after the password has been changed.
++            $this->cleanSessionAfterReset();
++
++            return $this->redirectToRoute('app_home');
++        }
++
++        return $this->render('reset_password/reset.html.twig', [
++            'resetForm' => $form->createView(),
++        ]);
++    }
++
++    private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer, TranslatorInterface $translator): RedirectResponse
++    {
++        $user = $this->entityManager->getRepository(Usuario::class)->findOneBy([
++            'email' => $emailFormData,
++        ]);
++
++        // Do not reveal whether a user account was found or not.
++        if (!$user) {
++            return $this->redirectToRoute('app_check_email');
++        }
++
++        try {
++            $resetToken = $this->resetPasswordHelper->generateResetToken($user);
++        } catch (ResetPasswordExceptionInterface $e) {
++            // If you want to tell the user why a reset email was not sent, uncomment
++            // the lines below and change the redirect to 'app_forgot_password_request'.
++            // Caution: This may reveal if a user is registered or not.
++            //
++            // $this->addFlash('reset_password_error', sprintf(
++            //     '%s - %s',
++            //     $translator->trans(ResetPasswordExceptionInterface::MESSAGE_PROBLEM_HANDLE, [], 'ResetPasswordBundle'),
++            //     $translator->trans($e->getReason(), [], 'ResetPasswordBundle')
++            // ));
++
++            return $this->redirectToRoute('app_check_email');
++        }
++
++        $email = (new TemplatedEmail())
++            ->from(new Address('safatuberisk24@gmail.com', 'Safatube Risk24 Mail Bot'))
++            ->to($user->getEmail())
++            ->subject('Your password reset request')
++            ->htmlTemplate('reset_password/email.html.twig')
++            ->context([
++                'resetToken' => $resetToken,
++            ])
++        ;
++
++        $mailer->send($email);
++
++        // Store the token object in session for retrieval in check-email route.
++        $this->setTokenObjectInSession($resetToken);
++
++        return $this->redirectToRoute('app_check_email');
++    }
++}
+Index: src/Form/ChangePasswordFormType.php
+===================================================================
+diff --git a/src/Form/ChangePasswordFormType.php b/src/Form/ChangePasswordFormType.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Form/ChangePasswordFormType.php	
+@@ -0,0 +1,54 @@
++<?php
++
++namespace App\Form;
++
++use Symfony\Component\Form\AbstractType;
++use Symfony\Component\Form\Extension\Core\Type\PasswordType;
++use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
++use Symfony\Component\Form\FormBuilderInterface;
++use Symfony\Component\OptionsResolver\OptionsResolver;
++use Symfony\Component\Validator\Constraints\Length;
++use Symfony\Component\Validator\Constraints\NotBlank;
++
++class ChangePasswordFormType extends AbstractType
++{
++    public function buildForm(FormBuilderInterface $builder, array $options): void
++    {
++        $builder
++            ->add('plainPassword', RepeatedType::class, [
++                'type' => PasswordType::class,
++                'options' => [
++                    'attr' => [
++                        'autocomplete' => 'new-password',
++                    ],
++                ],
++                'first_options' => [
++                    'constraints' => [
++                        new NotBlank([
++                            'message' => 'Please enter a password',
++                        ]),
++                        new Length([
++                            'min' => 6,
++                            'minMessage' => 'Your password should be at least {{ limit }} characters',
++                            // max length allowed by Symfony for security reasons
++                            'max' => 4096,
++                        ]),
++                    ],
++                    'label' => 'New password',
++                ],
++                'second_options' => [
++                    'label' => 'Repeat Password',
++                ],
++                'invalid_message' => 'The password fields must match.',
++                // Instead of being set onto the object directly,
++                // this is read and encoded in the controller
++                'mapped' => false,
++            ])
++        ;
++    }
++
++    public function configureOptions(OptionsResolver $resolver): void
++    {
++        $resolver->setDefaults([]);
++    }
++}
+Index: src/Form/ResetPasswordRequestFormType.php
+===================================================================
+diff --git a/src/Form/ResetPasswordRequestFormType.php b/src/Form/ResetPasswordRequestFormType.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Form/ResetPasswordRequestFormType.php	
+@@ -0,0 +1,31 @@
++<?php
++
++namespace App\Form;
++
++use Symfony\Component\Form\AbstractType;
++use Symfony\Component\Form\Extension\Core\Type\EmailType;
++use Symfony\Component\Form\FormBuilderInterface;
++use Symfony\Component\OptionsResolver\OptionsResolver;
++use Symfony\Component\Validator\Constraints\NotBlank;
++
++class ResetPasswordRequestFormType extends AbstractType
++{
++    public function buildForm(FormBuilderInterface $builder, array $options): void
++    {
++        $builder
++            ->add('email', EmailType::class, [
++                'attr' => ['autocomplete' => 'email'],
++                'constraints' => [
++                    new NotBlank([
++                        'message' => 'Please enter your email',
++                    ]),
++                ],
++            ])
++        ;
++    }
++
++    public function configureOptions(OptionsResolver $resolver): void
++    {
++        $resolver->setDefaults([]);
++    }
++}
+Index: src/Entity/ResetPasswordRequest.php
+===================================================================
+diff --git a/src/Entity/ResetPasswordRequest.php b/src/Entity/ResetPasswordRequest.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Entity/ResetPasswordRequest.php	
+@@ -0,0 +1,39 @@
++<?php
++
++namespace App\Entity;
++
++use App\Repository\ResetPasswordRequestRepository;
++use Doctrine\ORM\Mapping as ORM;
++use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
++use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
++
++#[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
++class ResetPasswordRequest implements ResetPasswordRequestInterface
++{
++    use ResetPasswordRequestTrait;
++
++    #[ORM\Id]
++    #[ORM\GeneratedValue]
++    #[ORM\Column]
++    private ?int $id = null;
++
++    #[ORM\ManyToOne]
++    #[ORM\JoinColumn(nullable: false)]
++    private ?Usuario $user = null;
++
++    public function __construct(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
++    {
++        $this->user = $user;
++        $this->initialize($expiresAt, $selector, $hashedToken);
++    }
++
++    public function getId(): ?int
++    {
++        return $this->id;
++    }
++
++    public function getUser(): object
++    {
++        return $this->user;
++    }
++}
+Index: src/Repository/ResetPasswordRequestRepository.php
+===================================================================
+diff --git a/src/Repository/ResetPasswordRequestRepository.php b/src/Repository/ResetPasswordRequestRepository.php
+new file mode 100644
+--- /dev/null	
++++ b/src/Repository/ResetPasswordRequestRepository.php	
+@@ -0,0 +1,33 @@
++<?php
++
++namespace App\Repository;
++
++use App\Entity\ResetPasswordRequest;
++use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
++use Doctrine\Persistence\ManagerRegistry;
++use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
++use SymfonyCasts\Bundle\ResetPassword\Persistence\Repository\ResetPasswordRequestRepositoryTrait;
++use SymfonyCasts\Bundle\ResetPassword\Persistence\ResetPasswordRequestRepositoryInterface;
++
++/**
++ * @extends ServiceEntityRepository<ResetPasswordRequest>
++ *
++ * @method ResetPasswordRequest|null find($id, $lockMode = null, $lockVersion = null)
++ * @method ResetPasswordRequest|null findOneBy(array $criteria, array $orderBy = null)
++ * @method ResetPasswordRequest[]    findAll()
++ * @method ResetPasswordRequest[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
++ */
++class ResetPasswordRequestRepository extends ServiceEntityRepository implements ResetPasswordRequestRepositoryInterface
++{
++    use ResetPasswordRequestRepositoryTrait;
++
++    public function __construct(ManagerRegistry $registry)
++    {
++        parent::__construct($registry, ResetPasswordRequest::class);
++    }
++
++    public function createResetPasswordRequest(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken): ResetPasswordRequestInterface
++    {
++        return new ResetPasswordRequest($user, $expiresAt, $selector, $hashedToken);
++    }
++}
+Index: migrations/Version20240211115829.php
+===================================================================
+diff --git a/migrations/Version20240211115829.php b/migrations/Version20240211115829.php
+new file mode 100644
+--- /dev/null	
++++ b/migrations/Version20240211115829.php	
+@@ -0,0 +1,177 @@
++<?php
++
++declare(strict_types=1);
++
++namespace DoctrineMigrations;
++
++use Doctrine\DBAL\Schema\Schema;
++use Doctrine\Migrations\AbstractMigration;
++
++/**
++ * Auto-generated Migration: Please modify to your needs!
++ */
++final class Version20240211115829 extends AbstractMigration
++{
++    public function getDescription(): string
++    {
++        return '';
++    }
++
++    public function up(Schema $schema): void
++    {
++        // this up() migration is auto-generated, please modify it to your needs
++        $this->addSql('CREATE SEQUENCE reset_password_request_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
++        $this->addSql('CREATE TABLE reset_password_request (id INT NOT NULL, user_id INT NOT NULL, selector VARCHAR(20) NOT NULL, hashed_token VARCHAR(100) NOT NULL, requested_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, expires_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
++//        $this->addSql('CREATE INDEX IDX_7CE748AA76ED395 ON reset_password_request (user_id)');
++        $this->addSql('COMMENT ON COLUMN reset_password_request.requested_at IS \'(DC2Type:datetime_immutable)\'');
++        $this->addSql('COMMENT ON COLUMN reset_password_request.expires_at IS \'(DC2Type:datetime_immutable)\'');
++//        $this->addSql('ALTER TABLE reset_password_request ADD CONSTRAINT FK_7CE748AA76ED395 FOREIGN KEY (user_id) REFERENCES safatuber24.usuario (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
++        $this->addSql('ALTER TABLE safatuber24.video_lista_reproduccion DROP CONSTRAINT fk_video_lista_reproduccion_video');
++        $this->addSql('ALTER TABLE safatuber24.video_lista_reproduccion DROP CONSTRAINT fk_video_lista_reproduccion_lista_reproduccion');
++        $this->addSql('DROP TABLE safatuber24.video_lista_reproduccion');
++        $this->addSql('ALTER TABLE safatuber24.tipo_notificacion ALTER id DROP DEFAULT');
++//        $this->addSql('DROP INDEX IDX_BEB8D139FCF8192D');
++        $this->addSql('ALTER TABLE safatuber24.canal DROP total_suscriptores');
++        $this->addSql('ALTER TABLE safatuber24.canal DROP activo');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER foto TYPE VARCHAR(5000)');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER banner SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER is_verified DROP NOT NULL');
++        $this->addSql('CREATE UNIQUE INDEX UNIQ_BEB8D139FCF8192D ON safatuber24.canal (id_usuario)');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER id_usuario_mencionado SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER activo DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER contador_likes DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER contador_dislikes DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.dislikes ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.dislikes ALTER id_video SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.dislikes ALTER id_comentario SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.likes ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.likes ALTER id_video SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.likes ALTER id_comentario SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.lista_reproduccion ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.mensaje ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.notificacion ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.notificacion ALTER atendida DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.suscripcion ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.tipo_categoria ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.tipo_categoria ALTER nombre TYPE VARCHAR(100)');
++        $this->addSql('ALTER TABLE safatuber24.tipo_contenido ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.tipo_privacidad ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.tipo_privacidad ALTER nombre TYPE VARCHAR(100)');
++//        $this->addSql('DROP INDEX IDX_E8B5BFCF8192D');
++        $this->addSql('ALTER TABLE safatuber24.token ALTER id DROP DEFAULT');
++        $this->addSql('CREATE UNIQUE INDEX UNIQ_E8B5BFCF8192D ON safatuber24.token (id_usuario)');
++//        $this->addSql('DROP INDEX usuario_username_key');
++        $this->addSql('ALTER TABLE safatuber24.usuario DROP activo');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER username TYPE VARCHAR(200)');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER password TYPE VARCHAR(30)');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER email SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER is_verified DROP NOT NULL');
++        $this->addSql('CREATE UNIQUE INDEX UNIQ_9C234D15E7927C74 ON safatuber24.usuario (email)');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER id DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER titulo TYPE VARCHAR(255)');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER total_visitas DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER contador_likes DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER contador_dislikes DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER activo DROP DEFAULT');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER fecha TYPE DATE');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER fecha SET NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.visualizacion_video_usuario ADD PRIMARY KEY (id_video, id_usuario)');
++    }
++
++    public function down(Schema $schema): void
++    {
++        // this down() migration is auto-generated, please modify it to your needs
++        $this->addSql('CREATE SCHEMA public');
++        $this->addSql('DROP SEQUENCE reset_password_request_id_seq CASCADE');
++        $this->addSql('CREATE TABLE safatuber24.video_lista_reproduccion (id_video INT NOT NULL, id_lista_reproduccion INT NOT NULL)');
++        $this->addSql('CREATE INDEX IDX_1468F19092429B1C ON safatuber24.video_lista_reproduccion (id_video)');
++        $this->addSql('CREATE INDEX IDX_1468F1905CA5B8F5 ON safatuber24.video_lista_reproduccion (id_lista_reproduccion)');
++        $this->addSql('ALTER TABLE safatuber24.video_lista_reproduccion ADD CONSTRAINT fk_video_lista_reproduccion_video FOREIGN KEY (id_video) REFERENCES safatuber24.video (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
++        $this->addSql('ALTER TABLE safatuber24.video_lista_reproduccion ADD CONSTRAINT fk_video_lista_reproduccion_lista_reproduccion FOREIGN KEY (id_lista_reproduccion) REFERENCES safatuber24.lista_reproduccion (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
++//        $this->addSql('ALTER TABLE reset_password_request DROP CONSTRAINT FK_7CE748AA76ED395');
++//        $this->addSql('DROP TABLE reset_password_request');
++        $this->addSql('CREATE SEQUENCE safatuber24.lista_reproduccion_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.lista_reproduccion_id_seq\', (SELECT MAX(id) FROM safatuber24.lista_reproduccion))');
++        $this->addSql('ALTER TABLE safatuber24.lista_reproduccion ALTER id SET DEFAULT nextval(\'safatuber24.lista_reproduccion_id_seq\')');
++        $this->addSql('CREATE SEQUENCE safatuber24.tipo_privacidad_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.tipo_privacidad_id_seq\', (SELECT MAX(id) FROM safatuber24.tipo_privacidad))');
++        $this->addSql('ALTER TABLE safatuber24.tipo_privacidad ALTER id SET DEFAULT nextval(\'safatuber24.tipo_privacidad_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.tipo_privacidad ALTER nombre TYPE VARCHAR(50)');
++        $this->addSql('CREATE SEQUENCE safatuber24.video_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.video_id_seq\', (SELECT MAX(id) FROM safatuber24.video))');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER id SET DEFAULT nextval(\'safatuber24.video_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER titulo TYPE VARCHAR(100)');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER fecha TYPE TIMESTAMP(0) WITHOUT TIME ZONE');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER fecha DROP NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER activo SET DEFAULT true');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER total_visitas SET DEFAULT 0');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER contador_likes SET DEFAULT 0');
++        $this->addSql('ALTER TABLE safatuber24.video ALTER contador_dislikes SET DEFAULT 0');
++        $this->addSql('CREATE SEQUENCE safatuber24.mensaje_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.mensaje_id_seq\', (SELECT MAX(id) FROM safatuber24.mensaje))');
++        $this->addSql('ALTER TABLE safatuber24.mensaje ALTER id SET DEFAULT nextval(\'safatuber24.mensaje_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.visualizacion_video_usuario DROP CONSTRAINT safatuber24.visualizacion_video_usuario_pkey');
++//        $this->addSql('DROP INDEX UNIQ_9C234D15E7927C74');
++        $this->addSql('ALTER TABLE safatuber24.usuario ADD activo BOOLEAN DEFAULT true NOT NULL');
++        $this->addSql('CREATE SEQUENCE safatuber24.usuario_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.usuario_id_seq\', (SELECT MAX(id) FROM safatuber24.usuario))');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER id SET DEFAULT nextval(\'safatuber24.usuario_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER username TYPE VARCHAR(50)');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER password TYPE VARCHAR(5000)');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER email DROP NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.usuario ALTER is_verified SET NOT NULL');
++        $this->addSql('CREATE UNIQUE INDEX usuario_username_key ON safatuber24.usuario (username)');
++        $this->addSql('CREATE SEQUENCE safatuber24.tipo_categoria_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.tipo_categoria_id_seq\', (SELECT MAX(id) FROM safatuber24.tipo_categoria))');
++        $this->addSql('ALTER TABLE safatuber24.tipo_categoria ALTER id SET DEFAULT nextval(\'safatuber24.tipo_categoria_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.tipo_categoria ALTER nombre TYPE VARCHAR(50)');
++        $this->addSql('CREATE SEQUENCE safatuber24.likes_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.likes_id_seq\', (SELECT MAX(id) FROM safatuber24.likes))');
++        $this->addSql('ALTER TABLE safatuber24.likes ALTER id SET DEFAULT nextval(\'safatuber24.likes_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.likes ALTER id_video DROP NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.likes ALTER id_comentario DROP NOT NULL');
++        $this->addSql('CREATE SEQUENCE safatuber24.suscripcion_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.suscripcion_id_seq\', (SELECT MAX(id) FROM safatuber24.suscripcion))');
++        $this->addSql('ALTER TABLE safatuber24.suscripcion ALTER id SET DEFAULT nextval(\'safatuber24.suscripcion_id_seq\')');
++        $this->addSql('CREATE SEQUENCE safatuber24.Tipo_notificacion_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.Tipo_notificacion_id_seq\', (SELECT MAX(id) FROM safatuber24.Tipo_notificacion))');
++        $this->addSql('ALTER TABLE safatuber24.Tipo_notificacion ALTER id SET DEFAULT nextval(\'safatuber24.Tipo_notificacion_id_seq\')');
++//        $this->addSql('DROP INDEX UNIQ_E8B5BFCF8192D');
++        $this->addSql('CREATE SEQUENCE safatuber24.token_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.token_id_seq\', (SELECT MAX(id) FROM safatuber24.token))');
++        $this->addSql('ALTER TABLE safatuber24.token ALTER id SET DEFAULT nextval(\'safatuber24.token_id_seq\')');
++        $this->addSql('CREATE INDEX IDX_E8B5BFCF8192D ON safatuber24.token (id_usuario)');
++        $this->addSql('CREATE SEQUENCE safatuber24.tipo_contenido_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.tipo_contenido_id_seq\', (SELECT MAX(id) FROM safatuber24.tipo_contenido))');
++        $this->addSql('ALTER TABLE safatuber24.tipo_contenido ALTER id SET DEFAULT nextval(\'safatuber24.tipo_contenido_id_seq\')');
++        $this->addSql('CREATE SEQUENCE safatuber24.dislikes_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.dislikes_id_seq\', (SELECT MAX(id) FROM safatuber24.dislikes))');
++        $this->addSql('ALTER TABLE safatuber24.dislikes ALTER id SET DEFAULT nextval(\'safatuber24.dislikes_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.dislikes ALTER id_video DROP NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.dislikes ALTER id_comentario DROP NOT NULL');
++        $this->addSql('CREATE SEQUENCE safatuber24.comentario_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.comentario_id_seq\', (SELECT MAX(id) FROM safatuber24.comentario))');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER id SET DEFAULT nextval(\'safatuber24.comentario_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER id_usuario_mencionado DROP NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER activo SET DEFAULT true');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER contador_likes SET DEFAULT 0');
++        $this->addSql('ALTER TABLE safatuber24.comentario ALTER contador_dislikes SET DEFAULT 0');
++        $this->addSql('CREATE SEQUENCE safatuber24.notificacion_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.notificacion_id_seq\', (SELECT MAX(id) FROM safatuber24.notificacion))');
++        $this->addSql('ALTER TABLE safatuber24.notificacion ALTER id SET DEFAULT nextval(\'safatuber24.notificacion_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.notificacion ALTER atendida SET DEFAULT false');
++//        $this->addSql('DROP INDEX UNIQ_BEB8D139FCF8192D');
++        $this->addSql('ALTER TABLE safatuber24.canal ADD total_suscriptores INT DEFAULT 0 NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.canal ADD activo BOOLEAN DEFAULT true NOT NULL');
++        $this->addSql('CREATE SEQUENCE safatuber24.canal_id_seq');
++        $this->addSql('SELECT setval(\'safatuber24.canal_id_seq\', (SELECT MAX(id) FROM safatuber24.canal))');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER id SET DEFAULT nextval(\'safatuber24.canal_id_seq\')');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER foto TYPE VARCHAR(2000)');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER banner DROP NOT NULL');
++        $this->addSql('ALTER TABLE safatuber24.canal ALTER is_verified SET NOT NULL');
++        $this->addSql('CREATE INDEX IDX_BEB8D139FCF8192D ON safatuber24.canal (id_usuario)');
++    }
++}
+Index: templates/auth/login.html.twig
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/auth/login.html.twig b/templates/auth/login.html.twig
+--- a/templates/auth/login.html.twig	
++++ b/templates/auth/login.html.twig	
+@@ -17,5 +17,8 @@
+ 
+             <button type="submit">Login</button>
+         </form>
++        <div>
++            <a href="{{ path('app_forgot_password_resquest') }}">¿Olvidaste tu contraseña?</a>
++        </div>
+     </div>
+ {% endblock %}
+Index: config/packages/reset_password.yaml
+===================================================================
+diff --git a/config/packages/reset_password.yaml b/config/packages/reset_password.yaml
+new file mode 100644
+--- /dev/null	
++++ b/config/packages/reset_password.yaml	
+@@ -0,0 +1,2 @@
++symfonycasts_reset_password:
++    request_password_repository: App\Repository\ResetPasswordRequestRepository
+Index: config/bundles.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/config/bundles.php b/config/bundles.php
+--- a/config/bundles.php	
++++ b/config/bundles.php	
+@@ -16,4 +16,5 @@
+     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class => ['all' => true],
+     ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
+     Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
++    SymfonyCasts\Bundle\ResetPassword\SymfonyCastsResetPasswordBundle::class => ['all' => true],
+ ];
+Index: composer.lock
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/composer.lock b/composer.lock
+--- a/composer.lock	
++++ b/composer.lock	
+@@ -4,7 +4,7 @@
+         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+         "This file is @generated automatically"
+     ],
+-    "content-hash": "51fdae46825d7acccf5278556418a421",
++    "content-hash": "19e221122d1b861624bec6b2749aad0a",
+     "packages": [
+         {
+             "name": "api-platform/core",
+@@ -8176,6 +8176,56 @@
+             "time": "2023-11-06T11:00:25+00:00"
+         },
+         {
++            "name": "symfonycasts/reset-password-bundle",
++            "version": "v1.14.1",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/SymfonyCasts/reset-password-bundle.git",
++                "reference": "d906b72cff9a0683075041776a9c5e874df1918b"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/SymfonyCasts/reset-password-bundle/zipball/d906b72cff9a0683075041776a9c5e874df1918b",
++                "reference": "d906b72cff9a0683075041776a9c5e874df1918b",
++                "shasum": ""
++            },
++            "require": {
++                "php": ">=7.2.5",
++                "symfony/config": "^4.4 | ^5.0 | ^6.0",
++                "symfony/dependency-injection": "^4.4 | ^5.0 | ^6.0",
++                "symfony/deprecation-contracts": "^2.2 | ^3.0",
++                "symfony/http-kernel": "^4.4 | ^5.0 | ^6.0"
++            },
++            "conflict": {
++                "doctrine/orm": "<2.7",
++                "symfony/framework-bundle": "<4.4",
++                "symfony/http-foundation": "<4.4"
++            },
++            "require-dev": {
++                "doctrine/doctrine-bundle": "^2.0.3",
++                "doctrine/orm": "^2.7",
++                "symfony/framework-bundle": "^4.4 | ^5.0 | ^6.0",
++                "symfony/phpunit-bridge": "^5.0 | ^6.0",
++                "vimeo/psalm": "^4.3"
++            },
++            "type": "symfony-bundle",
++            "autoload": {
++                "psr-4": {
++                    "SymfonyCasts\\Bundle\\ResetPassword\\": "src/"
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "description": "Symfony bundle that adds password reset functionality.",
++            "support": {
++                "issues": "https://github.com/SymfonyCasts/reset-password-bundle/issues",
++                "source": "https://github.com/SymfonyCasts/reset-password-bundle/tree/v1.14.1"
++            },
++            "time": "2022-08-03T17:23:36+00:00"
++        },
++        {
+             "name": "twig/extra-bundle",
+             "version": "v3.8.0",
+             "source": {
+Index: composer.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/composer.json b/composer.json
+--- a/composer.json	
++++ b/composer.json	
+@@ -48,6 +48,7 @@
+         "symfony/validator": "6.4.*",
+         "symfony/web-link": "6.4.*",
+         "symfony/yaml": "6.4.*",
++        "symfonycasts/reset-password-bundle": "^1.14",
+         "twig/extra-bundle": "^2.12|^3.0",
+         "twig/twig": "^2.12|^3.0"
+     },
+Index: symfony.lock
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/symfony.lock b/symfony.lock
+--- a/symfony.lock	
++++ b/symfony.lock	
+@@ -332,6 +332,18 @@
+             "config/routes/web_profiler.yaml"
+         ]
+     },
++    "symfonycasts/reset-password-bundle": {
++        "version": "1.14",
++        "recipe": {
++            "repo": "github.com/symfony/recipes",
++            "branch": "main",
++            "version": "1.0",
++            "ref": "97c1627c0384534997ae1047b93be517ca16de43"
++        },
++        "files": [
++            "config/packages/reset_password.yaml"
++        ]
++    },
+     "twig/extra-bundle": {
+         "version": "v3.8.0"
+     }
+Index: assets/SQL Scripts/Safatube.sql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/assets/SQL Scripts/Safatube.sql b/assets/SQL Scripts/Safatube.sql
+--- a/assets/SQL Scripts/Safatube.sql	
++++ b/assets/SQL Scripts/Safatube.sql	
+@@ -15,6 +15,17 @@
+ drop table if exists tipo_contenido;
+ drop table if exists token;
+ drop table if exists usuario;
++drop table if exists reset_password_request;
++
++CREATE TABLE request_password_request
++(
++    id               serial,
++    token            varchar(1000) NOT NULL,
++    fecha_expiracion timestamp(6)  not null,
++    id_usuario       int           NOT NULL,
++    PRIMARY KEY (id),
++    constraint fk_reset_password_request_usuario foreign key (id_usuario) references usuario (id)
++);
+ 
+ 
+ 
+Index: templates/reset_password/email.html.twig
+===================================================================
+diff --git a/templates/reset_password/email.html.twig b/templates/reset_password/email.html.twig
+new file mode 100644
+--- /dev/null	
++++ b/templates/reset_password/email.html.twig	
+@@ -0,0 +1,9 @@
++<h1>Hi!</h1>
++
++<p>To reset your password, please visit the following link</p>
++
++<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">{{ url('app_reset_password', {token: resetToken.token}) }}</a>
++
++<p>This link will expire in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
++
++<p>Cheers!</p>
+Index: templates/reset_password/request.html.twig
+===================================================================
+diff --git a/templates/reset_password/request.html.twig b/templates/reset_password/request.html.twig
+new file mode 100644
+--- /dev/null	
++++ b/templates/reset_password/request.html.twig	
+@@ -0,0 +1,22 @@
++{% extends 'base.html.twig' %}
++
++{% block title %}Reset your password{% endblock %}
++
++{% block body %}
++    {% for flash_error in app.flashes('reset_password_error') %}
++        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
++    {% endfor %}
++    <h1>Reset your password</h1>
++
++    {{ form_start(requestForm) }}
++        {{ form_row(requestForm.email) }}
++        <div>
++            <small>
++                Enter your email address, and we will send you a
++                link to reset your password.
++            </small>
++        </div>
++
++        <button class="btn btn-primary">Send password reset email</button>
++    {{ form_end(requestForm) }}
++{% endblock %}
+Index: templates/reset_password/reset.html.twig
+===================================================================
+diff --git a/templates/reset_password/reset.html.twig b/templates/reset_password/reset.html.twig
+new file mode 100644
+--- /dev/null	
++++ b/templates/reset_password/reset.html.twig	
+@@ -0,0 +1,12 @@
++{% extends 'base.html.twig' %}
++
++{% block title %}Reset your password{% endblock %}
++
++{% block body %}
++    <h1>Reset your password</h1>
++
++    {{ form_start(resetForm) }}
++        {{ form_row(resetForm.plainPassword) }}
++        <button class="btn btn-primary">Reset password</button>
++    {{ form_end(resetForm) }}
++{% endblock %}
