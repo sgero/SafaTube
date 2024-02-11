@@ -21,6 +21,15 @@ class UsuarioRepository extends ServiceEntityRepository
         parent::__construct($registry, Usuario::class);
     }
 
+    public function getByUsername(array $username): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $nombreUsuario = $username["usuario"];
+        $sql = 'select u.* from safatuber24.usuario u where u.username like :username';
+        $resultSet = $conn->executeQuery($sql, ['username' => $nombreUsuario]);
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return Usuario[] Returns an array of Usuario objects
 //     */

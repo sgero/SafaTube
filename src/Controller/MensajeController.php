@@ -28,7 +28,9 @@ class MensajeController extends AbstractController
     public function list(EntityManagerInterface $entityManager, MensajeRepository $mensajeRepository, Request $request): JsonResponse
     { //añadir esto a los variables que entra cuando tengamos login: JWTTokenManagerInterface $jwtManager, Request $request
         $data = json_decode($request->getContent(), true);
-        $mensajes = $mensajeRepository->getMensajes(["id" => $data['usuario_emisor'], "id2"=>$data['usuario_receptor']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $mensajes = $mensajeRepository->getMensajes(["id" => $usuario->getId(), "id2"=>$data['usuario_receptor']]);
         foreach ($mensajes as $m){
             $mesaje = $mensajeRepository->find($m['id']);
             $mesaje->setLeido(true);
@@ -43,10 +45,12 @@ class MensajeController extends AbstractController
         return $this->json($mensaje);
     }
     #[Route('/buscar', name: 'api_mensaje_busca', methods: ['POST'])]
-    public function search(MensajeRepository $mensajeRepository,CanalRepository $canalRepository,Request $request): JsonResponse
+    public function search(EntityManagerInterface $entityManager,MensajeRepository $mensajeRepository,CanalRepository $canalRepository,Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $mensajes = $mensajeRepository->getBusqueda(["id" => $data['usuario_emisor']]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $mensajes = $mensajeRepository->getBusqueda(["id" => $usuario->getId()]);
         $canales = $canalRepository->canalMensaje($mensajes);
         return $this->json($canales);
     }
@@ -59,8 +63,9 @@ class MensajeController extends AbstractController
         $mensaje = new Mensaje();
         $mensaje->setTexto($data['texto']);
         $mensaje->setFecha(new DateTime());
-
-        $usuarioemisor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_emisor"]]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $usuarioemisor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $usuario->getId()]);
         $mensaje->setUsuarioEmisor($usuarioemisor[0]);
         $usuarioreceptor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_receptor"]]);
         $mensaje->setUsuarioReceptor($usuarioreceptor[0]);

@@ -81,35 +81,27 @@ class VideoRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $idUsuario = $id["id"];
-        $sql = 'select * from safatuber24.video v';
+        $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.video v
+                join safatuber24.canal c on v.id_canal = c.id
+                join safatuber24.tipo_privacidad tp on v.id_tipo_privacidad = tp.id
+                where tp.id = 1
+                order by v.total_visitas desc, v.fecha desc;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idUsuario]);
         return $resultSet->fetchAllAssociative();
     }
 
-    public function getVideosHomePage(array $id): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $idUsuarioSuscriptor = $id["id"];
-        $sql = 'select v.*,  c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.suscripcion s 
-                join safatuber24.usuario u on s.id_usuario_suscriptor = u.id
-                join safatuber24.canal c on s.id_canal_suscrito = c.id
-                join safatuber24.video v on c.id = v.id_canal
-                where s.id_usuario_suscriptor = :id 
-                order by v.fecha desc';
-        $resultSet = $conn->executeQuery($sql, ['id' => $idUsuarioSuscriptor]);
-        return $resultSet->fetchAllAssociative();
-    }
 
     public function getVideosCanalesSuscritos(array $id): array
     {
         $conn = $this->getEntityManager()->getConnection();
         $idUsuarioSuscriptor = $id["id"];
-        $sql = 'select v.*,  c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.suscripcion s 
+        $sql = 'select v.*,  c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.suscripcion s
                 join safatuber24.usuario u on s.id_usuario_suscriptor = u.id
                 join safatuber24.canal c on s.id_canal_suscrito = c.id
                 join safatuber24.video v on c.id = v.id_canal
-                where s.id_usuario_suscriptor = :id 
-                order by v.fecha desc';
+                join safatuber24.tipo_privacidad tp on v.id_tipo_privacidad = tp.id
+                where s.id_usuario_suscriptor = :id and tp.id = 1
+                order by v.fecha desc;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idUsuarioSuscriptor]);
         return $resultSet->fetchAllAssociative();
     }
@@ -121,10 +113,11 @@ class VideoRepository extends ServiceEntityRepository
         $sql = 'select c.*, c2.nombre as nombre_canal, c2.foto as foto_canal from safatuber24.comentario c
                 join safatuber24.usuario u on c.id_usuario = u.id
                 left join safatuber24.canal c2 on u.id = c2.id_usuario
-                where c.id_video = :id and c.id_comentario_padre IS NULL;';
+                where c.id_video = :id and c.id_comentario_padre IS NULL order by c.fecha;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
         return $resultSet->fetchAllAssociative();
     }
+
     public function getRespuestaComentariosLista(array $id): array
     {
         $conn = $this->getEntityManager()->getConnection();
@@ -138,6 +131,25 @@ class VideoRepository extends ServiceEntityRepository
                 where c.id_comentario_padre = :id
                 order by c.fecha;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function anyadirVisita(array $datos): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idUsuario = $datos["id"]["usuario"];
+        $idVideo = $datos["id"]["video"];
+        $sql = 'insert into safatuber24.visualizacion_video_usuario  (id_usuario, id_video) values (:idUsuario,:idVideo);';
+        $resultSet = $conn->executeQuery($sql, ['idUsuario' => $idUsuario, 'idVideo' => $idVideo]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function getVisitas(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idVideo = $id["id"];
+        $sql = 'select count(vvu.id_video) from safatuber24.visualizacion_video_usuario vvu where vvu.id_video = :idVideo group by vvu.id_video;';
+        $resultSet = $conn->executeQuery($sql, ['idVideo' => $idVideo]);
         return $resultSet->fetchAllAssociative();
     }
 

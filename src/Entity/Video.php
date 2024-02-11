@@ -23,7 +23,7 @@ class Video
     #[ORM\Column(length: 1000)]
     private ?string $descripcion = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
 
     #[ORM\Column]
@@ -57,10 +57,10 @@ class Video
     private Collection $visualizaciones;
 
     #[ORM\Column(name: "contador_likes")]
-    private ?int $contadorLikes = null;
+    private ?int $contadorLikes = 0;
 
     #[ORM\Column(name: "contador_dislikes")]
-    private ?int $contadorDislikes = null;
+    private ?int $contadorDislikes = 0;
 
     #[ORM\Column(length: 5000)]
     private ?string $miniatura = null;
@@ -121,12 +121,12 @@ class Video
 
     public function getFecha(): ?string
     {
-        return $this->fecha->format('d/m/Y');
+        return $this->fecha->format('d/m/Y H:i:s');
     }
 
     public function setFecha(string $fecha): static
     {
-        $this->fecha = \DateTime::createFromFormat('d/m/Y',$fecha);
+        $this->fecha = \DateTime::createFromFormat($fecha,$fecha);
 
         return $this;
     }
