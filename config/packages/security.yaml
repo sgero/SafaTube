@@ -13,6 +13,9 @@ security:
                 class: App\Entity\Usuario
                 property: username
     firewalls:
+        secured_area:
+            # Otros ajustes del firewall aquí...
+            stateless: true
         login:
             pattern: ^/api/login
             stateless: true
