@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\FiltroDTO;
 use App\Entity\Canal;
 use App\Entity\Comentario;
 use App\Entity\Like;
@@ -11,7 +12,9 @@ use App\Entity\TipoPrivacidad;
 use App\Entity\Usuario;
 use App\Entity\Video;
 use App\Repository\VideoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use PgSql\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,8 +47,9 @@ class VideoController extends AbstractController
         $videoNuevo->setTitulo($data['titulo']);
         $videoNuevo->setDescripcion($data['descripcion']);
         $videoNuevo->setDuracion($data['duracion']);
-        $videoNuevo->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
+        $videoNuevo->setFecha(date('Y-m-d H:i:s'));
         $videoNuevo->setEnlace($data['enlace']);
+        $videoNuevo->setMiniatura($data['miniatura']);
 
         $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["nombre"=> $data["tipoCategoria"]]);
         $videoNuevo->setTipoCategoria($tipoCategoria[0]);
@@ -53,7 +57,7 @@ class VideoController extends AbstractController
         $tipoPrivacidad = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["nombre"=> $data["tipoPrivacidad"]]);
         $videoNuevo->setTipoPrivacidad($tipoPrivacidad[0]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]["id"]]);
         $videoNuevo->setCanal($canal[0]);
 
         $entityManager->persist($videoNuevo);
@@ -72,6 +76,7 @@ class VideoController extends AbstractController
         $video->setDuracion($data['duracion']);
         $video->setFecha($data['fecha']); //la fecha viene en formato 'd/m/Y'
         $video->setEnlace($data['enlace']);
+        $video->setMiniatura($data['miniatura']);
 
         $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["id"=> $data["tipo_categoria"]]);
         $video->setTipoCategoria($tipoCategoria[0]);
@@ -122,8 +127,11 @@ class VideoController extends AbstractController
         $data = $request->getContent();
         $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data]);
         $listaCanales = $entityManager->getRepository(Canal::class)->findCanales(["nombre"=> $data]);
+        $filtro = new FiltroDTO();
+        $filtro->setVideos(new ArrayCollection($listaVideos));
+        $filtro->setCanales(new ArrayCollection($listaCanales));
 
-        return $this->json(['videos' => $listaVideos, $listaCanales], Response::HTTP_OK);
+        return $this->json($filtro, Response::HTTP_OK);
     }
 
     #[Route('/getVideosRecomendadosAPartirDeVideo', name: "get_videos_recomendado_video", methods: ["POST"])]
@@ -187,6 +195,24 @@ class VideoController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'Like creado'], Response::HTTP_CREATED);
+    }
+
+
+    #[Route('/añadirVisita', name: 'añadir_visita', methods: ['POST'])]
+    public function anyadirVisita(EntityManagerInterface $entityManager, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
+        $totalVisitas = $entityManager->getRepository(Video::class)->getVisitas(["id"=> $data["video"]]);
+        $insertarVisitas = $entityManager->getRepository(Video::class)->anyadirVisita(["id"=> $data]);
+
+        $video[0]->setTotalVisitas($totalVisitas[0]["count"] +1);
+
+        $entityManager->persist($video[0]);
+        $entityManager->flush();
+
+        return $this->json(['videos' => $video, 'visitas' => $insertarVisitas], Response::HTTP_OK);
     }
 
 }

@@ -34,20 +34,22 @@ class SuscripcionController extends AbstractController
     }
 
     #[Route('/crear', name: 'crear_suscripcion', methods: ['POST'])]
-    public function crear(EntityManagerInterface $entityManager, Request $request,SuscripcionRepository $suscripcionRepository): JsonResponse
+    public function crear(NotificacionController $notificacionController, EntityManagerInterface $entityManager, Request $request,SuscripcionRepository $suscripcionRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
         $nuevaSuscripcion= new Suscripcion();
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario_suscriptor"]]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $nuevaSuscripcion->setIdUsuarioSuscriptor($usuario[0]);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal_suscrito"]]);
+        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]]);
         $nuevaSuscripcion->setIdCanalSuscrito($canal[0]);
 
         $entityManager->persist($nuevaSuscripcion);
         $entityManager->flush();
+        $lista = [$canal[0]->getUsuario(),1,"Nueva suscripcion"];
+        $notificacionController->crear($entityManager,$lista);
 
         return $this->json(['message' => 'Suscripción creada correctamente'], Response::HTTP_CREATED);
     }

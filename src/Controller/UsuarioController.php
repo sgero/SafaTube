@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Suscripcion;
 use App\Entity\Usuario;
 use App\Repository\UsuarioRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,6 +23,16 @@ class UsuarioController extends AbstractController
         $list = $usuarioRepository->findAll();
 
         return $this->json($list);
+    }
+
+    #[Route('/get', name: "usuario_log", methods: ["POST"])]
+    public function get(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $usuarioData = $entityManager->getRepository(Usuario::class)->getByUsername($data);
+        $usuarioLogeado = $entityManager->getRepository(Usuario::class)->find($usuarioData[0]["id"]);
+
+        return $this->json($usuarioLogeado);
     }
 
     #[Route('/get/{id}', name: "usuario_by_id", methods: ["GET"])]

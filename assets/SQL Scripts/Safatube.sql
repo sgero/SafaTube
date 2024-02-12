@@ -222,13 +222,11 @@ create table dislikes
     constraint dislike_comentario_fk foreign key (id_comentario) references comentario (id)
 );
 
-create table visualizacion_video_usuario
-(
-    id_usuario int4 not null,
-    id_video   int4 not null,
-    primary key (id_usuario, id_video),
-    constraint visualizacion_usuario_fk foreign key (id_usuario) references usuario (id),
-    constraint visualizacion_video_fk foreign key (id_video) references video (id)
+create table visualizacion_video_usuario(
+id_usuario int4 not null,
+id_video   int4 not null,
+constraint visualizacion_usuario_fk foreign key (id_usuario) references usuario (id),
+constraint visualizacion_video_fk foreign key (id_video) references video (id)
 );
 
 

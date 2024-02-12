@@ -49,7 +49,7 @@ class ComentarioController extends AbstractController
         $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]["id"]]);
         $nuevoComentario->setIdVideo($video[0]);
 
-        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> 12]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]["id"]]);
         $nuevoComentario->setUsuario($usuario[0]);
 
         if ($data["comentarioPadre"] == null){
