@@ -21,6 +21,14 @@ class VideoRepository extends ServiceEntityRepository
         parent::__construct($registry, Video::class);
     }
 
+    public function getPlayVideo(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idVideo = $id["id"];
+        $sql = 'select v.*, c.foto as foto_canal from safatuber24.video v join safatuber24.canal c2 on c2.id = v.id_canal where v.id = :id;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
+        return $resultSet->fetchAllAssociative();
+    }
 
     public function findVideosPorCanal(array $id): array
     {
@@ -72,7 +80,7 @@ class VideoRepository extends ServiceEntityRepository
         $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.video v
         join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id
         join safatuber24.canal c on c.id = v.id_canal
-        where tc.id = :idTipoCategoria and v.id != :idVideo order by v.fecha desc limit 5;';
+        where tc.id = :idTipoCategoria and v.id != :idVideo order by v.fecha desc limit 10;';
         $resultSet = $conn->executeQuery($sql, ['idTipoCategoria' => $idTipoCategoria, 'idVideo' => $idVideo] );
         return $resultSet->fetchAllAssociative();
     }

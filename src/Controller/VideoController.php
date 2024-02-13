@@ -14,11 +14,11 @@ use App\Entity\Video;
 use App\Repository\VideoRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use PgSql\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api/video')]
@@ -32,10 +32,12 @@ class VideoController extends AbstractController
         return $this->json(['message' => $videos], Response::HTTP_CREATED);
     }
 
-    #[Route('/get/{id}', name: 'video_by_id', methods: ['GET'])]
-    public function getById(Video $video): JsonResponse
+    #[Route('/get', name: 'video_by_id', methods: ['POST'])]
+    public function getById(EntityManagerInterface $entityManager,Request $request): JsonResponse
     {
-        return $this->json($video);
+        $data = json_decode($request->getContent(), true);
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data]);
+        return $this->json($video[0]);
     }
 
     #[Route('/crear', name: 'crear_video', methods: ['POST'])]
@@ -198,7 +200,7 @@ class VideoController extends AbstractController
     }
 
 
-    #[Route('/añadirVisita', name: 'añadir_visita', methods: ['POST'])]
+    #[Route('/anyadirVisita', name: 'añadir_visita', methods: ['POST'])]
     public function anyadirVisita(EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
