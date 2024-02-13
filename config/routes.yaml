@@ -7,24 +7,3 @@ controllers:
 api_login_check:
     path: /api/login_check
 
-registrar_usuario:
-    path: /api/registro
-    controller: App\Controller\RegistroController::register
-    methods: ['POST']
-
-verificar_usuario:
-    path: /api/registro/verificar/{token}
-    controller: App\Controller\RegistroController::verifyUser
-    methods: ['GET']
-
-
-enviar_verificacion:
-    path: /api/registro/enviar
-    controller: App\Controller\RegistroController::sendVerificationEmail
-    methods: ['POST']
-
-
-reenviar_verificacion:
-    path: /api/registro/reenviar
-    controller: App\Controller\RegistroController::resendVerificationEmail
-    methods: ['POST']
