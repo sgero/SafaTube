@@ -61,6 +61,60 @@ class CanalRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function getVideosSegunCanal(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.canal c
+                join safatuber24.video v on c.id = v.id_canal
+                where c.id = :id order by v.fecha desc;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
+        return $resultSet->fetchAllAssociative();
+    }
+    public function getVideosPopularesSegunCanal(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.canal c
+                join safatuber24.video v on c.id = v.id_canal
+                where c.id = :id order by v.total_visitas desc;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function getNumeroVideosSubidos(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select count(v.id) from safatuber24.video v join safatuber24.canal c on v.id_canal = c.id
+                where c.id = :id;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function getSuscripcionesTotales(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select count(c.id) from safatuber24.suscripcion s 
+                join safatuber24.canal c on c.id = s.id_canal_suscrito
+                where c.id = :id;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function getVisitasTotales(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select count(vvu) from safatuber24.visualizacion_video_usuario vvu
+                join safatuber24.video v on vvu.id_video = v.id
+                join safatuber24.canal c on v.id_canal = c.id
+                where c.id = :id;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return Canal[] Returns an array of Canal objects
 //     */
