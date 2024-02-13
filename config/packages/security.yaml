@@ -13,9 +13,6 @@ security:
                 class: App\Entity\Usuario
                 property: username
     firewalls:
-        secured_area:
-            # Otros ajustes del firewall aquí...
-            stateless: true
         login:
             pattern: ^/api/login
             stateless: true
@@ -29,7 +26,7 @@ security:
             jwt: ~
 
     access_control:
-        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
         - { path: ^/api/registro, roles: PUBLIC_ACCESS }
         - { path: ^/api,       roles: PUBLIC_ACCESS }
 
