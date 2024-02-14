@@ -43,7 +43,7 @@ class NotificacionController extends AbstractController
         $canal = $canales[0];
         $numero = $canal->getId();
         $notificacion = $notificacionRepository->getcountmensaje($numero);
-        return $this->json($notificacion[0]);
+        return $this->json($notificacion[0]['count']);
     }
 
     #[Route('/contar_like', name: "contar_like", methods: ["POST"])]
@@ -56,7 +56,7 @@ class NotificacionController extends AbstractController
         $canal = $canales[0];
         $numero = $canal->getId();
         $notificacion = $notificacionRepository->getcountlike($numero);
-        return $this->json($notificacion[0]);
+        return $this->json($notificacion[0]['count']);
     }
 
     #[Route('/contar_dislike', name: "contar_dislike", methods: ["POST"])]
@@ -69,7 +69,7 @@ class NotificacionController extends AbstractController
         $canal = $canales[0];
         $numero = $canal->getId();
         $notificacion = $notificacionRepository->getcountDislike($numero);
-        return $this->json($notificacion[0]);
+        return $this->json($notificacion[0]['count']);
     }
     #[Route('/contarsubs', name: "contar_subs", methods: ["POST"])]
     public function contarsubs(NotificacionRepository $notificacionRepository,EntityManagerInterface $entityManager, Request $request):JsonResponse
@@ -81,7 +81,7 @@ class NotificacionController extends AbstractController
         $canal = $canales[0];
         $numero = $canal->getId();
         $notificacion = $notificacionRepository->getcountSubs($numero);
-        return $this->json($notificacion[0]);
+        return $this->json($notificacion[0]['count']);
     }
     #[Route('/notificacion', name: "notificacion", methods: ["POST"])]
     public function notificar(EntityManagerInterface $entityManager, Request $request):JsonResponse

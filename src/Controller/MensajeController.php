@@ -32,9 +32,11 @@ class MensajeController extends AbstractController
         $usuario = $usuarios[0];
         $mensajes = $mensajeRepository->getMensajes(["id" => $usuario->getId(), "id2"=>$data['usuario_receptor']]);
         foreach ($mensajes as $m){
-            $mesaje = $mensajeRepository->find($m['id']);
-            $mesaje->setLeido(true);
-            $entityManager->flush();
+            if ($m['id_usuario_receptor'] == $usuario->getId()) {
+                $mesaje = $mensajeRepository->find($m['id']);
+                $mesaje->setLeido(true);
+                $entityManager->flush();
+            }
         }
         return $this->json($mensajes);
     }
