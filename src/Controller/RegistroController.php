@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Canal;
 use App\Entity\TipoContenido;
 use App\Entity\Usuario;
+use DiscordWebhook\Webhook;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,6 +44,7 @@ class RegistroController extends AbstractController
         $user->setUsername($data['username']);
         $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
         $user->setEmail($data['email']);
+        $user->setWebhook($data['webhook']);
 
         // Generar el token de verificación y asociarlo al usuario
         $user->generateVerificationToken();
@@ -72,6 +74,7 @@ class RegistroController extends AbstractController
 //        $canal->setTipoContenido($data['tipo_contenido']);
 
         $canal->setBanner($data['canal']["banner"]);
+        $canal->setcomunidadDiscord($data['canal']["comunidad_discord"]);
 
        // $canal->setUsuario($user);
 
@@ -89,6 +92,7 @@ class RegistroController extends AbstractController
 
             // Enviar correo de verificación
             $this->sendVerificationEmail($user);
+            $this->sendVerificationToken($user);
 
             // Devolver una respuesta JSON exitosa
             return new JsonResponse(['message' => 'Usuario registrado con éxito'], 201);
@@ -182,7 +186,13 @@ class RegistroController extends AbstractController
 //    {
 //        $this->verificationToken = $token;
 //    }
-
+    private function sendVerificationToken(Usuario $user)
+    {
+        $token = $user->getVerificationToken();
+        $wh = new Webhook($user->getWebhook());
+//        $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, haz clic en el siguiente enlace: https://safatuber.herokuapp.com/api/registro/verificar/' . $token)->send();
+        $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, haz clic en el siguiente enlace: https://safatuber.herokuapp.com/api/registro/verificar/' . $token)->send();
+    }
 
 
 }

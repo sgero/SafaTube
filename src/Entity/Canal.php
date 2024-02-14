@@ -46,6 +46,8 @@ class Canal
     #[ORM\Column(name: 'is_verified', type: 'boolean', nullable: true, options: ['default' => false])]
     private ?bool $isVerified = false;
 
+
+
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false, name: 'id_usuario')]
     private ?Usuario $usuario = null;
@@ -55,6 +57,9 @@ class Canal
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_contenido")]
     private ?TipoContenido $tipoContenido = null;
+
+    #[ORM\Column(name: 'comunidad_discord', length: 5000, nullable: true)]
+    private ?string $ComunidadDiscord = null;
 
 
 
@@ -193,5 +198,18 @@ class Canal
 
         return $this;
     }
+
+    public function getComunidadDiscord(): ?string
+    {
+        return $this->ComunidadDiscord;
+    }
+
+    public function setComunidadDiscord(?string $ComunidadDiscord): static
+    {
+        $this->ComunidadDiscord = $ComunidadDiscord;
+
+        return $this;
+    }
+
 
 }
