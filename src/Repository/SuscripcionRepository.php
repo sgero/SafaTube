@@ -31,6 +31,18 @@ class SuscripcionRepository extends ServiceEntityRepository
         $resultSet = $conn->executeQuery($sql, ['idUsuario' => $idUsuario, 'idCanal' => $idCanal]);
         return $resultSet->fetchAllAssociative();
     }
+    public function verSuscriptoresEntreDosFechas(array $datos): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $datos[0]["idCanal"];
+        $fechaInicio = substr($datos[0]["inicio"], 0, 10);
+        $fechaFin = substr($datos[0]["fin"], 0, 10);
+        $sql = 'select s.* from safatuber24.suscripcion s
+                join safatuber24.canal c on s.id_canal_suscrito = c.id
+                where c.id = :idCanal and (s.fecha >= :inicio and s.fecha <= :fin);';
+        $resultSet = $conn->executeQuery($sql, ['idCanal' => $idCanal, 'inicio' => $fechaInicio, 'fin' => $fechaFin]);
+        return $resultSet->fetchAllAssociative();
+    }
 
 //    /**
 //     * @return Suscripcion[] Returns an array of Suscripcion objects
