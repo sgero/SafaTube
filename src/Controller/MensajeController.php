@@ -54,7 +54,17 @@ class MensajeController extends AbstractController
         $usuario = $usuarios[0];
         $mensajes = $mensajeRepository->getBusqueda(["id" => $usuario->getId()]);
         $canales = $canalRepository->canalMensaje($mensajes);
-        return $this->json($canales);
+        $lista = [];
+        foreach ($mensajes as $m){
+            $sinleer = $entityManager->getRepository(Mensaje::class)->findBy(["usuario_emisor"=>$m,"leido"=>false]);
+            foreach ($canales as $c){
+                if ($c->getUsuario()->getId() == $m['id']){
+                    $elemento = ["canal"=>$c,"numero"=>count($sinleer)];
+                    array_push($lista, $elemento);
+                }
+            }
+        }
+        return $this->json($lista);
     }
 
     #[Route('/crear', name: 'api_mensaje_create', methods: ['POST'])]
