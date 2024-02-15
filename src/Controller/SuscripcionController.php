@@ -40,6 +40,8 @@ class SuscripcionController extends AbstractController
 
         $nuevaSuscripcion= new Suscripcion();
 
+        $nuevaSuscripcion->setFecha(date('Y-m-d H:i:s'));
+
         $usuario = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["usuario"]]);
         $nuevaSuscripcion->setIdUsuarioSuscriptor($usuario[0]);
 

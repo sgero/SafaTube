@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SuscripcionRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SuscripcionRepository::class)]
@@ -21,6 +22,9 @@ class Suscripcion
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_canal_suscrito")]
     private ?Canal $canal_suscrito = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $fecha = null;
 
     public function getId(): ?int
     {
@@ -47,6 +51,18 @@ class Suscripcion
     public function setIdCanalSuscrito(?Canal $canal_suscrito): static
     {
         $this->canal_suscrito = $canal_suscrito;
+
+        return $this;
+    }
+
+    public function getFecha(): ?string
+    {
+        return $this->fecha->format('d/m/Y H:i:s');
+    }
+
+    public function setFecha(string $fecha): static
+    {
+        $this->fecha = \DateTime::createFromFormat($fecha, $fecha);
 
         return $this;
     }

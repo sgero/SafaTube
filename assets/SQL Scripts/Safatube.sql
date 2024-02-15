@@ -106,6 +106,7 @@ CREATE TABLE suscripcion
     id                    serial,
     id_usuario_suscriptor int NOT NULL,
     id_canal_suscrito     int NOT NULL,
+    suscripcion fecha timestamp(6);
     PRIMARY KEY (id),
     CONSTRAINT fk_suscripcion_usuario_suscriptor FOREIGN KEY (id_usuario_suscriptor) REFERENCES usuario (id),
     CONSTRAINT fk_suscripcion_canal_suscrito FOREIGN KEY (id_canal_suscrito) REFERENCES canal (id)
