@@ -68,6 +68,16 @@ class SuscripcionController extends AbstractController
         }
     }
 
+    #[Route('/verSuscriptoresEntreDosFechas', name: 'ver_suscriptores_entre_dos_fechas', methods: ['POST'])]
+    public function verSuscriptoresEntreDosFechas(EntityManagerInterface $entityManager, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $suscripciones = $entityManager->getRepository(Suscripcion::class)->verSuscriptoresEntreDosFechas([$data]);
+
+        return $this->json($suscripciones, Response::HTTP_OK);
+    }
+
+
     #[Route('/editar/{id}', name: "editar_suscripcion", methods: ["PUT"])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Suscripcion $suscripcion):JsonResponse
     {
