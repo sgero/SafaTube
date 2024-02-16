@@ -31,52 +31,53 @@ class RegistroController extends AbstractController
 
     #[Route('', name: 'registrar_usuario', methods: ['POST'])]
     public function register(
-        Request $request,
+        Request                     $request,
         UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
-    ): JsonResponse {
+        EntityManagerInterface      $entityManager
+    ): JsonResponse
+    {
         $data = json_decode($request->getContent(), true);
 
         try {
 
-        // Crear un nuevo usuario
-        $user = new Usuario();
-        $user->setUsername($data['username']);
-        $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
-        $user->setEmail($data['email']);
-        $user->setWebhook($data['webhook']);
+            // Crear un nuevo usuario
+            $user = new Usuario();
+            $user->setUsername($data['username']);
+            $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+            $user->setEmail($data['email']);
+            $user->setWebhook($data['webhook']);
 
-        // Generar el token de verificación y asociarlo al usuario
-        $user->generateVerificationToken();
+            // Generar el token de verificación y asociarlo al usuario
+            $user->generateVerificationToken();
 
-        //Setear el token de verificacion al usuario
-    //    $user->setVerificationToken($user->getVerificationToken());
+            //Setear el token de verificacion al usuario
+            //    $user->setVerificationToken($user->getVerificationToken());
 
 //        // Guardar el usuario en la base de datos
 //        $entityManager->persist($user);
 //        $entityManager->flush();
 
-        // Crear un nuevo canal asociado al usuario
-        $canal = new Canal();
+            // Crear un nuevo canal asociado al usuario
+            $canal = new Canal();
 //        $canal->setEmail($data['email']); // Asegúrate de que el campo de correo electrónico esté presente en los datos
-        $canal->setUsuario($user); // Asociar el canal al usuario
-        $canal->setNombre($data['canal']["nombre"]);
-        $canal->setApellidos($data['canal']["apellidos"]);
-        $canal->setDescripcion($data['canal']["descripcion"]);
+            $canal->setUsuario($user); // Asociar el canal al usuario
+            $canal->setNombre($data['canal']["nombre"]);
+            $canal->setApellidos($data['canal']["apellidos"]);
+            $canal->setDescripcion($data['canal']["descripcion"]);
 //        $canal->setFechaNacimiento(new \DateTime($data['fecha_nacimiento']));
-        $canal->setFechaNacimiento($data['canal']["fecha_nacimiento"]);
-        $canal->setTelefono($data['canal']["telefono"]);
-        $canal->setFoto($data['canal']["foto"]);
+            $canal->setFechaNacimiento($data['canal']["fecha_nacimiento"]);
+            $canal->setTelefono($data['canal']["telefono"]);
+            $canal->setFoto($data['canal']["foto"]);
 
-        //buscar el tipo de contenido con el findby y setearlo
-        $tipoContenido = $entityManager->getRepository(TipoContenido::class)->findOneBy(['id' => $data['canal']["tipo_contenido"]]);
-        $canal->setTipoContenido($tipoContenido);
+            //buscar el tipo de contenido con el findby y setearlo
+            $tipoContenido = $entityManager->getRepository(TipoContenido::class)->findOneBy(['id' => $data['canal']["tipo_contenido"]]);
+            $canal->setTipoContenido($tipoContenido);
 //        $canal->setTipoContenido($data['tipo_contenido']);
 
-        $canal->setBanner($data['canal']["banner"]);
-        $canal->setcomunidadDiscord($data['canal']["comunidad_discord"]);
+            $canal->setBanner($data['canal']["banner"]);
+            $canal->setcomunidadDiscord($data['canal']["comunidad_discord"]);
 
-       // $canal->setUsuario($user);
+            // $canal->setUsuario($user);
 
 //        // Guardar el canal en la base de datos
 //        $entityManager->persist($canal);
@@ -106,72 +107,83 @@ class RegistroController extends AbstractController
         }
     }
 
-        #[Route('/verificar/{token}', name: 'verificar_usuario', methods: ['GET'])]
-        public function verifyUser(string $token, EntityManagerInterface $entityManager): JsonResponse
-        {
-            // Buscar el usuario con el token de verificación dado
-            $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $token]);
+    #[Route('/verificar/{token}', name: 'verificar_usuario', methods: ['GET'])]
+    public function verifyUser(string $token, EntityManagerInterface $entityManager): JsonResponse
+    {
+        // Buscar el usuario con el token de verificación dado
+        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $token]);
 
-            // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
-            if (!$user) {
-                return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
-            }
-
-            // Actualizar el token de verificación del usuario
-            $user->setVerificationToken(null);
-            $user->setCuentaValidada(true);
-
-            // Guardar el usuario con el token de verificación actualizado
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            // Devolver una respuesta JSON exitosa
-            return new JsonResponse(['message' => 'Usuario verificado con éxito'], 200);
+        // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
+        if (!$user) {
+            return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
         }
 
+        // Actualizar el token de verificación del usuario
+        $user->setVerificationToken(null);
+        $user->setCuentaValidada(true);
+
+        // Guardar el usuario con el token de verificación actualizado
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        // Devolver una respuesta JSON exitosa
+        return new JsonResponse(['message' => 'Usuario verificado con éxito'], 200);
+    }
+
     #[Route('/enviar', name: 'enviar_verificacion', methods: ['POST'])]
-    private function sendVerificationEmail(Usuario $user): JsonResponse
+//    private function sendVerificationEmail(Usuario $user): JsonResponse
+//    {
+//        $email = (new Email())
+//            ->from('safatuberisk24@gmail.com')
+//            ->to($user->getEmail())
+//            ->subject('Verificación de Correo Electrónico')
+//            ->html(
+//                $this->renderView(
+//                    'emails/verification.html.twig',
+//                    ['token' => $user->getVerificationToken()]
+//                )
+//            );
+    public function sendVerificationEmail(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer): JsonResponse
     {
+        $data = json_decode($request->getContent(), true);
+
+        $emailDestino = $data['email'];
+
         $email = (new Email())
             ->from('safatuberisk24@gmail.com')
-            ->to($user->getEmail())
+            ->to($emailDestino)
             ->subject('Verificación de Correo Electrónico')
-            ->html(
-                $this->renderView(
-                    'emails/verification.html.twig',
-                    ['token' => $user->getVerificationToken()]
-                )
-            );
-
+            ->html('hola');
         try {
-            $this->mailer->send($email);
+            $mailer->send($email);
         } catch (\Exception $e) {
             $this->logger->error('Error al enviar el correo de verificación: ' . $e->getMessage());
             return new JsonResponse(['error' => 'Error al enviar el correo de verificación'], 500);
         }
 
+
         // Devolver una respuesta exitosa si todo va bien
         return new JsonResponse(['message' => 'Correo de verificación enviado con éxito'], 200);
     }
 
-        #[Route('/reenviar', name: 'reenviar_verificacion', methods: ['POST'])]
-        public function resendVerificationEmail(Request $request, EntityManagerInterface $entityManager): JsonResponse
-        {
-            $canal = new Canal();
-            $data = json_decode($request->getContent(), true);
+    #[Route('/reenviar', name: 'reenviar_verificacion', methods: ['POST'])]
+    public function resendVerificationEmail(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $canal = new Canal();
+        $data = json_decode($request->getContent(), true);
 
-            // Buscar el usuario con el correo electrónico dado
-            $user = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $data['email']]);
+        // Buscar el usuario con el correo electrónico dado
+        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $data['email']]);
 
-            // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
-            if (!$user) {
-                return new JsonResponse(['error' => 'No se ha encontrado ningún usuario con ese correo electrónico'], 400);
-            }
+        // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
+        if (!$user) {
+            return new JsonResponse(['error' => 'No se ha encontrado ningún usuario con ese correo electrónico'], 400);
+        }
 
-            // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
-            if ($user->getIsVerified()) {
-                return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
-            }
+        // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
+        if ($user->getIsVerified()) {
+            return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
+        }
 //        // Guardar el canal con el token de verificación actualizado
         $entityManager->persist($canal);
         $entityManager->flush();
