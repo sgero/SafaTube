@@ -90,6 +90,7 @@ class RegistroController extends AbstractController
             $entityManager->persist($canal);
             $entityManager->flush();
 
+
             // Enviar correo de verificación
             $this->sendVerificationEmail($user);
             $this->sendVerificationToken($user);
