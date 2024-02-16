@@ -89,6 +89,30 @@ class MensajeController extends AbstractController
         return $this->json(['message' => 'Mensaje creado'], Response::HTTP_CREATED);
     }
 
+    #[Route('/crearlo', name: 'api_mensaje_createlo', methods: ['POST'])]
+    public function createlo(NotificacionController $notificacionController,EntityManagerInterface $entityManager, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $mensaje = new Mensaje();
+        $mensaje->setTexto($data['texto']);
+        $mensaje->setFecha(new DateTime());
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $usuarios2 = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['usernamesecundario']]);
+        $usuario2 = $usuarios2[0];
+        $usuarioemisor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $usuario->getId()]);
+        $mensaje->setUsuarioEmisor($usuarioemisor[0]);
+        $usuarioreceptor = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $usuario2->getId()]);
+        $mensaje->setUsuarioReceptor($usuarioreceptor[0]);
+
+        $entityManager->persist($mensaje);
+        $entityManager->flush();
+        $lista = [$usuarioreceptor[0],5,"Nuevo mensaje"];
+        $notificacionController->crear($entityManager,$lista);
+        return $this->json(['message' => 'Mensaje creado'], Response::HTTP_CREATED);
+    }
+
     #[Route('/editar/{id}', name: 'api_mensaje_update', methods: ['PUT'])]
     public function update(EntityManagerInterface $entityManager, Request $request, Mensaje $mensaje): JsonResponse
     {
