@@ -174,5 +174,13 @@ class ValoracionController extends AbstractController
 
     }
 
+    #[Route('/cargarValoracionesVideo', name: "cargar_valoraciones_video", methods: ["POST"])]
+    public function get(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $video = $entityManager->getRepository(Video::class)->findById(['id' => $data["id"]]);
+
+        return $this->json(['likes' => $video[0]->getContadorLikes(), 'dislikes' => $video[0]->getContadorDislikes()]);
+    }
 
 }
