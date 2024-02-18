@@ -117,12 +117,26 @@ class Canal
         return $this->fecha_nacimiento->format('d/m/Y');
     }
 
+//    public function setFechaNacimiento(string $fecha_nacimiento): static
+//    {
+//        $this->fecha_nacimiento = \DateTime::createFromFormat('Y-m-d',$fecha_nacimiento);
+//
+//        return $this;
+//    }
+
     public function setFechaNacimiento(string $fecha_nacimiento): static
     {
-        $this->fecha_nacimiento = \DateTime::createFromFormat('d/m/Y',$fecha_nacimiento);
+        $fecha_nacimiento_obj = \DateTime::createFromFormat('Y-m-d', $fecha_nacimiento);
+
+        if ($fecha_nacimiento_obj === false) {
+            throw new \InvalidArgumentException("La fecha de nacimiento '$fecha_nacimiento' no es válida.");
+        }
+
+        $this->fecha_nacimiento = $fecha_nacimiento_obj;
 
         return $this;
     }
+
 
     public function getTelefono(): ?string
     {
