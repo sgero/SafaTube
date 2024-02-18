@@ -45,7 +45,7 @@ class RegistroController extends AbstractController
             $user->setUsername($data['username']);
             $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
             $user->setEmail($data['email']);
-//            $user->setWebhook($data['webhook']);
+            $user->setWebhook($data['webhook']);
 
             // Generar el token de verificación y asociarlo al usuario
             $user->generateVerificationToken();
@@ -75,6 +75,8 @@ class RegistroController extends AbstractController
 //        $canal->setTipoContenido($data['tipo_contenido']);
 
             $canal->setBanner($data['canal']["banner"]);
+
+            //COMUNIDAD DISCORD DEL CANAL
 //            $canal->setcomunidadDiscord($data['canal']["comunidad_discord"]);
 
             // $canal->setUsuario($user);
@@ -97,8 +99,10 @@ class RegistroController extends AbstractController
             // Enviar correo de verificación
 //            $this->sendVerificationEmail($user);
 
-
+//            // Enviar el token de verificación por webhook (DISCORD)
             $this->sendVerificationToken($user);
+
+            // Enviar correo de verificación
             $this->sendVerificationEmail($request, $entityManager, $this->mailer);
 
 
