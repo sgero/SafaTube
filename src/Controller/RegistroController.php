@@ -29,7 +29,7 @@ class RegistroController extends AbstractController
         $this->mailer = $mailer;
     }
 
-    #[Route('', name: 'registrar_usuario', methods: ['POST'])]
+    #[Route('/registrar', name: 'registrar_usuario', methods: ['POST'])]
     public function register(
         Request                     $request,
         UserPasswordHasherInterface $passwordHasher,
@@ -45,13 +45,13 @@ class RegistroController extends AbstractController
             $user->setUsername($data['username']);
             $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
             $user->setEmail($data['email']);
-            $user->setWebhook($data['webhook']);
+//            $user->setWebhook($data['webhook']);
 
             // Generar el token de verificación y asociarlo al usuario
             $user->generateVerificationToken();
 
             //Setear el token de verificacion al usuario
-            //    $user->setVerificationToken($user->getVerificationToken());
+//            $user->setVerificationToken($user->getVerificationToken());
 
 //        // Guardar el usuario en la base de datos
 //        $entityManager->persist($user);
@@ -75,7 +75,7 @@ class RegistroController extends AbstractController
 //        $canal->setTipoContenido($data['tipo_contenido']);
 
             $canal->setBanner($data['canal']["banner"]);
-            $canal->setcomunidadDiscord($data['canal']["comunidad_discord"]);
+//            $canal->setcomunidadDiscord($data['canal']["comunidad_discord"]);
 
             // $canal->setUsuario($user);
 
@@ -83,18 +83,24 @@ class RegistroController extends AbstractController
 //        $entityManager->persist($canal);
 //        $entityManager->flush();
 
-            // Guardar el usuario con el token de verificación actualizado
+            // Guardar el usuario con el token de verificación actualizado en la BBDD
             $entityManager->persist($user);
-            $entityManager->flush();
+//            $entityManager->flush();
 
-            // Guardar el canal con el token de verificación actualizado
+            // Guardar el canal con el token de verificación actualizado en la BBDD
             $entityManager->persist($canal);
+
+            // Flusheo de cambios a la BBDD
             $entityManager->flush();
 
 
             // Enviar correo de verificación
-            $this->sendVerificationEmail($user);
+//            $this->sendVerificationEmail($user);
+
+
             $this->sendVerificationToken($user);
+            $this->sendVerificationEmail($request, $entityManager, $this->mailer);
+
 
             // Devolver una respuesta JSON exitosa
             return new JsonResponse(['message' => 'Usuario registrado con éxito'], 201);
@@ -116,19 +122,55 @@ class RegistroController extends AbstractController
         // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
         if (!$user) {
             return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
+        } else {
+
+            // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
+            if ($user->getIsVerified()) {
+                return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
+            } else {
+//                //verificar si el token de verificacion coincide con el token de verificacion del usuario
+//                if ($user->getVerificationToken() !== $token) {
+//                    return new JsonResponse(['error' => 'Token de verificación inválido'], 400);
+//                } else {
+//                    //verificar si el email del usuario coincide con el email del usuario
+//                    if ($user->getEmail() !== $user->getEmail()) {
+//                        return new JsonResponse(['error' => 'Email asociado incorrecto'], 400);
+//                    }
+//                    else {
+                // validar el usuario, token, email y canal de usuario
+
+                $user->setIsVerified(true);
+
+                // Validar el canal sociado al usuario
+                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+                $canal->setIsVerified(true);
+
+                // Actualizar el token de verificación del usuario
+//                $user->setVerificationToken(null);
+//                $user->setCuentaValidada(true);
+                // Actualizar el estado del canal asociado al usuario
+                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+
+                $entityManager->persist($user);
+                $entityManager->flush();
+                return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
+            }
+//            return new JsonResponse(['success' => 'Usuario verificado con éxito'], 200);
         }
-
-        // Actualizar el token de verificación del usuario
-        $user->setVerificationToken(null);
-        $user->setCuentaValidada(true);
-
-        // Guardar el usuario con el token de verificación actualizado
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        // Devolver una respuesta JSON exitosa
-        return new JsonResponse(['message' => 'Usuario verificado con éxito'], 200);
+//    }
+//    }
     }
+
+
+//
+//
+//        // Guardar el usuario con el token de verificación actualizado
+//        $entityManager->persist($user);
+//        $entityManager->flush();
+//
+//        // Devolver una respuesta JSON exitosa
+//        return new JsonResponse(['message' => 'Usuario verificado con éxito'], 200);
+//    }
 
     #[Route('/enviar', name: 'enviar_verificacion', methods: ['POST'])]
 //    private function sendVerificationEmail(Usuario $user): JsonResponse
@@ -148,12 +190,19 @@ class RegistroController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $emailDestino = $data['email'];
+        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $emailDestino]);
 
         $email = (new Email())
             ->from('safatuberisk24@gmail.com')
             ->to($emailDestino)
-            ->subject('Verificación de Correo Electrónico')
-            ->html('hola');
+            ->subject('Se ha registrado con éxito en SAFATUBE')
+            ->html(
+                $this->renderView(
+                    'emails/verification.html.twig',
+                    ['token' => $user->getVerificationToken()]
+                )
+            );
+//            ->html('Registro SafaTube');
         try {
             $mailer->send($email);
         } catch (\Exception $e) {
@@ -162,7 +211,7 @@ class RegistroController extends AbstractController
         }
 
 
-        // Devolver una respuesta exitosa si todo va bien
+        // Devolver una respuesta exitosa si va bien
         return new JsonResponse(['message' => 'Correo de verificación enviado con éxito'], 200);
     }
 
@@ -189,7 +238,8 @@ class RegistroController extends AbstractController
         $entityManager->flush();
 
         // Enviar correo de verificación
-        $this->sendVerificationEmail($user);
+//        $this->sendVerificationEmail($user['email'], $user['verification_token']);
+        $this->sendVerificationEmail($request, $entityManager, $this->mailer);
 
         // Devolver una respuesta JSON exitosa
         return new JsonResponse(['message' => 'Usuario registrado con éxito'], 201);
@@ -199,12 +249,15 @@ class RegistroController extends AbstractController
 //    {
 //        $this->verificationToken = $token;
 //    }
-    private function sendVerificationToken(Usuario $user)
+    public function sendVerificationToken(Usuario $user)
     {
         $token = $user->getVerificationToken();
         $wh = new Webhook($user->getWebhook());
 //        $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, haz clic en el siguiente enlace: https://safatuber.herokuapp.com/api/registro/verificar/' . $token)->send();
-        $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, haz clic en el siguiente enlace: https://safatuber.herokuapp.com/api/registro/verificar/' . $token)->send();
+       // $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, haz clic en el siguiente enlace: https://safatuber.herokuapp.com/api/registro/verificar/' . $token)->send();
+
+        //mensaje para verificar el token por webhook
+        $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, introduce el siguiente token de validación junto tu nombre de usuario y tu email. TOKEN: ' . $token)->send();
     }
 
 

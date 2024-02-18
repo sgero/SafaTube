@@ -23,6 +23,7 @@ class DiscordController extends AbstractController
 
 
 //TODO: falta en BBDD crear el campo Webhook con la URL de cada usuario
+
 //TODO: falta hacer el metodo para que cuando uno se registra te envie el mail de validacion con el token, y te redirija a la pantalla de validacion de la cuenta, en la que tendrás que meter el mail y el token
 
 //TODO: si coincide saldra un toaster con usuario verificado con exito y te redirigira a la pantalla de login.
