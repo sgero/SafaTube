@@ -117,53 +117,7 @@ class RegistroController extends AbstractController
         }
     }
 
-    #[Route('/verificar/{token}', name: 'verificar_usuario', methods: ['GET'])]
-    public function verifyUser(string $token, EntityManagerInterface $entityManager): JsonResponse
-    {
-        // Buscar el usuario con el token de verificación dado
-        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $token]);
 
-        // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
-        if (!$user) {
-            return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
-        } else {
-
-            // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
-            if ($user->getIsVerified()) {
-                return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
-            } else {
-//                //verificar si el token de verificacion coincide con el token de verificacion del usuario
-//                if ($user->getVerificationToken() !== $token) {
-//                    return new JsonResponse(['error' => 'Token de verificación inválido'], 400);
-//                } else {
-//                    //verificar si el email del usuario coincide con el email del usuario
-//                    if ($user->getEmail() !== $user->getEmail()) {
-//                        return new JsonResponse(['error' => 'Email asociado incorrecto'], 400);
-//                    }
-//                    else {
-                // validar el usuario, token, email y canal de usuario
-
-                $user->setIsVerified(true);
-
-                // Validar el canal sociado al usuario
-                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
-                $canal->setIsVerified(true);
-
-                // Actualizar el token de verificación del usuario
-//                $user->setVerificationToken(null);
-//                $user->setCuentaValidada(true);
-                // Actualizar el estado del canal asociado al usuario
-                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
-
-                $entityManager->persist($user);
-                $entityManager->flush();
-                return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
-            }
-//            return new JsonResponse(['success' => 'Usuario verificado con éxito'], 200);
-        }
-//    }
-//    }
-    }
 
 
 //
@@ -222,7 +176,8 @@ class RegistroController extends AbstractController
     #[Route('/reenviar', name: 'reenviar_verificacion', methods: ['POST'])]
     public function resendVerificationEmail(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $canal = new Canal();
+        $usuario = new Usuario();
+
         $data = json_decode($request->getContent(), true);
 
         // Buscar el usuario con el correo electrónico dado
@@ -237,8 +192,8 @@ class RegistroController extends AbstractController
         if ($user->getIsVerified()) {
             return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
         }
-//        // Guardar el canal con el token de verificación actualizado
-        $entityManager->persist($canal);
+//        // Guardar el usuario con el token de verificación actualizado
+        $entityManager->persist($usuario);
         $entityManager->flush();
 
         // Enviar correo de verificación
@@ -265,4 +220,52 @@ class RegistroController extends AbstractController
     }
 
 
+
+    #[Route('/verificar/{token}', name: 'verificar_usuario', methods: ['GET'])]
+    public function verifyUser(string $token, EntityManagerInterface $entityManager): JsonResponse
+    {
+        // Buscar el usuario con el token de verificación dado
+        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $token]);
+
+        // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
+        if (!$user) {
+            return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
+        } else {
+
+            // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
+            if ($user->getIsVerified()) {
+                return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
+            } else {
+//                //verificar si el token de verificacion coincide con el token de verificacion del usuario
+//                if ($user->getVerificationToken() !== $token) {
+//                    return new JsonResponse(['error' => 'Token de verificación inválido'], 400);
+//                } else {
+//                    //verificar si el email del usuario coincide con el email del usuario
+//                    if ($user->getEmail() !== $user->getEmail()) {
+//                        return new JsonResponse(['error' => 'Email asociado incorrecto'], 400);
+//                    }
+//                    else {
+                // validar el usuario, token, email y canal de usuario
+
+                $user->setIsVerified(true);
+
+                // Validar el canal sociado al usuario
+                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+                $canal->setIsVerified(true);
+
+                // Actualizar el token de verificación del usuario
+//                $user->setVerificationToken(null);
+//                $user->setCuentaValidada(true);
+                // Actualizar el estado del canal asociado al usuario
+                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+
+                $entityManager->persist($user);
+                $entityManager->flush();
+                return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
+            }
+//            return new JsonResponse(['success' => 'Usuario verificado con éxito'], 200);
+        }
+//    }
+//    }
+    }
 }
