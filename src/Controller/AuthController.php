@@ -93,6 +93,7 @@ class AuthController extends AbstractController
 //
 //        return $this->json(['message' => 'Bienvenido'], Response::HTTP_OK);
 //    }
+
 {
     #[Route('/login', name: "login", methods: ["POST"])]
     public function login(Request $request, UsuarioRepository $usuarioRepository, UserPasswordHasherInterface $passwordHasher):JsonResponse
@@ -103,6 +104,11 @@ class AuthController extends AbstractController
 
         if(!$usuario){
             return $this->json(['message' => 'Usuario no encontrado'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Verificar si el usuario está verificado
+        if (!$usuario->getIsVerified()) {
+            return $this->json(['message' => 'Usuario no verificado'], Response::HTTP_UNAUTHORIZED);
         }
 
         if(!$passwordHasher->isPasswordValid($usuario, $json["password"])){
