@@ -25,6 +25,17 @@ class CanalRepository extends ServiceEntityRepository
         parent::__construct($registry, Canal::class);
     }
 
+    public function getSubs(int $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select distinct u.username, c.nombre, c.foto from safatuber24.usuario u join safatuber24.canal c
+                on u.id = c.id_usuario join safatuber24.suscripcion s 
+                on c.id = s.id_canal_suscrito where s.id_usuario_suscriptor = :id';
+        $resultSet = $conn->executeQuery($sql, ['id' => $id]);
+
+        return $resultSet->fetchAllAssociative();
+    }
+
     public function canalMensaje(array $id): array
     {
         $sql = 'select distinct c.* from safatuber24.canal c where c.id_usuario in (:id) ';

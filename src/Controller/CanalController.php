@@ -29,6 +29,18 @@ class CanalController extends AbstractController
         return $this->json($list);
     }
 
+    #[Route('/listarsubs', name: "canal_subslist", methods: ["POST"])]
+    public function listarsubs(EntityManagerInterface $entityManager, CanalRepository $canalRepository, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
+        $usuario = $usuarios[0];
+        $canales = $canalRepository->getSubs($usuario->getId());
+
+
+        return $this->json($canales);
+    }
+
     #[Route('/get', name: "canal_usuario_log", methods: ["POST"])]
     public function get(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
