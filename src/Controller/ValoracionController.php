@@ -175,12 +175,21 @@ class ValoracionController extends AbstractController
     }
 
     #[Route('/cargarValoracionesVideo', name: "cargar_valoraciones_video", methods: ["POST"])]
-    public function get(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    public function cargarValoracionesVideo(EntityManagerInterface $entityManager, Request $request):JsonResponse
     {
         $data = json_decode($request-> getContent(), true);
         $video = $entityManager->getRepository(Video::class)->findById(['id' => $data["id"]]);
 
         return $this->json(['likes' => $video[0]->getContadorLikes(), 'dislikes' => $video[0]->getContadorDislikes()]);
+    }
+
+    #[Route('/cargarValoracionesComentario', name: "cargar_valoraciones_comentario", methods: ["POST"])]
+    public function cargarValoracionesComentario(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $comentario = $entityManager->getRepository(Comentario::class)->findById(['id' => $data["id"]]);
+
+        return $this->json(['likes' => $comentario[0]->getContadorLikes(), 'dislikes' => $comentario[0]->getContadorDislikes()]);
     }
 
 }
