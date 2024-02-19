@@ -261,7 +261,7 @@ class RegistroController extends AbstractController
        // $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, haz clic en el siguiente enlace: https://safatuber.herokuapp.com/api/registro/verificar/' . $token)->send();
 
         //mensaje para verificar el token por webhook
-        $wh->setMessage('Hola ' . $user->getUsername() . '¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, introduce el siguiente token de validación junto tu nombre de usuario y tu email. TOKEN: ' . $token)->send();
+        $wh->setMessage('Hola ' . $user->getUsername() . ' ¡Gracias por registrarte en SafaTube!. Para verificar tu cuenta, introduce el siguiente token de validación junto tu nombre de usuario y tu email. TOKEN: ' . $token)->send();
     }
 
 
