@@ -64,7 +64,7 @@ class VideoRepository extends ServiceEntityRepository
         $video = '%' . $titulo["titulo"] . '%';
         $sql = '
             SELECT v.* FROM safatuber24.video v 
-            WHERE v.titulo ILIKE :titulo         ';
+            WHERE v.titulo ILIKE :titulo   and v.id_tipo_privacidad = 1      ';
 
         $resultSet = $conn->executeQuery($sql, ['titulo' => $video]);
 
