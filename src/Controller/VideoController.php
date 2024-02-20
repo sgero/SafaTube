@@ -6,6 +6,7 @@ use App\DTO\FiltroDTO;
 use App\Entity\Canal;
 use App\Entity\Comentario;
 use App\Entity\Like;
+use App\Entity\Suscripcion;
 use App\Entity\TipoCategoria;
 use App\Entity\TipoNotificacion;
 use App\Entity\TipoPrivacidad;
@@ -41,7 +42,7 @@ class VideoController extends AbstractController
     }
 
     #[Route('/crear', name: 'crear_video', methods: ['POST'])]
-    public function crear(EntityManagerInterface $entityManager, Request $request,VideoRepository $videoRepository): JsonResponse
+    public function crear(NotificacionController $notificacionController,EntityManagerInterface $entityManager, Request $request,VideoRepository $videoRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -64,6 +65,11 @@ class VideoController extends AbstractController
 
         $entityManager->persist($videoNuevo);
         $entityManager->flush();
+        $usuariossubs = $entityManager->getRepository(Suscripcion::class)->findBy(["canal_suscrito" => $canal[0]]);
+        foreach ($usuariossubs as $u){
+            $lista = [$u->getIdUsuarioSuscriptor(),2,"Nuevo contenido"];
+            $notificacionController->crear($entityManager,$lista);
+        }
 
         return $this->json(['message' => 'Video creado correctamente'], Response::HTTP_CREATED);
     }
