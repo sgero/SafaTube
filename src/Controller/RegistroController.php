@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Canal;
 use App\Entity\TipoContenido;
 use App\Entity\Usuario;
+use App\Repository\UsuarioRepository;
 use DiscordWebhook\Webhook;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,11 +25,17 @@ class RegistroController extends AbstractController
 {
     private MailerInterface $mailer;
     private LoggerInterface $logger;
+    private $entityManager;
 
-    public function __construct(MailerInterface $mailer)
+    public function __construct(MailerInterface $mailer, EntityManagerInterface $entityManager )
     {
         $this->mailer = $mailer;
+        $this->entityManager = $entityManager;
     }
+
+
+
+
 
     #[Route('/registrar', name: 'registrar_usuario', methods: ['POST'])]
     public function register(
@@ -359,7 +367,43 @@ class RegistroController extends AbstractController
 ////    }
 //    }
 
-    #[Route('/verificarmail/{token}', name: 'verificar_usuario_email', methods: ['POST'])]
+//    #[Route('/verificarmail/{token}', name: 'verificar_usuario_email', methods: ['POST'])]
+//    public function verifyEmailUser(Request $request, EntityManagerInterface $entityManager): JsonResponse
+//    {
+//           $data = json_decode($request->getContent(), true);
+//
+//        // Buscar el usuario con el token de verificación dado
+////        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $token]);
+//        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $data['token']]);
+//
+//        // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
+//        if (!$user) {
+//            return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
+//        }
+//
+//        // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
+//        if ($user->getIsVerified()) {
+//            return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
+//        }
+//
+//        // Validar el usuario y marcarlo como verificado
+//        $user->setIsVerified(true);
+//
+//        // Obtener y validar el canal asociado al usuario
+//        $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+//        if ($canal) {
+//            $canal->setIsVerified(true);
+//        }
+//
+//        // Persistir los cambios en la base de datos
+//        $entityManager->flush();
+//
+//
+//
+//        return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
+//    }
+
+    #[Route('/verificarmail/{token}', name: 'verificar_usuario_email', methods: ['GET'])]
     public function verifyEmailUser(string $token, EntityManagerInterface $entityManager): JsonResponse
     {
         // Buscar el usuario con el token de verificación dado
@@ -370,24 +414,93 @@ class RegistroController extends AbstractController
             return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
         }
 
-        // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
-        if ($user->getIsVerified()) {
+        // Verificar si el usuario ya está verificado y si no, marcarlo como verificado
+        if (!$user->getIsVerified()) {
+            // Marcar al usuario como verificado
+            $user->setIsVerified(true);
+
+            // Obtener y validar el canal asociado al usuario
+            $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+            if ($canal) {
+                $canal->setIsVerified(true);
+            }
+
+            // Persistir los cambios en la base de datos
+            $entityManager->flush();
+
+            return new JsonResponse(['message' => 'Usuario verificado con éxito'], 200);
+        } else {
+            // Si el usuario ya está verificado, devolver una respuesta JSON con un error
             return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
         }
+    }
 
-        // Validar el usuario y marcarlo como verificado
-        $user->setIsVerified(true);
 
-        // Obtener y validar el canal asociado al usuario
-        $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
-        if ($canal) {
-            $canal->setIsVerified(true);
+
+    //RECUPERAR PWD
+    #[Route('/recuperarpwd', name: "recuperarpwd", methods: ["POST"])]
+    public function recuperarpwd(Request $request, entityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    {
+
+        $data = json_decode($request->getContent(), true);
+
+        // Buscar el usuario con el token de verificación dado
+
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $data['email']]);
+//        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['username' => $data['username']]);
+
+
+//Esto sería usando el UsuarioRepository
+//        // Buscar al usuario por nombre de usuario o correo electrónico
+//        $usuario = $usuarioRepository->findOneBy([
+//            'username' => $json['username'],
+//            // Agregar búsqueda por correo electrónico
+//            'email' => $json['email']
+//        ]);
+
+        if (!$usuario) {
+            return $this->json(['message' => 'Usuario no encontrado'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        // Persistir los cambios en la base de datos
-        $entityManager->flush();
+        // Verificar si el usuario está verificado
+        if (!$usuario->getIsVerified()) {
+            return $this->json(['message' => 'Usuario no verificado'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
 
-        return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
+        // Generar y enviar la nueva contraseña al usuario
+        $nuevaContrasena = $this->generarNuevaContrasena(); // Implementa la lógica para generar una nueva contraseña
+        $usuario->setPassword($passwordHasher->hashPassword($usuario, $nuevaContrasena)); // Asignar la nueva contraseña hasheada al usuario
+
+        // Guardar los cambios en la base de datos
+        $this->entityManager->flush();
+
+
+        // Aquí deberías enviar el correo electrónico al usuario con la nueva contraseña
+        // Enviar el correo electrónico con la nueva contraseña al usuario
+        $this->enviarCorreoPwd($usuario->getEmail(), $nuevaContrasena);
+
+
+        return $this->json(['message' => 'Se ha enviado una nueva contraseña al correo electrónico del usuario'], JsonResponse::HTTP_OK);
     }
+
+    private function enviarCorreoPwd(string $email, string $newPwd): void
+    {
+        $email = (new Email())
+            ->from('safatuberisk24@gmail.com')
+            ->to($email)
+            ->subject('Recuperación de Contraseña')
+            ->text("Tu nueva contraseña es: $newPwd");
+
+        $this->mailer->send($email);
+    }
+    private function generarNuevaContrasena(): string
+    {
+        // Implementa la lógica para generar una nueva contraseña
+        // Puedes usar funciones de PHP como random_bytes() o cualquier otro método que prefieras
+        // Por ejemplo, aquí generamos una contraseña aleatoria de 10 caracteres
+        return substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 10);
+    }
+
+
 
 }
