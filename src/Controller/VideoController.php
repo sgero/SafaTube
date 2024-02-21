@@ -65,11 +65,9 @@ class VideoController extends AbstractController
 
         $entityManager->persist($videoNuevo);
         $entityManager->flush();
-        $usuariossubs = $entityManager->getRepository(Suscripcion::class)->findBy(["canal_suscrito" => $canal[0]]);
-        foreach ($usuariossubs as $u){
-            $lista = [$u->getIdUsuarioSuscriptor(),2,"Nuevo contenido"];
-            $notificacionController->crear($entityManager,$lista);
-        }
+
+        $lista = [$canal[0]->getUsuario(),2,"Nuevo contenido"];
+        $notificacionController->crear($entityManager,$lista);
 
         return $this->json(['message' => 'Video creado correctamente'], Response::HTTP_CREATED);
     }

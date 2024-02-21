@@ -92,8 +92,10 @@ class NotificacionController extends AbstractController
         $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=>$usuario->getId()]);
         $canal = $canales[0];
         $notificacionAtender = $entityManager->getRepository(Notificacion::class)->findBy(["canal"=>$canal->getId(),"atendida" => false]);
-        if (!empty($notificacionAtender)){
-            $campana = true;
+        foreach ($notificacionAtender as $n){
+            if ($n->getTipoNotificacion()->getId() != 2) {
+                $campana = true;
+            }
         }
 
         return $this->json($campana);
@@ -108,8 +110,10 @@ class NotificacionController extends AbstractController
         $canal = $canales[0];
         $notificacionAtender = $entityManager->getRepository(Notificacion::class)->findBy(["canal"=>$canal->getId(),"atendida" => false]);
         foreach ($notificacionAtender as $n){
-            $n->setAtendida(true);
-            $entityManager->flush();
+            if ($n->getTipoNotificacion()->getId() != 2) {
+                $n->setAtendida(true);
+                $entityManager->flush();
+            }
         }
 
         return $this->json(['mensaje' => 'Notificacion atendida']);

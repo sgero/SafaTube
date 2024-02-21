@@ -64,6 +64,17 @@ class NotificacionRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function getNotiSuscripciones(int $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select n.id from safatuber24.notificacion n 
+                   where n.id_canal = :id and n.id_tipo_notificacion = 2 
+                     and n.atendida = false';
+        $resultSet = $conn->executeQuery($sql, ['id' => $id]);
+
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return Notificacion[] Returns an array of Notificacion objects
 //     */

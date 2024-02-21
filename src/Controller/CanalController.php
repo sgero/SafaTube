@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Canal;
+use App\Entity\Suscripcion;
 use App\Entity\TipoContenido;
 use App\Entity\Usuario;
 use App\Repository\CanalRepository;
 use App\Repository\MensajeRepository;
+use App\Repository\NotificacionRepository;
 use App\Repository\TipoCategoriaRepository;
 use App\Repository\TipoContenidoRepository;
 use App\Repository\UsuarioRepository;
@@ -30,15 +32,23 @@ class CanalController extends AbstractController
     }
 
     #[Route('/listarsubs', name: "canal_subslist", methods: ["POST"])]
-    public function listarsubs(EntityManagerInterface $entityManager, CanalRepository $canalRepository, Request $request):JsonResponse
+    public function listarsubs(NotificacionRepository $notificacionRepository,EntityManagerInterface $entityManager, CanalRepository $canalRepository, Request $request):JsonResponse
     {
         $data = json_decode($request-> getContent(), true);
         $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=>$data['username']]);
         $usuario = $usuarios[0];
         $canales = $canalRepository->getSubs($usuario->getId());
-
-
-        return $this->json($canales);
+        $lista = [];
+        foreach ($canales as $c){
+            $esfera = false;
+            $notis = $notificacionRepository->getNotiSuscripciones($c['id']);
+            if (count($notis)>0){
+                $esfera = true;
+            }
+            $elemento = ["canal"=>$c,"esfera"=>$esfera];
+            array_push($lista,$elemento);
+        }
+        return $this->json($lista);
     }
 
     #[Route('/get', name: "canal_usuario_log", methods: ["POST"])]
