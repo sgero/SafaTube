@@ -16,7 +16,10 @@
 <body>
 <p>Haz clic en el siguiente enlace para verificar tu cuenta en SAFATUBE:</p>
 
-<a href="{{ path('verificar_usuario_email', {'token': token}) }}">Accede y verificate.</a>
+{#<a href="{{ path('verificar_usuario_email', {'token': token}) }}">Accede y verificate.</a>#}
+
+<a href="http://localhost:4200/safaTube/verificarmail/{{ token }}">Accede y verifícate.</a>
+
 
 </body>
 </html>

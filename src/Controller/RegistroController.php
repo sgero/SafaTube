@@ -403,7 +403,7 @@ class RegistroController extends AbstractController
 //        return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
 //    }
 
-    #[Route('/verificarmail/{token}', name: 'verificar_usuario_email', methods: ['GET'])]
+    #[Route('/verificarmail/{token}', name: 'verificar_usuario_email', methods: ['POST'])]
     public function verifyEmailUser(string $token, EntityManagerInterface $entityManager): JsonResponse
     {
         // Buscar el usuario con el token de verificación dado
