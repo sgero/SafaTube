@@ -62,13 +62,10 @@ class VideoController extends AbstractController
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]["id"]]);
         $videoNuevo->setCanal($canal[0]);
 
-        $entityManager->persist($videoNuevo);
-        $entityManager->flush();
-
         return $this->json(['message' => 'Video creado correctamente'], Response::HTTP_CREATED);
     }
 
-    #[Route('/editar/{id}', name: "editar_video", methods: ["PUT"])]
+    #[Route('/editar/{id}', name: "editar_video", methods: ['PUT'])]
     public function editar(EntityManagerInterface $entityManager, Request $request, Video $video):JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -77,7 +74,6 @@ class VideoController extends AbstractController
         $video->setDescripcion($data['descripcion']);
         $video->setDuracion($data['duracion']);
         $video->setFecha(date('Y-m-d H:i:s'));
-        $video->setEnlace($data['enlace']);
         $video->setMiniatura($data['miniatura']);
 
         $tipoCategoria = $entityManager->getRepository(TipoCategoria::class)->findBy(["nombre"=> $data["tipoCategoria"]]);
@@ -94,11 +90,14 @@ class VideoController extends AbstractController
         return $this->json(['message' => 'Video modificado'], Response::HTTP_OK);
     }
 
-    #[Route('/eliminar/{id}', name: "borrar_video", methods: ["DELETE"])]
-    public function deleteById(EntityManagerInterface $entityManager, Video $video):JsonResponse
+    #[Route('/eliminar', name: "borrar_video", methods: ["POST"])]
+    public function eliminar (EntityManagerInterface $entityManager, Request $video):JsonResponse
     {
+        $data = json_decode($video->getContent(), true);
 
-        $entityManager->remove($video);
+        $videoBorrar = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id"]]);
+        $videoBorrar[0]->setActivo(false);
+        $entityManager->persist($videoBorrar[0]);
         $entityManager->flush();
 
         return $this->json(['message' => 'Video eliminado'], Response::HTTP_OK);
