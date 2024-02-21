@@ -1,11 +1,22 @@
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<body>#}
+{#<p>Haz clic en el siguiente enlace para verificar tu cuenta en SAFATUBE:</p>#}
+{#<p>Haz clic en el siguiente enlace para verificar tu correo electrónico:</p>#}
+{#<a href="{{ path('verificar_usuario', {'token': token}) }}">Accede y verificate.</a>#}
+
+{#<a href="http://localhost:4200/safaTube/verificar_cuenta_email/token={{ token }}">Accede y verificate.</a>#}
+
+{#</body>#}
+{#</html>#}
+
+
 <!DOCTYPE html>
 <html>
 <body>
 <p>Haz clic en el siguiente enlace para verificar tu cuenta en SAFATUBE:</p>
-{#<p>Haz clic en el siguiente enlace para verificar tu correo electrónico:</p>#}
-{#<a href="{{ path('verificar_usuario', {'token': token}) }}">Accede y verificate.</a>#}
 
-<a href="http://localhost:4200/safaTube/verificar_cuenta_email?token={{ token }}">Accede y verificate.</a>
+<a href="{{ path('verificar_usuario_email', {'token': token}) }}">Accede y verificate.</a>
 
 </body>
 </html>

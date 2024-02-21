@@ -273,8 +273,8 @@ class RegistroController extends AbstractController
     }
 
 
-    //este verifica usuario clicando en email y comparando el token de verificacion con el que está en BBDD y cambiando a true el Is verified.
-    #[Route('/verificar?{token}', name: 'verificar_usuario_email', methods: ['POST'])]
+
+//    #[Route('/verificar?{token}', name: 'verificar_usuario_email', methods: ['POST'])]
 //    public function verifyEmailUser(string $token, EntityManagerInterface $entityManager): JsonResponse
 //    {
 //        // Buscar el usuario con el token de verificación dado
@@ -305,53 +305,89 @@ class RegistroController extends AbstractController
 //            }
 //        }
 //    }
-    public function verifyEmailUser(Request $request, EntityManagerInterface $entityManager): JsonResponse
+
+
+    //este verifica usuario clicando en email y comparando el token de verificacion con el que está en BBDD y cambiando a true el Is verified.
+//    #[Route('/verificar?{token}', name: 'verificar_usuario_email', methods: ['POST'])]
+//    public function verifyEmailUser(Request $request, EntityManagerInterface $entityManager): JsonResponse
+//    {
+//
+//        $data = json_decode($request->getContent(), true);
+//
+//        // Buscar el usuario con el token de verificación dado
+//        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $data['token']]);
+//
+//        // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
+//        if (!$user) {
+//            return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
+//        } else {
+//
+//            // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
+//            if ($user->getIsVerified()) {
+//                return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
+//            } else {
+////                //verificar si el token de verificacion coincide con el token de verificacion del usuario
+////                if ($user->getVerificationToken() !== $token) {
+////                    return new JsonResponse(['error' => 'Token de verificación inválido'], 400);
+////                } else {
+////                    //verificar si el email del usuario coincide con el email del usuario
+////                    if ($user->getEmail() !== $user->getEmail()) {
+////                        return new JsonResponse(['error' => 'Email asociado incorrecto'], 400);
+////                    }
+////                    else {
+//                // validar el usuario, token, email y canal de usuario
+//
+//                $user->setIsVerified(true);
+//
+//                // Validar el canal sociado al usuario
+//                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+//                $canal->setIsVerified(true);
+//
+//                // Actualizar el token de verificación del usuario
+////                $user->setVerificationToken(null);
+////                $user->setCuentaValidada(true);
+//                // Actualizar el estado del canal asociado al usuario
+//                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+//
+//                $entityManager->persist($user);
+//                $entityManager->flush();
+//                return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
+//            }
+////            return new JsonResponse(['success' => 'Usuario verificado con éxito'], 200);
+//        }
+////    }
+////    }
+//    }
+
+    #[Route('/verificarmail/{token}', name: 'verificar_usuario_email', methods: ['POST'])]
+    public function verifyEmailUser(string $token, EntityManagerInterface $entityManager): JsonResponse
     {
-
-        $data = json_decode($request->getContent(), true);
-
         // Buscar el usuario con el token de verificación dado
-        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $data['token']]);
+        $user = $entityManager->getRepository(Usuario::class)->findOneBy(['verification_token' => $token]);
 
         // Verificar si el usuario existe y si no, devolver una respuesta JSON con un error
         if (!$user) {
             return new JsonResponse(['error' => 'Token de verificación inválido'], 404);
-        } else {
-
-            // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
-            if ($user->getIsVerified()) {
-                return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
-            } else {
-//                //verificar si el token de verificacion coincide con el token de verificacion del usuario
-//                if ($user->getVerificationToken() !== $token) {
-//                    return new JsonResponse(['error' => 'Token de verificación inválido'], 400);
-//                } else {
-//                    //verificar si el email del usuario coincide con el email del usuario
-//                    if ($user->getEmail() !== $user->getEmail()) {
-//                        return new JsonResponse(['error' => 'Email asociado incorrecto'], 400);
-//                    }
-//                    else {
-                // validar el usuario, token, email y canal de usuario
-
-                $user->setIsVerified(true);
-
-                // Validar el canal sociado al usuario
-                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
-                $canal->setIsVerified(true);
-
-                // Actualizar el token de verificación del usuario
-//                $user->setVerificationToken(null);
-//                $user->setCuentaValidada(true);
-                // Actualizar el estado del canal asociado al usuario
-                $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
-
-                $entityManager->persist($user);
-                $entityManager->flush();
-                return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
-            }
-//            return new JsonResponse(['success' => 'Usuario verificado con éxito'], 200);
         }
-//    }
-//    }
+
+        // Verificar si el usuario ya está verificado y si no, devolver una respuesta JSON con un error
+        if ($user->getIsVerified()) {
+            return new JsonResponse(['error' => 'Este usuario ya está verificado'], 400);
+        }
+
+        // Validar el usuario y marcarlo como verificado
+        $user->setIsVerified(true);
+
+        // Obtener y validar el canal asociado al usuario
+        $canal = $entityManager->getRepository(Canal::class)->findOneBy(['usuario' => $user]);
+        if ($canal) {
+            $canal->setIsVerified(true);
+        }
+
+        // Persistir los cambios en la base de datos
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Usuario verificado con éxito'], 201);
     }
+
 }
