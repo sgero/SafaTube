@@ -46,6 +46,8 @@ class Canal
     #[ORM\Column(name: 'is_verified', type: 'boolean', nullable: true, options: ['default' => false])]
     private ?bool $isVerified = false;
 
+
+
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false, name: 'id_usuario')]
     private ?Usuario $usuario = null;
@@ -55,6 +57,9 @@ class Canal
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, name: "id_tipo_contenido")]
     private ?TipoContenido $tipoContenido = null;
+
+    #[ORM\Column(name: 'comunidad_discord', length: 5000, nullable: true)]
+    private ?string $ComunidadDiscord = null;
 
 
 
@@ -112,12 +117,26 @@ class Canal
         return $this->fecha_nacimiento->format('d/m/Y');
     }
 
+//    public function setFechaNacimiento(string $fecha_nacimiento): static
+//    {
+//        $this->fecha_nacimiento = \DateTime::createFromFormat('Y-m-d',$fecha_nacimiento);
+//
+//        return $this;
+//    }
+
     public function setFechaNacimiento(string $fecha_nacimiento): static
     {
-        $this->fecha_nacimiento = \DateTime::createFromFormat('d/m/Y',$fecha_nacimiento);
+        $fecha_nacimiento_obj = \DateTime::createFromFormat('Y-m-d', $fecha_nacimiento);
+
+        if ($fecha_nacimiento_obj === false) {
+            throw new \InvalidArgumentException("La fecha de nacimiento '$fecha_nacimiento' no es válida.");
+        }
+
+        $this->fecha_nacimiento = $fecha_nacimiento_obj;
 
         return $this;
     }
+
 
     public function getTelefono(): ?string
     {
@@ -193,5 +212,18 @@ class Canal
 
         return $this;
     }
+
+    public function getComunidadDiscord(): ?string
+    {
+        return $this->ComunidadDiscord;
+    }
+
+    public function setComunidadDiscord(?string $ComunidadDiscord): static
+    {
+        $this->ComunidadDiscord = $ComunidadDiscord;
+
+        return $this;
+    }
+
 
 }

@@ -35,6 +35,9 @@ alter table usuario
 alter table usuario
     add column cuenta_validada boolean not null default false;
 
+alter table usuario
+    add column webhook varchar(5000);
+
 
 CREATE TABLE token
 (
@@ -79,6 +82,9 @@ alter table canal
     drop column activo;
 alter table canal
     add column activo boolean not null default false;
+
+alter table canal
+add column comunidad_discord varchar(5000);
 
 
 create table tipo_notificacion

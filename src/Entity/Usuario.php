@@ -39,6 +39,9 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'is_verified', type: 'boolean', nullable: true, options: ['default' => false])]
     private ?bool $isVerified = false;
 
+    #[ORM\Column(name: 'webhook', length: 5000, nullable: true)]
+    private ?string $Webhook = null;
+
 
 
 //    #[ORM\Column(length: 255, nullable: true)]
@@ -162,6 +165,18 @@ class Usuario implements UserInterface,PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getWebhook(): ?string
+    {
+        return $this->Webhook;
+    }
+
+    public function setWebhook(?string $Webhook): static
+    {
+        $this->Webhook = $Webhook;
 
         return $this;
     }
