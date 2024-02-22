@@ -21,6 +21,15 @@ class ListaReproduccionRepository extends ServiceEntityRepository
         parent::__construct($registry, ListaReproduccion::class);
     }
 
+    public function getListas(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select l.* from safatuber24.lista_reproduccion l join safatuber24.canal c on l.id_canal = c.id where c.id = :idCanal;';
+        $resultSet = $conn->executeQuery($sql, ['idCanal' => $idCanal]);
+        return $resultSet->fetchAllAssociative();
+    }
+
 //    /**
 //     * @return ListaReproduccion[] Returns an array of ListaReproduccion objects
 //     */

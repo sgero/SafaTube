@@ -47,7 +47,9 @@ class ListaReproduccionController extends AbstractController
         $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]["id"]]);
         $listaReproduccionNueva->setCanal($canal[0]);
 
-        $listaReproduccionNueva->addVideos(Video::class);
+//        $listaReproduccionNueva->addVideos(Video::class);
+        $entityManager->persist($listaReproduccionNueva);
+        $entityManager->flush();
 
         return $this->json(['message' => 'Lista creada correctamente'], Response::HTTP_CREATED);
     }
@@ -74,6 +76,14 @@ class ListaReproduccionController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'Lista eliminada'], Response::HTTP_OK);
+    }
+
+    #[Route('/getListas', name: 'listas_by_idCanal', methods: ['POST'])]
+    public function getByIdCanal(EntityManagerInterface $entityManager,Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listasReproduccion = $entityManager->getRepository(ListaReproduccion::class)->getListas(["id"=> $data]);
+        return $this->json($listasReproduccion);
     }
 
 }
