@@ -86,4 +86,19 @@ class ListaReproduccionController extends AbstractController
         return $this->json($listasReproduccion);
     }
 
+    #[Route('/agregarVideo', name: 'añadir_video', methods: ['POST'])]
+    public function getByIdVideo(EntityManagerInterface $entityManager,Request $request, ListaReproduccion $listaReproduccion): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $listaReproduccion->setNombre($data['nombre']);
+
+        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id"]]);
+        $listaReproduccion->addVideos($video[0]);
+
+        $entityManager->persist($listaReproduccion);
+        $entityManager->flush();
+
+        return $this->json($listaReproduccion);
+    }
+
 }
