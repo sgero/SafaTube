@@ -25,7 +25,7 @@ class VideoRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
         $idVideo = $id["id"];
-        $sql = 'select v.*, c.foto as foto_canal from safatuber24.video v join safatuber24.canal c2 on c2.id = v.id_canal where v.id = :id;';
+        $sql = 'select v.*, c.foto as foto_canal from safatuber24.video v join safatuber24.canal c2 on c2.id = v.id_canal where v.id = :id and v.activo = true;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idVideo]);
         return $resultSet->fetchAllAssociative();
     }
@@ -36,7 +36,7 @@ class VideoRepository extends ServiceEntityRepository
         $idCanal = $id["id"];
         $sql = '
             SELECT v.* FROM safatuber24.video v join safatuber24.canal c on v.id_canal = c.id 
-            WHERE c.id = :id            ';
+            WHERE c.id = :id and v.activo = true           ';
 
         $resultSet = $conn->executeQuery($sql, ['id' => $idCanal]);
 
@@ -50,7 +50,7 @@ class VideoRepository extends ServiceEntityRepository
         $tipoCategoria = $nombre["nombre"];
         $sql = '
             SELECT v.* FROM safatuber24.video v join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
-            WHERE tc.nombre ILIKE :nombre            ';
+            WHERE tc.nombre ILIKE :nombre  and v.activo = true          ';
 
         $resultSet = $conn->executeQuery($sql, ["nombre" => $tipoCategoria]);
 
@@ -64,7 +64,7 @@ class VideoRepository extends ServiceEntityRepository
         $video = '%' . $titulo["titulo"] . '%';
         $sql = '
             SELECT v.* FROM safatuber24.video v 
-            WHERE v.titulo ILIKE :titulo   and v.id_tipo_privacidad = 1      ';
+            WHERE v.titulo ILIKE :titulo   and v.id_tipo_privacidad = 1  and v.activo = true    ';
 
         $resultSet = $conn->executeQuery($sql, ['titulo' => $video]);
 
@@ -80,7 +80,7 @@ class VideoRepository extends ServiceEntityRepository
         $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.video v
         join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id
         join safatuber24.canal c on c.id = v.id_canal
-        where tc.id = :idTipoCategoria and v.id != :idVideo order by v.fecha desc limit 10;';
+        where tc.id = :idTipoCategoria and v.id != :idVideo and v.activo = true order by v.fecha desc limit 10;';
         $resultSet = $conn->executeQuery($sql, ['idTipoCategoria' => $idTipoCategoria, 'idVideo' => $idVideo] );
         return $resultSet->fetchAllAssociative();
     }
@@ -92,7 +92,7 @@ class VideoRepository extends ServiceEntityRepository
         $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.video v
                 join safatuber24.canal c on v.id_canal = c.id
                 join safatuber24.tipo_privacidad tp on v.id_tipo_privacidad = tp.id
-                where tp.id = 1
+                where tp.id = 1 and v.activo = true
                 order by v.total_visitas desc, v.fecha desc;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idUsuario]);
         return $resultSet->fetchAllAssociative();
@@ -120,7 +120,7 @@ class VideoRepository extends ServiceEntityRepository
                 join safatuber24.canal c on s.id_canal_suscrito = c.id
                 join safatuber24.video v on c.id = v.id_canal
                 join safatuber24.tipo_privacidad tp on v.id_tipo_privacidad = tp.id
-                where s.id_usuario_suscriptor = :id and tp.id = 1
+                where s.id_usuario_suscriptor = :id and tp.id = 1 and v.activo = true
                 order by v.fecha desc;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idUsuarioSuscriptor]);
         return $resultSet->fetchAllAssociative();
@@ -172,6 +172,9 @@ class VideoRepository extends ServiceEntityRepository
         $resultSet = $conn->executeQuery($sql, ['idVideo' => $idVideo]);
         return $resultSet->fetchAllAssociative();
     }
+
+
+
 
 
 //    /**
