@@ -191,5 +191,18 @@ class ValoracionController extends AbstractController
 
         return $this->json(['likes' => $comentario[0]->getContadorLikes(), 'dislikes' => $comentario[0]->getContadorDislikes()]);
     }
+    #[Route('/estadisticasValoracionesVideo', name: "estadisticas_valoraciones_video", methods: ["POST"])]
+    public function estadisticasValoracionesVideo(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $likes = $entityManager->getRepository(Like::class)->estadisticasValoracionesVideoLikes(['id' => $data["id"]]);
+        $dislikes = $entityManager->getRepository(Dislike::class)->estadisticasValoracionesVideoDislikes(['id' => $data["id"]]);
+        $videoMejorValorado = $entityManager->getRepository(Video::class)->videoMejorValorado(['id' => $data["id"]]);
+        $categoriasMasVistas = $entityManager->getRepository(Video::class)->categoriasMasVistas(['id' => $data["id"]]);
+
+
+        return $this->json(['likes' => $likes[0], 'dislikes' => $dislikes[0],
+            'video' => $videoMejorValorado[0], 'categoriasVisitadas' => $categoriasMasVistas]);
+    }
 
 }

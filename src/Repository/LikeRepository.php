@@ -21,6 +21,19 @@ class LikeRepository extends ServiceEntityRepository
         parent::__construct($registry, Like::class);
     }
 
+    public function estadisticasValoracionesVideoLikes(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select count(l.id) from safatuber24.likes l
+                join safatuber24.video v on l.id_video = v.id
+                join safatuber24.canal c on v.id_canal = c.id
+                where c.id = :id;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+
 //    /**
 //     * @return Like[] Returns an array of Like objects
 //     */
