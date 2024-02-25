@@ -38,6 +38,10 @@ alter table usuario
 alter table usuario
     add column webhook varchar(5000);
 
+ALTER TABLE usuario
+    ALTER COLUMN webhook SET DEFAULT '*****';
+
+
 
 CREATE TABLE token
 (
