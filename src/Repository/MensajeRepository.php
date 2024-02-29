@@ -48,6 +48,35 @@ class MensajeRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function enviados(array $datos): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $datos["id"]["idCanal"];
+        $fechaInicio = substr($datos["id"]["fecha"][0], 0, 10);
+        $fechaFin = substr($datos["id"]["fecha"][5], 0, 10);
+        $sql = 'select m.* from safatuber24.mensaje m
+                join safatuber24.usuario u on m.id_usuario_emisor = u.id
+                join safatuber24.canal c on u.id = c.id_usuario
+                where c.id = :idCanal and (m.fecha >= :fin and m.fecha <= :inicio);';
+        $resultSet = $conn->executeQuery($sql, ['idCanal' => $idCanal, 'inicio' => $fechaInicio, 'fin' => $fechaFin]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function recibidos(array $datos): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $datos["id"]["idCanal"];
+        $fechaInicio = substr($datos["id"]["fecha"][0], 0, 10);
+        $fechaFin = substr($datos["id"]["fecha"][5], 0, 10);
+        $sql = 'select m.* from safatuber24.mensaje m
+                join safatuber24.usuario u on m.id_usuario_receptor = u.id
+                join safatuber24.canal c on u.id = c.id_usuario
+                where c.id = :idCanal and (m.fecha >= :fin and m.fecha <= :inicio);';
+        $resultSet = $conn->executeQuery($sql, ['idCanal' => $idCanal, 'inicio' => $fechaInicio, 'fin' => $fechaFin]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+
 //    /**
 //     * @return Mensaje[] Returns an array of Mensaje objects
 //     */

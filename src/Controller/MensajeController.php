@@ -147,4 +147,14 @@ class MensajeController extends AbstractController
 
     }
 
+    #[Route('/estadisticas', name: "estadisticas", methods: ["POST"])]
+    public function estadisticas(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $mensajesEnviados = $entityManager->getRepository(Mensaje::class)->enviados(['id' => $data]);
+        $mensajesRecibidos = $entityManager->getRepository(Mensaje::class)->recibidos(['id' => $data]);
+
+        return $this->json(['enviados' => $mensajesEnviados, 'recibidos' => $mensajesRecibidos]);
+    }
+
 }
