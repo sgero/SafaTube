@@ -30,6 +30,17 @@ class ListaReproduccionRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function anyadirVideo(array $datos): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idLista = $datos["id"]["lista"]["id"];
+        $idVideo = $datos["id"]["video"]["id"];
+        $sql = 'insert into safatuber24.video_lista_reproduccion (id_lista_reproduccion, id_video) values (:id_lista_reproduccion, :id_video);';
+        $resultSet = $conn->executeQuery($sql, ['id_lista_reproduccion' => $idLista, 'id_video' => $idVideo]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+
 //    /**
 //     * @return ListaReproduccion[] Returns an array of ListaReproduccion objects
 //     */

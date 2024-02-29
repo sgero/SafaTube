@@ -87,18 +87,21 @@ class ListaReproduccionController extends AbstractController
     }
 
     #[Route('/agregarVideo', name: 'añadir_video', methods: ['POST'])]
-    public function getByIdVideo(EntityManagerInterface $entityManager,Request $request, ListaReproduccion $listaReproduccion): JsonResponse
+    public function anyadirVideo(EntityManagerInterface $entityManager,Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $listaReproduccion->setNombre($data['nombre']);
+//        $listaReproduccion = $entityManager->getRepository(ListaReproduccion::class)->findBy(["id"=> $data["lista"]["id"]]);
+//
+////        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["lista"]["id_canal"]]);
+////        $listaReproduccion->setCanal($canal);
+//
+//        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]["id"]]);
+        $agregarVideo = $entityManager->getRepository(ListaReproduccion::class)->anyadirVideo(["id"=>$data]);
+//        $listaReproduccion->addVideos([$video]);
 
-        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["id"]]);
-        $listaReproduccion->addVideos($video[0]);
 
-        $entityManager->persist($listaReproduccion);
-        $entityManager->flush();
 
-        return $this->json($listaReproduccion);
+        return $this->json('ok', Response::HTTP_OK);
     }
 
 }
