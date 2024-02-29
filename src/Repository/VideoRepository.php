@@ -173,6 +173,33 @@ class VideoRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function videoMejorValorado(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select distinct v.* from safatuber24.video v
+                join safatuber24.canal c on v.id_canal = c.id
+                join safatuber24.likes l on v.id = l.id_video
+                where c.id = :id order by v.contador_likes desc limit 1;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function categoriasMasVistas(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select count(v.id), tc.nombre from safatuber24.visualizacion_video_usuario vvu
+                join safatuber24.usuario u on vvu.id_usuario = u.id
+                join safatuber24.canal c on u.id = c.id_usuario
+                join safatuber24.video v on vvu.id_video = v.id
+                join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id
+                where c.id = :id group by tc.nombre;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+
 
 
 
