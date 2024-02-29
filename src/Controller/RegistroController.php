@@ -506,13 +506,13 @@ class RegistroController extends AbstractController
     }
 
     //metodo para coger el webhook de usuario y enviarlo al front
-    #[Route('/getwebhook', name: 'get_webhook', methods: ['GET'])]
+    #[Route('/getwebhook', name: 'get_webhook', methods: ['POST'])]
     public function getWebhook(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = $request->getContent();
 
         // Buscar el usuario con el token de verificación dado
-        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['email' => $data['email']]);
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['username' => $data]);
 
         if (!$usuario) {
             return new JsonResponse(['message' => 'Usuario no encontrado'], JsonResponse::HTTP_NOT_FOUND);
