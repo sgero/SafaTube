@@ -49,7 +49,7 @@ class VideoRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $tipoCategoria = $nombre["nombre"];
         $sql = '
-            SELECT v.* FROM safatuber24.video v join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
+            SELECT v.*, c.nombre as nombre_canal, c.foto as foto_canal FROM safatuber24.video v join safatuber24.canal c on c.id = v.id_canal join safatuber24.tipo_categoria tc on v.id_tipo_categoria = tc.id 
             WHERE tc.nombre ILIKE :nombre  and v.activo = true          ';
 
         $resultSet = $conn->executeQuery($sql, ["nombre" => $tipoCategoria]);
@@ -63,7 +63,7 @@ class VideoRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $video = '%' . $titulo["titulo"] . '%';
         $sql = '
-            SELECT v.*, c.nombre, c.foto FROM safatuber24.video v join safatuber24.canal c on c.id = v.id_canal
+            SELECT v.*, c.nombre as nombre_canal, c.foto as foto_canal FROM safatuber24.video v join safatuber24.canal c on c.id = v.id_canal
             WHERE v.titulo ILIKE :titulo   and v.id_tipo_privacidad = 1  and v.activo = true    ';
 
         $resultSet = $conn->executeQuery($sql, ['titulo' => $video]);
