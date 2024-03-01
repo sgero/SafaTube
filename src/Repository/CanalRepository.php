@@ -76,6 +76,20 @@ class CanalRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+//    public function canalContieneVideo(array $titulo): array
+//    {
+//        $conn = $this->getEntityManager()->getConnection();
+//        $video = '%' . $titulo["titulo"] . '%';
+//        $sql = '
+//            SELECT c.nombre, c.foto FROM safatuber24.canal c join safatuber24.video v on c.id = v.id_canal
+//            WHERE v.titulo ILIKE :titulo         ';
+//
+//        $resultSet = $conn->executeQuery($sql, ['titulo' => $video]);
+//
+//        // returns an array of arrays (i.e. a raw data set)
+//        return $resultSet->fetchAllAssociative();
+//    }
+
     public function getByUsuarioLogueado(int $usuario): array
     {
         $conn = $this->getEntityManager()->getConnection();

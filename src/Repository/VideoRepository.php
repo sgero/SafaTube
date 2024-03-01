@@ -63,7 +63,7 @@ class VideoRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $video = '%' . $titulo["titulo"] . '%';
         $sql = '
-            SELECT v.* FROM safatuber24.video v 
+            SELECT v.*, c.nombre, c.foto FROM safatuber24.video v join safatuber24.canal c on c.id = v.id_canal
             WHERE v.titulo ILIKE :titulo   and v.id_tipo_privacidad = 1  and v.activo = true    ';
 
         $resultSet = $conn->executeQuery($sql, ['titulo' => $video]);
