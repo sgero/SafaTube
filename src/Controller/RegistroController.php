@@ -476,11 +476,18 @@ class RegistroController extends AbstractController
         // Decodificar los datos de la solicitud JSON
         $requestData = json_decode($request->getContent(), true);
 
+//        //como le estamos mandando desde front un string (newPassword, no usamos el json decode)
+//        $requestData = $request->getContent();
+
         // Obtener el nuevo password del cuerpo de la solicitud
         $newPassword = $requestData['newPassword'];
+        $usuario = $requestData['username'];
+
 
         // Obtener el usuario actual
-        $usuario = $tokenStorage->getToken()->getUser();
+//        $usuario = $tokenStorage->getToken()->getUser();
+//        $usuario = $tokenStorage->getToken()->getUser();
+        $usuario = $entityManager->getRepository(Usuario::class)->findOneBy(['username' => $usuario]);
 
         // Verificar si el usuario actual está autenticado
         if (!$usuario) {
