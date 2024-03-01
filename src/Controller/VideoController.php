@@ -135,6 +135,8 @@ class VideoController extends AbstractController
         $data = $request->getContent();
         $listaVideos = $entityManager->getRepository(Video::class)->findVideos(["titulo"=> $data]);
         $listaCanales = $entityManager->getRepository(Canal::class)->findCanales(["nombre"=> $data]);
+//        $canal = $entityManager->getRepository(Canal::class)->canalContieneVideo($data);
+
         $filtro = new FiltroDTO();
         $filtro->setVideos(new ArrayCollection($listaVideos));
         $filtro->setCanales(new ArrayCollection($listaCanales));

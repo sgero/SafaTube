@@ -97,7 +97,6 @@ class ListaReproduccionController extends AbstractController
 //
 //        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]["id"]]);
         $agregarVideo = $entityManager->getRepository(ListaReproduccion::class)->anyadirVideo(["id"=>$data]);
-//        $listaReproduccion->addVideos([$video]);
 
 
 
