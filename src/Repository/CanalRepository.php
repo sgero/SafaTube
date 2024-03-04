@@ -105,7 +105,7 @@ class CanalRepository extends ServiceEntityRepository
         $idCanal = $id["id"];
         $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.canal c
                 join safatuber24.video v on c.id = v.id_canal
-                where c.id = :id and v.activo = true order by v.fecha desc;';
+                where c.id = :id and v.activo = true and v.id_tipo_privacidad = 1 order by v.fecha desc;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
         return $resultSet->fetchAllAssociative();
     }
@@ -115,7 +115,17 @@ class CanalRepository extends ServiceEntityRepository
         $idCanal = $id["id"];
         $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.canal c
                 join safatuber24.video v on c.id = v.id_canal
-                where c.id = :id and v.activo = true order by v.total_visitas desc;';
+                where c.id = :id and v.activo = true and v.id_tipo_privacidad = 1 order by v.total_visitas desc;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
+        return $resultSet->fetchAllAssociative();
+    }
+    public function getVideosSoloSubs(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idCanal = $id["id"];
+        $sql = 'select v.*, c.nombre as nombre_canal, c.foto as foto_canal from safatuber24.canal c
+                join safatuber24.video v on c.id = v.id_canal
+                where c.id = :id and v.activo = true and v.id_tipo_privacidad = 3 order by v.fecha desc;';
         $resultSet = $conn->executeQuery($sql, ['id' => $idCanal] );
         return $resultSet->fetchAllAssociative();
     }

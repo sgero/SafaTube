@@ -106,6 +106,14 @@ class CanalController extends AbstractController
 
         return $this->json($videos);
     }
+    #[Route('/getVideosSoloSubs', name: "get_videos_solo_subs", methods: ["POST"])]
+    public function getVideosSoloSubs(EntityManagerInterface $entityManager, Request $request):JsonResponse
+    {
+        $data = json_decode($request-> getContent(), true);
+        $videos = $entityManager->getRepository(Canal::class)->getVideosSoloSubs($data);
+
+        return $this->json($videos);
+    }
 
     #[Route('/getInfoCanal', name: "get_info_canal", methods: ["POST"])]
     public function getInfoCanal(EntityManagerInterface $entityManager, Request $request):JsonResponse
