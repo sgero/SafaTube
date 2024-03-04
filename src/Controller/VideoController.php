@@ -232,4 +232,42 @@ class VideoController extends AbstractController
 
 
 
+
+    #[Route('/privacidad', name: 'configuracion_privacidad', methods: ['POST'])]
+//    public function configuracionPrivacidad(EntityManagerInterface $entityManager, Request $request): JsonResponse
+//    {
+//        $data = json_decode($request->getContent(), true);
+//
+//        $video = $entityManager->getRepository(Video::class)->findBy(["id"=> $data["video"]]);
+//        $video[0]->setTipoPrivacidad($data["tipoPrivacidad"]);
+//
+//        $entityManager->persist($video[0]);
+//        $entityManager->flush();
+//
+//        return $this->json(['message' => 'Privacidad cambiada'], Response::HTTP_OK);
+//    }
+
+    public function sendConfPrivacy( request $request, EntityManagerInterface $entityManager){
+
+        $data = json_decode($request->getContent(), true);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["username"]]);
+        $usuario = $usuarios[0];
+        $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=> $usuario]);
+        $canal = $canales[0];
+
+        if ($data["accessToPrivateVideos"] == "true"){
+            $tipos = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> 2]);
+            $videos = $entityManager->getRepository(Video::class)->findBy(["canal"=> $canal, "tipoPrivacidad"=> $tipos[0]]);
+            $tipo = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> 3]);
+        }else{
+            $tipos = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> 3]);
+            $videos = $entityManager->getRepository(Video::class)->findBy(["canal"=> $canal, "tipoPrivacidad"=> $tipos[0]]);
+            $tipo = $entityManager->getRepository(TipoPrivacidad::class)->findBy(["id"=> 2]);
+        }
+        foreach ($videos as $video){
+
+           $video->setTipoPrivacidad($tipo[0]);
+        }
+        return $this->json(['message' => 'Privacidad cambiada'], Response::HTTP_OK);
+    }
 }
