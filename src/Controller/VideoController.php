@@ -233,7 +233,7 @@ class VideoController extends AbstractController
 
 
 
-    #[Route('/privacidad', name: 'configuracion_privacidad', methods: ['POST'])]
+
 //    public function configuracionPrivacidad(EntityManagerInterface $entityManager, Request $request): JsonResponse
 //    {
 //        $data = json_decode($request->getContent(), true);
@@ -246,7 +246,7 @@ class VideoController extends AbstractController
 //
 //        return $this->json(['message' => 'Privacidad cambiada'], Response::HTTP_OK);
 //    }
-
+    #[Route('/confprivacy', name: 'configuracion_privacidad', methods: ['POST'])]
     public function sendConfPrivacy( request $request, EntityManagerInterface $entityManager){
 
         $data = json_decode($request->getContent(), true);
