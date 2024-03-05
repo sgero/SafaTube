@@ -54,22 +54,19 @@ class ListaReproduccionController extends AbstractController
         return $this->json(['message' => 'Lista creada correctamente'], Response::HTTP_CREATED);
     }
 
-    #[Route('/editar', name: 'editar_lista', methods: ['PUT'])]
+    #[Route('/editar/{id}', name: 'editar_lista', methods: ['PUT'])]
     public function editar(EntityManagerInterface $entityManager, Request $request,ListaReproduccion $listaReproduccion): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
         $listaReproduccion->setNombre($data['nombre']);
 
-        $canal = $entityManager->getRepository(Canal::class)->findBy(["id"=> $data["canal"]["id"]]);
-        $listaReproduccion->setCanal($canal[0]);
-
         $entityManager->flush();
 
         return $this->json(['message' => 'Lista modificada'], Response::HTTP_CREATED);
     }
 
-    #[Route('/eliminar', name: "borrar_lista", methods: ["DELETE"])]
+    #[Route('/eliminar/{id}', name: "borrar_lista", methods: ["DELETE"])]
     public function deleteById(EntityManagerInterface $entityManager, ListaReproduccion $listaReproduccion):JsonResponse
     {
         $entityManager->remove($listaReproduccion);
@@ -84,6 +81,14 @@ class ListaReproduccionController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $listasReproduccion = $entityManager->getRepository(ListaReproduccion::class)->getListas(["id"=> $data]);
         return $this->json($listasReproduccion);
+    }
+
+    #[Route('/getVideosListas', name: 'get_videos_listas', methods: ['POST'])]
+    public function getVideosListas(EntityManagerInterface $entityManager,Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $videos = $entityManager->getRepository(Video::class)->getVideosListas(["id"=> $data]);
+        return $this->json(['video' =>$videos]);
     }
 
     #[Route('/agregarVideo', name: 'añadir_video', methods: ['POST'])]

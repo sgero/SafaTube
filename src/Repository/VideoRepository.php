@@ -97,6 +97,15 @@ class VideoRepository extends ServiceEntityRepository
         $resultSet = $conn->executeQuery($sql, ['id' => $idUsuario]);
         return $resultSet->fetchAllAssociative();
     }
+    public function getVideosListas(array $id): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $idUsuario = $id["id"];
+        $sql = 'select v.* from safatuber24.video v join safatuber24.video_lista_reproduccion vlr on v.id = vlr.id_video
+           where vlr.id_lista_reproduccion = :id;';
+        $resultSet = $conn->executeQuery($sql, ['id' => $idUsuario]);
+        return $resultSet->fetchAllAssociative();
+    }
     public function getHistorial(array $id): array
     {
         $conn = $this->getEntityManager()->getConnection();
