@@ -267,6 +267,8 @@ class VideoController extends AbstractController
         foreach ($videos as $video){
 
            $video->setTipoPrivacidad($tipo[0]);
+//              $entityManager->persist($video);
+                $entityManager->flush();
         }
         return $this->json(['message' => 'Privacidad cambiada'], Response::HTTP_OK);
     }
