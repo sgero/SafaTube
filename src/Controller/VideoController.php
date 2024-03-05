@@ -250,7 +250,7 @@ class VideoController extends AbstractController
     public function sendConfPrivacy( request $request, EntityManagerInterface $entityManager){
 
         $data = json_decode($request->getContent(), true);
-        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["id"=> $data["username"]]);
+        $usuarios = $entityManager->getRepository(Usuario::class)->findBy(["username"=> $data["username"]]);
         $usuario = $usuarios[0];
         $canales = $entityManager->getRepository(Canal::class)->findBy(["usuario"=> $usuario]);
         $canal = $canales[0];
