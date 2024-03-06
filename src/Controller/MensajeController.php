@@ -56,7 +56,7 @@ class MensajeController extends AbstractController
         $canales = $canalRepository->canalMensaje($mensajes);
         $lista = [];
         foreach ($mensajes as $m){
-            $sinleer = $entityManager->getRepository(Mensaje::class)->findBy(["usuario_emisor"=>$m,"leido"=>false]);
+            $sinleer = $entityManager->getRepository(Mensaje::class)->findBy(["usuario_emisor"=>$m,"usuario_receptor"=>$usuario,"leido"=>false]);
             foreach ($canales as $c){
                 if ($c->getUsuario()->getId() == $m['id']){
                     $elemento = ["canal"=>$c,"numero"=>count($sinleer)];
